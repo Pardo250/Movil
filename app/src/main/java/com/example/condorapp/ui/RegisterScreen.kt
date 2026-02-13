@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 
+// Colores de la app
 object CondorColors {
     val DarkGreen = Color(0xFF2C4A3E)
     val Green = Color(0xFF4F7942)
@@ -51,19 +52,11 @@ fun LoginScreen() {
             Image(
                 painter = painterResource(R.drawable.logo_app),
                 contentDescription = "Logo Condorapp",
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier.size(150.dp)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            // Título
-            Text(
-                text = "condorapp",
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold,
-                color = CondorColors.DarkGreen
-            )
-
+            
             Spacer(modifier = Modifier.height(8.dp))
 
             // Subtítulo
