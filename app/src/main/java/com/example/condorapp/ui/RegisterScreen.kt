@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
+
 
 object CondorColors {
     val DarkGreen = Color(0xFF2C4A3E)
@@ -32,12 +34,205 @@ object CondorColors {
 }
 
 @Composable
-fun LoginScreen() {
+fun LoginBackground(content: @Composable () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CondorColors.LightBackground)
+            .background(colorResource(id = R.color.Olivafeed))
     ) {
+        content()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginBackgroundPreview() {
+    LoginBackground {}
+}
+
+@Composable
+fun LoginHeader() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+        Image(
+            painter = painterResource(R.drawable.logo2),
+            contentDescription = "Logo Condorapp",
+            modifier = Modifier.size(150.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Descubre la magia de los\nAndes y más allá",
+            fontSize = 16.sp,
+            color = CondorColors.Gray,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginHeaderPreview() {
+    LoginHeader()
+}
+
+@Composable
+fun EmailField(email: String, onEmailChange: (String) -> Unit) {
+
+    Column {
+        Text(
+            text = "Email",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = CondorColors.DarkGreen
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = onEmailChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text("name@example.com")
+            },
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmailFieldPreview() {
+    EmailField("", {})
+}
+
+@Composable
+fun PasswordField(password: String, onPasswordChange: (String) -> Unit) {
+
+    Column {
+        Text(
+            text = "Password",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = CondorColors.DarkGreen
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = onPasswordChange,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Value") },
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PasswordFieldPreview() {
+    PasswordField("", {})
+}
+
+@Composable
+fun PrimaryButton(
+    text: String,
+    color: Color,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = color),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Text(
+            text = text,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PrimaryButtonPreview() {
+    PrimaryButton("Sign In", CondorColors.DarkGreen) {}
+}
+
+@Composable
+fun DividerSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Divider(modifier = Modifier.weight(1f))
+        Text("o", modifier = Modifier.padding(horizontal = 16.dp))
+        Divider(modifier = Modifier.weight(1f))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DividerSectionPreview() {
+    DividerSection()
+}
+
+@Composable
+fun LoginForm() {
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    Column {
+
+        EmailField(email) { email = it }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        PasswordField(password) { password = it }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Forgot password?",
+            modifier = Modifier.align(Alignment.End)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        PrimaryButton("Sign In", CondorColors.DarkGreen) {}
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        DividerSection()
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        PrimaryButton("Continua con Google", CondorColors.Green) {}
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PrimaryButton("Registrarse", CondorColors.Brown) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginFormPreview() {
+    LoginForm()
+}
+
+@Composable
+fun LoginScreen() {
+    LoginBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -45,195 +240,14 @@ fun LoginScreen() {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Spacer(modifier = Modifier.height(60.dp))
 
-            // Logo
-            Image(
-                painter = painterResource(R.drawable.logo_app),
-                contentDescription = "Logo Condorapp",
-                modifier = Modifier.size(150.dp)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Descubre la magia de los\nAndes y más allá",
-                fontSize = 16.sp,
-                color = CondorColors.Gray,
-                textAlign = TextAlign.Center
-            )
+            LoginHeader()
 
             Spacer(modifier = Modifier.height(48.dp))
 
             LoginForm()
-
-            Spacer(modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-fun LoginForm() {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-
-        Text(
-            text = "Email",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = CondorColors.DarkGreen,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text(
-                    "name@example.com",
-                    color = CondorColors.Gray.copy(alpha = 0.6f)
-                )
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = CondorColors.Green,
-                focusedBorderColor = CondorColors.Green,
-                unfocusedContainerColor = CondorColors.White,
-                focusedContainerColor = CondorColors.White
-            ),
-            shape = RoundedCornerShape(12.dp),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Password",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = CondorColors.DarkGreen,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text(
-                    "Value",
-                    color = CondorColors.Gray.copy(alpha = 0.6f)
-                )
-            },
-            visualTransformation = PasswordVisualTransformation(),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = CondorColors.Green,
-                focusedBorderColor = CondorColors.Green,
-                unfocusedContainerColor = CondorColors.White,
-                focusedContainerColor = CondorColors.White
-            ),
-            shape = RoundedCornerShape(12.dp),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Forgot password?",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = CondorColors.DarkGreen,
-            modifier = Modifier
-                .align(Alignment.End)
-                .clickable { /* TODO: Navigate to forgot password */ }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { /* TODO: Handle sign in */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CondorColors.DarkGreen
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = "Sign In",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Divider(
-                modifier = Modifier.weight(1f),
-                color = CondorColors.DividerGray,
-                thickness = 1.dp
-            )
-            Text(
-                text = "o",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                color = CondorColors.Gray,
-                fontSize = 14.sp
-            )
-            Divider(
-                modifier = Modifier.weight(1f),
-                color = CondorColors.DividerGray,
-                thickness = 1.dp
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { /* TODO: Handle Google sign in */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CondorColors.Green
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = "Continua con Google",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { /* TODO: Navigate to register */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CondorColors.Brown
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = "Registrarse",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
         }
     }
 }
