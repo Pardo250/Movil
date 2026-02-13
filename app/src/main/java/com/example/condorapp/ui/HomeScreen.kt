@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +43,292 @@ data class Post(
 )
 
 @Composable
+fun HomeTopBar() {
+    TopAppBar(
+        title = {},
+        navigationIcon = {
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = null,
+                    tint = Green
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = null,
+                    tint = Green
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = LightBackground
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeTopBarPreview() {
+    HomeTopBar()
+}
+@Composable
+fun ProfileAvatar() {
+    Image(
+        painter = painterResource(R.drawable.avatar),
+        contentDescription = null,
+        modifier = Modifier
+            .size(90.dp)
+            .clip(CircleShape)
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileAvatarPreview() {
+    ProfileAvatar()
+}
+
+@Composable
+fun FilterBar() {
+    Row(
+        modifier = Modifier
+            .background(LightGreen, RoundedCornerShape(40.dp))
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Icon(
+            painter = painterResource(R.drawable.ic_menu),
+            contentDescription = null,
+            tint = Green,
+            modifier = Modifier
+                .size(45.dp)
+                .padding(start = 10.dp)
+        )
+
+        Spacer(Modifier.width(40.dp))
+
+        Text(
+            "Filtro",
+            color = Black,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+
+        Spacer(Modifier.width(40.dp))
+
+        Icon(
+            painter = painterResource(R.drawable.ic_logo),
+            contentDescription = null,
+            tint = Green,
+            modifier = Modifier
+                .size(45.dp)
+                .padding(end = 10.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FilterBarPreview() {
+    FilterBar()
+}
+
+@Composable
+fun HeaderSection() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        ProfileAvatar()
+        Spacer(Modifier.height(12.dp))
+        FilterBar()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HeaderSectionPreview() {
+    HeaderSection()
+}
+
+@Composable
+fun PostHeader(post: Post) {
+    Row(
+        modifier = Modifier.padding(20.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Text(
+            text = post.user.first().toString(),
+            fontWeight = FontWeight.Bold,
+            color = Green,
+            fontSize = 20.sp
+        )
+
+        Spacer(Modifier.width(16.dp))
+
+        Column(Modifier.weight(1f)) {
+            Text(post.user, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            Text(post.location, color = Gray, fontSize = 14.sp)
+        }
+
+        Icon(
+            painter = painterResource(R.drawable.ic_more),
+            contentDescription = null,
+            modifier = Modifier.size(22.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostHeaderPreview() {
+    PostHeader(
+        Post("Alejandra Gomez","Valle del Cocora",R.drawable.cartagena,"1.2k","58")
+    )
+}
+
+@Composable
+fun PostImage(imageRes: Int) {
+    Image(
+        painter = painterResource(imageRes),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(240.dp)
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostImagePreview() {
+    PostImage(R.drawable.cartagena)
+}
+
+@Composable
+fun PostActions(likes: String, comments: String) {
+    Row(
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Icon(
+            painter = painterResource(R.drawable.ic_heart),
+            contentDescription = null,
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(likes)
+
+        Spacer(Modifier.width(30.dp))
+
+        Icon(
+            painter = painterResource(R.drawable.ic_comment),
+            contentDescription = null,
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(comments)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostActionsPreview() {
+    PostActions("1.2k","58")
+}
+
+@Composable
+fun PostCard(post: Post) {
+    Card(
+        shape = RoundedCornerShape(26.dp),
+        modifier = Modifier
+            .padding(horizontal = 20.dp, vertical = 14.dp)
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(10.dp)
+    ) {
+        Column {
+
+            PostHeader(post)
+
+            PostImage(post.imageRes)
+
+            Text(
+                "Lorem ipsum dolor sit amet...",
+                modifier = Modifier.padding(20.dp),
+                color = Gray,
+                fontSize = 14.sp
+            )
+
+            PostActions(post.likes, post.comments)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostCardPreview() {
+    PostCard(
+        Post("Alejandra Gomez","Valle del Cocora",R.drawable.cartagena,"1.2k","58")
+    )
+}
+
+@Composable
+fun BottomItem(icon: Int, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(26.dp)
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(label, fontSize = 14.sp)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomItemPreview() {
+    BottomItem(R.drawable.ic_home,"Home")
+}
+
+@Composable
+fun BottomFloatingBar(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 30.dp),
+        shape = RoundedCornerShape(60.dp),
+        elevation = CardDefaults.cardElevation(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .background(White)
+                .padding(vertical = 22.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            BottomItem(R.drawable.ic_explore, "Explore")
+            BottomItem(R.drawable.ic_home, "Home")
+            BottomItem(R.drawable.ic_profile, "Profile")
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomFloatingBarPreview() {
+    BottomFloatingBar()
+}
+
+@Composable
 fun HomeScreen() {
 
     val posts = listOf(
@@ -51,7 +338,7 @@ fun HomeScreen() {
 
     Scaffold(
         containerColor = LightBackground,
-        topBar = { TopBar() }
+        topBar = { HomeTopBar() }
     ) { innerPadding ->
 
         Box(Modifier.fillMaxSize()) {
@@ -81,212 +368,9 @@ fun HomeScreen() {
     }
 }
 
-@Composable
-fun TopBar() {
-    TopAppBar(
-        title = {},
-        navigationIcon = {
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = null,
-                    tint = Green
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = null,
-                    tint = Green
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = LightBackground
-        )
-    )
-}
-
-@Composable
-fun HeaderSection() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp)
-    ) {
-
-        Image(
-            painter = painterResource(R.drawable.avatar),
-            contentDescription = null,
-            modifier = Modifier
-                .size(90.dp)
-                .clip(CircleShape)
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier
-                .background(LightGreen, RoundedCornerShape(40.dp))
-                .padding(vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_menu),
-                contentDescription = null,
-                tint = Green,
-                modifier = Modifier
-                    .size(45.dp)
-                    .padding(start = 10.dp)
-            )
-
-            Spacer(Modifier.width(40.dp))
-
-            Text(
-                "Filtro",
-                color = Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-
-            Spacer(Modifier.width(40.dp))
-
-            Icon(
-                painter = painterResource(R.drawable.ic_logo),
-                contentDescription = null,
-                tint = Green,
-                modifier = Modifier
-                    .size(45.dp)
-                    .padding(end = 10.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun PostCard(post: Post) {
-    Card(
-        shape = RoundedCornerShape(26.dp),
-        modifier = Modifier
-            .padding(horizontal = 20.dp, vertical = 14.dp)
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(10.dp)
-    ) {
-
-        Column {
-
-            Row(
-                modifier = Modifier.padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text(
-                    text = post.user.first().toString(),
-                    fontWeight = FontWeight.Bold,
-                    color = Green,
-                    fontSize = 20.sp
-                )
-
-                Spacer(Modifier.width(16.dp))
-
-                Column(Modifier.weight(1f)) {
-                    Text(post.user, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                    Text(post.location, color = Gray, fontSize = 14.sp)
-                }
-
-                Icon(
-                    painter = painterResource(R.drawable.ic_more),
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-
-            Image(
-                painter = painterResource(post.imageRes),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp)
-            )
-
-            Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-                modifier = Modifier.padding(20.dp),
-                color = Gray,
-                fontSize = 14.sp
-            )
-
-            Row(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Icon(
-                    painter = painterResource(R.drawable.ic_heart),
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(post.likes)
-
-                Spacer(Modifier.width(30.dp))
-
-                Icon(
-                    painter = painterResource(R.drawable.ic_comment),
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(post.comments)
-            }
-        }
-    }
-}
-
-@Composable
-fun BottomFloatingBar(modifier: Modifier) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 30.dp),
-        shape = RoundedCornerShape(60.dp),
-        elevation = CardDefaults.cardElevation(16.dp)
-    ) {
-
-        Row(
-            modifier = Modifier
-                .background(White)
-                .padding(vertical = 22.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            BottomItem(R.drawable.ic_explore, "Explore")
-            BottomItem(R.drawable.ic_home, "Home")
-            BottomItem(R.drawable.ic_profile, "Profile")
-        }
-    }
-}
-
-@Composable
-fun BottomItem(icon: Int, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = null,
-            modifier = Modifier.size(26.dp)
-        )
-        Spacer(Modifier.height(6.dp))
-        Text(label, fontSize = 14.sp)
-    }
-}
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreenPreview() {
     HomeScreen()
 }
+
