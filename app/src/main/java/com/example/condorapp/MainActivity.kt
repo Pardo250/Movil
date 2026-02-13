@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.condorapp.ui.MensajeBienvendia
 import com.example.condorapp.ui.theme.CondorappTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MensajeBienvendia("Condorapp")
+
         }
     }
 }
