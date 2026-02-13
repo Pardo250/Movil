@@ -57,7 +57,7 @@ fun LoginHeader() {
         Image(
             painter = painterResource(R.drawable.logo2),
             contentDescription = "Logo Condorapp",
-            modifier = Modifier.size(150.dp)
+            modifier = Modifier.size(200.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -150,7 +150,7 @@ fun PrimaryButton(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(40.dp),
         colors = ButtonDefaults.buttonColors(containerColor = color),
         shape = RoundedCornerShape(12.dp)
     ) {
