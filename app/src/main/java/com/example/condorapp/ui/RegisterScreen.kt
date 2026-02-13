@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 
-// Colores de la app
 object CondorColors {
     val DarkGreen = Color(0xFF2C4A3E)
     val Green = Color(0xFF4F7942)
@@ -59,7 +58,6 @@ fun LoginScreen() {
             
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Subtítulo
             Text(
                 text = "Descubre la magia de los\nAndes y más allá",
                 fontSize = 16.sp,
@@ -69,7 +67,6 @@ fun LoginScreen() {
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Formulario
             LoginForm()
 
             Spacer(modifier = Modifier.weight(1f))
@@ -85,7 +82,7 @@ fun LoginForm() {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Email Label
+
         Text(
             text = "Email",
             fontSize = 16.sp,
@@ -94,7 +91,7 @@ fun LoginForm() {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Email TextField
+
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -117,7 +114,6 @@ fun LoginForm() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Password Label
         Text(
             text = "Password",
             fontSize = 16.sp,
@@ -126,7 +122,6 @@ fun LoginForm() {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Password TextField
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -150,7 +145,6 @@ fun LoginForm() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Forgot Password
         Text(
             text = "Forgot password?",
             fontSize = 14.sp,
@@ -163,7 +157,6 @@ fun LoginForm() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Sign In Button
         Button(
             onClick = { /* TODO: Handle sign in */ },
             modifier = Modifier
@@ -183,7 +176,6 @@ fun LoginForm() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Divider with "o"
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -208,7 +200,6 @@ fun LoginForm() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Google Button
         Button(
             onClick = { /* TODO: Handle Google sign in */ },
             modifier = Modifier
@@ -228,7 +219,6 @@ fun LoginForm() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Register Button
         Button(
             onClick = { /* TODO: Navigate to register */ },
             modifier = Modifier
