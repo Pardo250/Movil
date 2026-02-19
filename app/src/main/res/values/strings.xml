@@ -1,3 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Condorapp</string>
+        <string name="app_name">Condorapp</string>
+        <string name="cd_back">Back</string>
+        <string name="cd_profile_photo">Profile photo</string>
+        <string name="change_profile_photo">Change Profile Photo</string>
+        <string name="username_label">Username</string>
+        <string name="full_name_label">Full name</string>
+        <string name="biographic_label">Biographic</string>
+        <string name="value_placeholder">Value</string>
+        <string name="destination_interests">Destination Interests</string>
+        <string name="save_changes">Save Changes</string>
+        <string name="delete_account">Delete Account</string>
 </resources>

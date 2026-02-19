@@ -57,14 +57,14 @@ fun LoginHeader() {
         Image(
             painter = painterResource(R.drawable.logo2),
             contentDescription = "Logo Condorapp",
-            modifier = Modifier.size(200.dp)
+            modifier = Modifier.size(260.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(15.dp))
 
         Text(
             text = "Descubre la magia de los\nAndes y más allá",
-            fontSize = 16.sp,
+            fontSize = 20.sp,
             color = CondorColors.Gray,
             textAlign = TextAlign.Center
         )
@@ -150,9 +150,9 @@ fun PrimaryButton(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp),
+            .height(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = color),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Text(
             text = text,
@@ -241,11 +241,11 @@ fun LoginScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             LoginHeader()
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             LoginForm()
         }
