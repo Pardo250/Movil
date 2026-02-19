@@ -22,8 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 
-/* ---------------- Background ---------------- */
-
 @Composable
 fun EditProfileBackground(content: @Composable () -> Unit) {
     Box(
@@ -34,8 +32,6 @@ fun EditProfileBackground(content: @Composable () -> Unit) {
         content()
     }
 }
-
-/* ---------------- Back Button ---------------- */
 
 @Composable
 fun EditProfileBackButton(onBack: () -> Unit = {}) {
@@ -55,8 +51,6 @@ fun EditProfileBackButton(onBack: () -> Unit = {}) {
         }
     }
 }
-
-/* ---------------- Header ---------------- */
 
 @Composable
 fun EditProfileHeader(onChangePhoto: () -> Unit = {}) {
@@ -97,8 +91,6 @@ fun EditProfileHeader(onChangePhoto: () -> Unit = {}) {
     }
 }
 
-/* ---------------- Campo reutilizable ---------------- */
-
 @Composable
 fun LabeledTextField(
     labelRes: Int,
@@ -126,8 +118,6 @@ fun LabeledTextField(
         )
     }
 }
-
-/* ---------------- Botones ---------------- */
 
 @Composable
 fun EditProfileButtons(

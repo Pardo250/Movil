@@ -35,25 +35,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.condorapp.R
 
 @Composable
-fun FeedScreen() {
+fun FeedScreen(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(colorResource(id = R.color.Olivafeed))
     ) {
-
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-
             Spacer(modifier = Modifier.height(40.dp))
 
             SearchBar()
@@ -69,7 +70,7 @@ fun FeedScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Recomendado para ti",
+                text = stringResource(R.string.recommended_for_you),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -85,113 +86,122 @@ fun FeedScreen() {
     }
 }
 
-
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-@Preview (showBackground = true)
 fun FeedScreenPreview() {
     FeedScreen()
 }
 
-
 @Composable
-fun SearchBar() {
+fun SearchBar(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(55.dp)
             .clip(RoundedCornerShape(30.dp))
             .background(Color(0xFFD9D2C7)),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row (
+        Row(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Search, contentDescription = null)
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = stringResource(R.string.cd_search)
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Buscar...", color = Color.Gray)
+            Text(
+                text = stringResource(R.string.search_placeholder),
+                color = Color.Gray
+            )
         }
     }
 }
 
+@Preview(showBackground = false)
 @Composable
-@Preview (showBackground = false)
 fun SearchBarPreview() {
     SearchBar()
 }
 
 @Composable
-fun MapCard() {
+fun MapCard(
+    modifier: Modifier = Modifier
+) {
     Card(
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(180.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Image(
             painter = painterResource(id = R.drawable.mapa),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.cd_map_image),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
     }
 }
 
-
+@Preview(showBackground = false)
 @Composable
-@Preview (showBackground = false)
 fun MapCardPreview() {
     MapCard()
 }
 
-
 @Composable
-fun CategoryChips() {
+fun CategoryChips(
+    modifier: Modifier = Modifier
+) {
     Row(
+        modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
-        FilterChip("Paisaje", true)
-        FilterChip("Playas", false)
-        FilterChip("Cultural", false)
-        FilterChip("Hoteles", false)
+        FilterChip(textRes = R.string.category_landscape, selected = true)
+        FilterChip(textRes = R.string.category_beaches, selected = false)
+        FilterChip(textRes = R.string.category_cultural, selected = false)
+        FilterChip(textRes = R.string.category_hotels, selected = false)
     }
 }
 
+@Preview(showBackground = false)
 @Composable
-@Preview (showBackground = false)
 fun CategoryChipsPreview() {
     CategoryChips()
 }
 
-
 @Composable
-fun FilterChip(text: String, selected: Boolean) {
-
-    val background =
-        if (selected) Color(0xFF3E5F2C)
-        else Color(0xFF9FB18A)
+fun FilterChip(
+    modifier: Modifier = Modifier,
+    textRes: Int,
+    selected: Boolean
+) {
+    val background = if (selected) Color(0xFF3E5F2C) else Color(0xFF9FB18A)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(20.dp))
             .background(background)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Text(text = text, color = Color.White)
+        Text(text = stringResource(textRes), color = Color.White)
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-@Preview (showBackground = true)
 fun FilterChipPreview() {
-    FilterChip("Paisaje", true)
+    FilterChip(textRes = R.string.category_landscape, selected = true)
 }
 
 @Composable
-fun RecommendationGrid() {
-
+fun RecommendationGrid(
+    modifier: Modifier = Modifier
+) {
     val places = listOf(
         R.drawable.cartagena,
         R.drawable.vallecocora,
@@ -207,16 +217,16 @@ fun RecommendationGrid() {
         R.drawable.catedral
     )
 
-    LazyVerticalGrid (
+    LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.height(320.dp)
+        modifier = modifier.height(320.dp)
     ) {
-        items (places) { image ->
+        items(places) { image ->
             Image(
                 painter = painterResource(id = image),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.cd_recommendation_image),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .aspectRatio(1f)
@@ -226,17 +236,19 @@ fun RecommendationGrid() {
     }
 }
 
+@Preview(showBackground = false)
 @Composable
-@Preview (showBackground = false)
 fun RecommendationGridPreview() {
     RecommendationGrid()
 }
 
 @Composable
-fun BottomNavBar() {
+fun BottomNavBar(
+    modifier: Modifier = Modifier
+) {
     Card(
         shape = RoundedCornerShape(30.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(70.dp),
         elevation = CardDefaults.cardElevation(10.dp)
@@ -246,16 +258,24 @@ fun BottomNavBar() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxSize()
         ) {
-            Icon(Icons.Default.LocationOn, contentDescription = null)
-            Icon(Icons.Default.Home, contentDescription = null)
-            Icon(Icons.Default.Person, contentDescription = null)
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = stringResource(R.string.nav_explore)
+            )
+            Icon(
+                imageVector = Icons.Default.Home,
+                contentDescription = stringResource(R.string.nav_home)
+            )
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = stringResource(R.string.nav_profile)
+            )
         }
     }
 }
 
+@Preview(showBackground = false)
 @Composable
-@Preview (showBackground = false)
 fun BottomNavBarPreview() {
     BottomNavBar()
 }
-
