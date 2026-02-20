@@ -77,7 +77,9 @@ git clone https://github.com/Pardo250/Movil.git
 ## 👨‍💻 Autor
 
 **Andrés Felipe Pinzón Márquez**\
-Estudiante de Ingeniería\
+**Juan Sebastian Urbano**\
+**Juan Diego Pardo**\
+Estudiantes de Ingeniería\
 GitHub: https://github.com/Pardo250
 
 ------------------------------------------------------------------------
