@@ -2,6 +2,7 @@ package com.example.condorapp.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,9 +47,61 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.condorapp.R
 
+/* ---------------- UI State (Entidad UI) ---------------- */
+
+data class FeedUiState(
+    val selectedCategoryIndex: Int = 0,
+    val places: List<Int> = emptyList()
+)
+
+/* ---------------- Route (State Hosting) ---------------- */
+
 @Composable
-fun FeedScreen(
+fun FeedScreenRoute(
     modifier: Modifier = Modifier
+) {
+    val initialPlaces = remember {
+        listOf(
+            R.drawable.cartagena,
+            R.drawable.vallecocora,
+            R.drawable.santamarta,
+            R.drawable.medellin,
+            R.drawable.atardecer,
+            R.drawable.catedral,
+            R.drawable.cartagena,
+            R.drawable.vallecocora,
+            R.drawable.santamarta,
+            R.drawable.medellin,
+            R.drawable.atardecer,
+            R.drawable.catedral
+        )
+    }
+
+    var state by remember {
+        mutableStateOf(
+            FeedUiState(
+                selectedCategoryIndex = 0,
+                places = initialPlaces
+            )
+        )
+    }
+
+    FeedScreenContent(
+        state = state,
+        modifier = modifier,
+        onCategorySelected = { index ->
+            state = state.copy(selectedCategoryIndex = index)
+        }
+    )
+}
+
+/* ---------------- Content (Stateless UI) ---------------- */
+
+@Composable
+fun FeedScreenContent(
+    state: FeedUiState,
+    modifier: Modifier = Modifier,
+    onCategorySelected: (Int) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -65,7 +123,10 @@ fun FeedScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            CategoryChips()
+            CategoryChips(
+                selectedIndex = state.selectedCategoryIndex,
+                onSelected = onCategorySelected
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -77,7 +138,7 @@ fun FeedScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            RecommendationGrid()
+            RecommendationGrid(places = state.places)
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -89,8 +150,10 @@ fun FeedScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun FeedScreenPreview() {
-    FeedScreen()
+    FeedScreenRoute()
 }
+
+/* ---------------- Components ---------------- */
 
 @Composable
 fun SearchBar(
@@ -121,12 +184,6 @@ fun SearchBar(
     }
 }
 
-@Preview(showBackground = false)
-@Composable
-fun SearchBarPreview() {
-    SearchBar()
-}
-
 @Composable
 fun MapCard(
     modifier: Modifier = Modifier
@@ -147,38 +204,45 @@ fun MapCard(
     }
 }
 
-@Preview(showBackground = false)
-@Composable
-fun MapCardPreview() {
-    MapCard()
-}
-
 @Composable
 fun CategoryChips(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedIndex: Int,
+    onSelected: (Int) -> Unit
 ) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        FilterChip(textRes = R.string.category_landscape, selected = true)
-        FilterChip(textRes = R.string.category_beaches, selected = false)
-        FilterChip(textRes = R.string.category_cultural, selected = false)
-        FilterChip(textRes = R.string.category_hotels, selected = false)
+        FilterChip(
+            textRes = R.string.category_landscape,
+            selected = selectedIndex == 0,
+            onClick = { onSelected(0) }
+        )
+        FilterChip(
+            textRes = R.string.category_beaches,
+            selected = selectedIndex == 1,
+            onClick = { onSelected(1) }
+        )
+        FilterChip(
+            textRes = R.string.category_cultural,
+            selected = selectedIndex == 2,
+            onClick = { onSelected(2) }
+        )
+        FilterChip(
+            textRes = R.string.category_hotels,
+            selected = selectedIndex == 3,
+            onClick = { onSelected(3) }
+        )
     }
-}
-
-@Preview(showBackground = false)
-@Composable
-fun CategoryChipsPreview() {
-    CategoryChips()
 }
 
 @Composable
 fun FilterChip(
     modifier: Modifier = Modifier,
     textRes: Int,
-    selected: Boolean
+    selected: Boolean,
+    onClick: () -> Unit
 ) {
     val background = if (selected) Color(0xFF3E5F2C) else Color(0xFF9FB18A)
 
@@ -186,37 +250,18 @@ fun FilterChip(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
             .background(background)
+            .clickable { onClick() } // ✅ interacción
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(text = stringResource(textRes), color = Color.White)
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun FilterChipPreview() {
-    FilterChip(textRes = R.string.category_landscape, selected = true)
-}
-
 @Composable
 fun RecommendationGrid(
+    places: List<Int>,
     modifier: Modifier = Modifier
 ) {
-    val places = listOf(
-        R.drawable.cartagena,
-        R.drawable.vallecocora,
-        R.drawable.santamarta,
-        R.drawable.medellin,
-        R.drawable.atardecer,
-        R.drawable.catedral,
-        R.drawable.cartagena,
-        R.drawable.vallecocora,
-        R.drawable.santamarta,
-        R.drawable.medellin,
-        R.drawable.atardecer,
-        R.drawable.catedral
-    )
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -234,12 +279,6 @@ fun RecommendationGrid(
             )
         }
     }
-}
-
-@Preview(showBackground = false)
-@Composable
-fun RecommendationGridPreview() {
-    RecommendationGrid()
 }
 
 @Composable
@@ -272,10 +311,4 @@ fun BottomNavBar(
             )
         }
     }
-}
-
-@Preview(showBackground = false)
-@Composable
-fun BottomNavBarPreview() {
-    BottomNavBar()
 }

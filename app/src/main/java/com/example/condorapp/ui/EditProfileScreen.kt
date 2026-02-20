@@ -22,6 +22,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 
+data class EditProfileUiState(
+    val username: String = "",
+    val fullName: String = "",
+    val bio: String = ""
+) {
+    val canOpenInterests: Boolean
+        get() = username.isNotBlank() || fullName.isNotBlank() || bio.isNotBlank()
+
+    val canSave: Boolean
+        get() = username.isNotBlank() && fullName.isNotBlank()
+}
+
 @Composable
 fun EditProfileBackground(content: @Composable () -> Unit) {
     Box(
@@ -63,7 +75,6 @@ fun EditProfileHeader(onChangePhoto: () -> Unit = {}) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-
         Box(
             modifier = Modifier
                 .size(avatarSize)
@@ -73,7 +84,7 @@ fun EditProfileHeader(onChangePhoto: () -> Unit = {}) {
         ) {
             Icon(
                 imageVector = Icons.Filled.Person,
-                contentDescription = stringResource(R.drawable.avatar),
+                contentDescription = null, // ✅ CORREGIDO
                 tint = Color.White,
                 modifier = Modifier.size(iconSize)
             )
@@ -99,7 +110,6 @@ fun LabeledTextField(
     placeholderRes: Int,
     minLines: Int = 1
 ) {
-
     Column {
         Text(
             text = stringResource(labelRes),
@@ -121,21 +131,22 @@ fun LabeledTextField(
 
 @Composable
 fun EditProfileButtons(
-    onDestinationInterests: () -> Unit = {},
-    onSaveChanges: () -> Unit = {},
-    onDeleteAccount: () -> Unit = {}
+    canOpenInterests: Boolean,
+    canSave: Boolean,
+    onDestinationInterests: () -> Unit,
+    onSaveChanges: () -> Unit,
+    onDeleteAccount: () -> Unit
 ) {
-
     val green = Color(0xFF0A8F3C)
     val grayButton = Color(0xFFBDBDBD)
     val red = Color(0xFFE53935)
 
     Column {
-
         Button(
             onClick = onDestinationInterests,
-            enabled = false,
+            enabled = canOpenInterests,
             colors = ButtonDefaults.buttonColors(
+                containerColor = grayButton,
                 disabledContainerColor = grayButton
             ),
             shape = RoundedCornerShape(14.dp),
@@ -150,6 +161,7 @@ fun EditProfileButtons(
 
         Button(
             onClick = onSaveChanges,
+            enabled = canSave,
             colors = ButtonDefaults.buttonColors(containerColor = green),
             shape = RoundedCornerShape(14.dp),
             modifier = Modifier
@@ -176,15 +188,50 @@ fun EditProfileButtons(
     }
 }
 
-/* ---------------- Pantalla completa ---------------- */
+@Composable
+fun EditProfileScreenRoute(
+    onBack: () -> Unit = {},
+    onDestinationInterests: () -> Unit = {},
+    onChangePhoto: () -> Unit = {}
+) {
+    var state by remember { mutableStateOf(EditProfileUiState()) } // ✅ CORREGIDO
+
+    var messageRes by remember { mutableStateOf<Int?>(null) }
+
+    EditProfileScreenContent(
+        state = state,
+        onBack = onBack,
+        onChangePhoto = onChangePhoto,
+        onUsernameChange = { state = state.copy(username = it) },
+        onFullNameChange = { state = state.copy(fullName = it) },
+        onBioChange = { state = state.copy(bio = it) },
+        onDestinationInterests = onDestinationInterests,
+        onSaveChanges = {
+            messageRes = R.string.save_changes
+        },
+        onDeleteAccount = {
+            state = EditProfileUiState()
+            messageRes = R.string.delete_account
+        },
+        messageRes = messageRes,
+        onDismissMessage = { messageRes = null }
+    )
+}
 
 @Composable
-fun EditProfileScreen() {
-
-    var username by remember { mutableStateOf("") }
-    var fullName by remember { mutableStateOf("") }
-    var bio by remember { mutableStateOf("") }
-
+fun EditProfileScreenContent(
+    state: EditProfileUiState,
+    onBack: () -> Unit,
+    onChangePhoto: () -> Unit,
+    onUsernameChange: (String) -> Unit,
+    onFullNameChange: (String) -> Unit,
+    onBioChange: (String) -> Unit,
+    onDestinationInterests: () -> Unit,
+    onSaveChanges: () -> Unit,
+    onDeleteAccount: () -> Unit,
+    messageRes: Int?,
+    onDismissMessage: () -> Unit
+) {
     EditProfileBackground {
         Column(
             modifier = Modifier
@@ -192,19 +239,18 @@ fun EditProfileScreen() {
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
-
-            EditProfileBackButton()
+            EditProfileBackButton(onBack = onBack)
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            EditProfileHeader()
+            EditProfileHeader(onChangePhoto = onChangePhoto)
 
             Spacer(modifier = Modifier.height(20.dp))
 
             LabeledTextField(
                 labelRes = R.string.username_label,
-                value = username,
-                onValueChange = { username = it },
+                value = state.username,
+                onValueChange = onUsernameChange,
                 placeholderRes = R.string.value_placeholder
             )
 
@@ -212,8 +258,8 @@ fun EditProfileScreen() {
 
             LabeledTextField(
                 labelRes = R.string.full_name_label,
-                value = fullName,
-                onValueChange = { fullName = it },
+                value = state.fullName,
+                onValueChange = onFullNameChange,
                 placeholderRes = R.string.value_placeholder
             )
 
@@ -221,20 +267,44 @@ fun EditProfileScreen() {
 
             LabeledTextField(
                 labelRes = R.string.biographic_label,
-                value = bio,
-                onValueChange = { bio = it },
+                value = state.bio,
+                onValueChange = onBioChange,
                 placeholderRes = R.string.value_placeholder,
                 minLines = 3
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            EditProfileButtons()
+            EditProfileButtons(
+                canOpenInterests = state.canOpenInterests,
+                canSave = state.canSave,
+                onDestinationInterests = onDestinationInterests,
+                onSaveChanges = onSaveChanges,
+                onDeleteAccount = onDeleteAccount
+            )
+
+            if (messageRes != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = stringResource(messageRes))
+                        TextButton(onClick = onDismissMessage) {
+                            Text(text = "OK")
+                        }
+                    }
+                }
+            }
         }
     }
 }
-
-/* ---------------- Preview tipo teléfono ---------------- */
 
 @Preview(
     showBackground = true,
@@ -242,5 +312,5 @@ fun EditProfileScreen() {
 )
 @Composable
 fun EditProfileScreenPreview() {
-    EditProfileScreen()
+    EditProfileScreenRoute()
 }

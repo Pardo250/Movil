@@ -32,6 +32,16 @@ object CondorColors {
     val DividerGray = Color(0xFFD0D0D0)
 }
 
+data class LoginUiState(
+    val email: String = "",
+    val password: String = "",
+    val showPassword: Boolean = false,
+    val messageRes: Int? = null
+) {
+    val canSignIn: Boolean
+        get() = email.isNotBlank() && password.isNotBlank()
+}
+
 @Composable
 fun LoginBackground(
     modifier: Modifier = Modifier,
@@ -44,12 +54,6 @@ fun LoginBackground(
     ) {
         content()
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginBackgroundPreview() {
-    LoginBackground { }
 }
 
 @Composable
@@ -77,12 +81,6 @@ fun LoginHeader(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginHeaderPreview() {
-    LoginHeader()
-}
-
 @Composable
 fun EmailField(
     modifier: Modifier = Modifier,
@@ -108,12 +106,6 @@ fun EmailField(
             singleLine = true
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EmailFieldPreview() {
-    EmailField(email = "", onEmailChange = {})
 }
 
 @Composable
@@ -144,21 +136,17 @@ fun PasswordField(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PasswordFieldPreview() {
-    PasswordField(password = "", onPasswordChange = {})
-}
-
 @Composable
 fun PrimaryButton(
     modifier: Modifier = Modifier,
     textRes: Int,
     color: Color,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp),
@@ -172,19 +160,8 @@ fun PrimaryButton(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PrimaryButtonPreview() {
-    PrimaryButton(
-        textRes = R.string.sign_in,
-        color = CondorColors.DarkGreen
-    ) {}
-}
-
-@Composable
-fun DividerSection(
-    modifier: Modifier = Modifier
-) {
+fun DividerSection(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -195,40 +172,44 @@ fun DividerSection(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DividerSectionPreview() {
-    DividerSection()
-}
-
 @Composable
 fun LoginForm(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    state: LoginUiState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onForgotPassword: () -> Unit,
+    onSignIn: () -> Unit,
+    onContinueGoogle: () -> Unit,
+    onRegister: () -> Unit,
+    onDismissMessage: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
     Column(modifier = modifier) {
 
-        EmailField(email = email, onEmailChange = { email = it })
+        EmailField(email = state.email, onEmailChange = onEmailChange)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        PasswordField(password = password, onPasswordChange = { password = it })
+        PasswordField(password = state.password, onPasswordChange = onPasswordChange)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = stringResource(R.string.forgot_password),
+        TextButton(
+            onClick = onForgotPassword,
             modifier = Modifier.align(Alignment.End)
-        )
+        ) {
+            Text(text = stringResource(R.string.forgot_password))
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // ✅ Interacción: se habilita solo si hay datos
         PrimaryButton(
             textRes = R.string.sign_in,
-            color = CondorColors.DarkGreen
-        ) {}
+            color = CondorColors.DarkGreen,
+            enabled = state.canSignIn,
+            onClick = onSignIn
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -238,27 +219,87 @@ fun LoginForm(
 
         PrimaryButton(
             textRes = R.string.continue_with_google,
-            color = CondorColors.Green
-        ) {}
+            color = CondorColors.Green,
+            onClick = onContinueGoogle
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         PrimaryButton(
             textRes = R.string.register,
-            color = CondorColors.Brown
-        ) {}
+            color = CondorColors.Brown,
+            onClick = onRegister
+        )
+
+        // ✅ Feedback visible (interacción)
+        if (state.messageRes != null) {
+            Spacer(modifier = Modifier.height(18.dp))
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = stringResource(state.messageRes))
+                    TextButton(onClick = onDismissMessage) {
+                        Text("OK")
+                    }
+                }
+            }
+        }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun LoginFormPreview() {
-    LoginForm()
+fun LoginScreenRoute(
+    modifier: Modifier = Modifier,
+    onSignInSuccess: () -> Unit = {},
+    onGoRegister: () -> Unit = {}
+) {
+    var state by remember { mutableStateOf(LoginUiState()) }
+
+    LoginScreenContent(
+        modifier = modifier,
+        state = state,
+        onEmailChange = { state = state.copy(email = it, messageRes = null) },
+        onPasswordChange = { state = state.copy(password = it, messageRes = null) },
+        onForgotPassword = {
+            // ejemplo de interacción
+            state = state.copy(messageRes = R.string.forgot_password)
+        },
+        onSignIn = {
+            // Validación simple (puedes cambiarla)
+            if (state.canSignIn) {
+                state = state.copy(messageRes = R.string.sign_in)
+                onSignInSuccess()
+            }
+        },
+        onContinueGoogle = {
+            state = state.copy(messageRes = R.string.continue_with_google)
+        },
+        onRegister = {
+            state = state.copy(messageRes = R.string.register)
+            onGoRegister()
+        },
+        onDismissMessage = { state = state.copy(messageRes = null) }
+    )
 }
 
 @Composable
-fun LoginScreen(
-    modifier: Modifier = Modifier
+fun LoginScreenContent(
+    modifier: Modifier = Modifier,
+    state: LoginUiState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onForgotPassword: () -> Unit,
+    onSignIn: () -> Unit,
+    onContinueGoogle: () -> Unit,
+    onRegister: () -> Unit,
+    onDismissMessage: () -> Unit
 ) {
     LoginBackground {
         Column(
@@ -271,7 +312,17 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(5.dp))
             LoginHeader()
             Spacer(modifier = Modifier.height(5.dp))
-            LoginForm()
+
+            LoginForm(
+                state = state,
+                onEmailChange = onEmailChange,
+                onPasswordChange = onPasswordChange,
+                onForgotPassword = onForgotPassword,
+                onSignIn = onSignIn,
+                onContinueGoogle = onContinueGoogle,
+                onRegister = onRegister,
+                onDismissMessage = onDismissMessage
+            )
         }
     }
 }
@@ -279,5 +330,5 @@ fun LoginScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreenRoute()
 }

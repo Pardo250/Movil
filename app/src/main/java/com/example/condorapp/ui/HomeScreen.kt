@@ -4,6 +4,7 @@ package com.example.condorapp.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -13,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +41,11 @@ data class Post(
     val imageRes: Int,
     val likes: String,
     val comments: String
+)
+
+data class HomeUiState(
+    val posts: List<Post> = emptyList(),
+    val selectedPostIndex: Int? = null
 )
 
 @Composable
@@ -75,16 +81,8 @@ fun HomeTopBar(
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-fun HomeTopBarPreview() {
-    HomeTopBar()
-}
-
-@Composable
-fun ProfileAvatar(
-    modifier: Modifier = Modifier
-) {
+fun ProfileAvatar(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(R.drawable.avatar),
         contentDescription = stringResource(R.string.cd_profile_photo),
@@ -94,16 +92,8 @@ fun ProfileAvatar(
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-fun ProfileAvatarPreview() {
-    ProfileAvatar()
-}
-
-@Composable
-fun FilterBar(
-    modifier: Modifier = Modifier
-) {
+fun FilterBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .background(LightGreen, RoundedCornerShape(40.dp))
@@ -141,16 +131,8 @@ fun FilterBar(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun FilterBarPreview() {
-    FilterBar()
-}
-
-@Composable
-fun HeaderSection(
-    modifier: Modifier = Modifier
-) {
+fun HeaderSection(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth()
@@ -161,17 +143,8 @@ fun HeaderSection(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun HeaderSectionPreview() {
-    HeaderSection()
-}
-
-@Composable
-fun PostHeader(
-    post: Post,
-    modifier: Modifier = Modifier
-) {
+fun PostHeader(post: Post, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -198,19 +171,8 @@ fun PostHeader(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PostHeaderPreview() {
-    PostHeader(
-        Post("Alejandra Gomez", "Valle del Cocora", R.drawable.cartagena, "1.2k", "58")
-    )
-}
-
-@Composable
-fun PostImage(
-    imageRes: Int,
-    modifier: Modifier = Modifier
-) {
+fun PostImage(imageRes: Int, modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(imageRes),
         contentDescription = stringResource(R.string.cd_post_image),
@@ -221,18 +183,8 @@ fun PostImage(
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PostImagePreview() {
-    PostImage(R.drawable.cartagena)
-}
-
-@Composable
-fun PostActions(
-    likes: String,
-    comments: String,
-    modifier: Modifier = Modifier
-) {
+fun PostActions(likes: String, comments: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.padding(horizontal = 20.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -257,23 +209,22 @@ fun PostActions(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PostActionsPreview() {
-    PostActions("1.2k", "58")
-}
-
 @Composable
 fun PostCard(
     post: Post,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(26.dp),
         modifier = modifier
             .padding(horizontal = 20.dp, vertical = 14.dp)
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = White),
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) LightGreen.copy(alpha = 0.35f) else White
+        ),
         elevation = CardDefaults.cardElevation(10.dp)
     ) {
         Column {
@@ -292,20 +243,8 @@ fun PostCard(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PostCardPreview() {
-    PostCard(
-        Post("Alejandra Gomez", "Valle del Cocora", R.drawable.cartagena, "1.2k", "58")
-    )
-}
-
-@Composable
-fun BottomItem(
-    icon: Int,
-    labelRes: Int,
-    modifier: Modifier = Modifier
-) {
+fun BottomItem(icon: Int, labelRes: Int, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -320,16 +259,8 @@ fun BottomItem(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun BottomItemPreview() {
-    BottomItem(R.drawable.ic_home, R.string.nav_home)
-}
-
-@Composable
-fun BottomFloatingBar(
-    modifier: Modifier = Modifier
-) {
+fun BottomFloatingBar(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -351,50 +282,85 @@ fun BottomFloatingBar(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun BottomFloatingBarPreview() {
-    BottomFloatingBar()
+fun HomeScreenRoute(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit = {},
+    onNotifications: () -> Unit = {}
+) {
+    val initialPosts = remember {
+        listOf(
+            Post("Alejandra Gomez", "Valle del Cocora", R.drawable.valle_del_cocora, "1.2k", "58"),
+            Post("Mateo Ruiz", "Cartagena Old City", R.drawable.cartagena, "980", "30")
+        )
+    }
+
+    var state by remember {
+        mutableStateOf(HomeUiState(posts = initialPosts))
+    }
+
+    HomeScreenContent(
+        state = state,
+        modifier = modifier,
+        onBack = onBack,
+        onNotifications = onNotifications,
+        onPostClick = { index ->
+            state = state.copy(selectedPostIndex = index)
+        }
+    )
 }
 
 @Composable
-fun HomeScreen(
-    modifier: Modifier = Modifier
+fun HomeScreenContent(
+    state: HomeUiState,
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    onNotifications: () -> Unit,
+    onPostClick: (Int) -> Unit
 ) {
-    val posts = listOf(
-        Post("Alejandra Gomez", "Valle del Cocora", R.drawable.valle_del_cocora, "1.2k", "58"),
-        Post("Mateo Ruiz", "Cartagena Old City", R.drawable.cartagena, "980", "30")
-    )
-
     Scaffold(
         modifier = modifier,
         containerColor = LightBackground,
-        topBar = { HomeTopBar() }
+        topBar = {
+            HomeTopBar(onBack = onBack, onNotifications = onNotifications)
+        },
+        bottomBar = {
+            // ✅ BottomFloatingBar como bottomBar del Scaffold
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+                    .padding(bottom = 22.dp)
+            ) {
+                BottomFloatingBar(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 30.dp)
+                )
+            }
+        }
     ) { innerPadding ->
 
-        Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            HeaderSection()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-            ) {
+            Spacer(Modifier.height(20.dp))
 
-                HeaderSection()
-
-                Spacer(Modifier.height(20.dp))
-
-                posts.forEach { PostCard(it) }
-
-                Spacer(Modifier.height(160.dp))
+            state.posts.forEachIndexed { index, post ->
+                PostCard(
+                    post = post,
+                    isSelected = state.selectedPostIndex == index,
+                    onClick = { onPostClick(index) }
+                )
             }
 
-            BottomFloatingBar(
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 22.dp)
-            )
+            // ✅ espacio extra para que el último post no quede debajo de la barra
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }
@@ -402,5 +368,5 @@ fun HomeScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreenRoute()
 }
