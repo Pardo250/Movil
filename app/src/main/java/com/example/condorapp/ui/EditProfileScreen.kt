@@ -1,5 +1,7 @@
 package com.example.condorapp.ui
 
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,11 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
+
+private const val TAG = "EditProfile"
 
 data class EditProfileUiState(
     val username: String = "",
@@ -66,9 +70,7 @@ fun EditProfileBackButton(onBack: () -> Unit = {}) {
 
 @Composable
 fun EditProfileHeader(onChangePhoto: () -> Unit = {}) {
-
     val avatarSize = 90.dp
-    val iconSize = 45.dp
     val green = Color(0xFF0A8F3C)
 
     Column(
@@ -82,11 +84,12 @@ fun EditProfileHeader(onChangePhoto: () -> Unit = {}) {
                 .background(Color(0xFF2E6B3E)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = null, // ✅ CORREGIDO
-                tint = Color.White,
-                modifier = Modifier.size(iconSize)
+            Image(
+                painter = painterResource(R.drawable.avatar),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(130.dp)
+                    .clip(CircleShape)
             )
         }
 
@@ -194,8 +197,7 @@ fun EditProfileScreenRoute(
     onDestinationInterests: () -> Unit = {},
     onChangePhoto: () -> Unit = {}
 ) {
-    var state by remember { mutableStateOf(EditProfileUiState()) } // ✅ CORREGIDO
-
+    var state by remember { mutableStateOf(EditProfileUiState()) }
     var messageRes by remember { mutableStateOf<Int?>(null) }
 
     EditProfileScreenContent(
@@ -207,10 +209,17 @@ fun EditProfileScreenRoute(
         onBioChange = { state = state.copy(bio = it) },
         onDestinationInterests = onDestinationInterests,
         onSaveChanges = {
+
+            Log.d(
+                TAG,
+                "Información guardada -> Username: ${state.username}, FullName: ${state.fullName}, Bio: ${state.bio}"
+            )
+
             messageRes = R.string.save_changes
         },
         onDeleteAccount = {
             state = EditProfileUiState()
+            Log.d(TAG, "Cuenta eliminada y formulario reiniciado")
             messageRes = R.string.delete_account
         },
         messageRes = messageRes,
@@ -239,6 +248,7 @@ fun EditProfileScreenContent(
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
+
             EditProfileBackButton(onBack = onBack)
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -306,10 +316,7 @@ fun EditProfileScreenContent(
     }
 }
 
-@Preview(
-    showBackground = true,
-    device = "spec:width=360dp,height=800dp,dpi=420"
-)
+@Preview(showBackground = true)
 @Composable
 fun EditProfileScreenPreview() {
     EditProfileScreenRoute()

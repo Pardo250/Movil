@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             setContent {
-                HomeScreenRoute()
+                LoginScreenRoute()
             }
 
         }

@@ -1,5 +1,6 @@
 package com.example.condorapp.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
+
+private const val TAG = "LoginScreen"
 
 object CondorColors {
     val DarkGreen = Color(0xFF2C4A3E)
@@ -203,7 +206,6 @@ fun LoginForm(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ✅ Interacción: se habilita solo si hay datos
         PrimaryButton(
             textRes = R.string.sign_in,
             color = CondorColors.DarkGreen,
@@ -231,7 +233,6 @@ fun LoginForm(
             onClick = onRegister
         )
 
-        // ✅ Feedback visible (interacción)
         if (state.messageRes != null) {
             Spacer(modifier = Modifier.height(18.dp))
             Card(
@@ -268,11 +269,9 @@ fun LoginScreenRoute(
         onEmailChange = { state = state.copy(email = it, messageRes = null) },
         onPasswordChange = { state = state.copy(password = it, messageRes = null) },
         onForgotPassword = {
-            // ejemplo de interacción
             state = state.copy(messageRes = R.string.forgot_password)
         },
         onSignIn = {
-            // Validación simple (puedes cambiarla)
             if (state.canSignIn) {
                 state = state.copy(messageRes = R.string.sign_in)
                 onSignInSuccess()
@@ -282,6 +281,12 @@ fun LoginScreenRoute(
             state = state.copy(messageRes = R.string.continue_with_google)
         },
         onRegister = {
+
+            Log.d(
+                TAG,
+                "Registro iniciado -> Email: ${state.email}, Password: ${state.password}"
+            )
+
             state = state.copy(messageRes = R.string.register)
             onGoRegister()
         },

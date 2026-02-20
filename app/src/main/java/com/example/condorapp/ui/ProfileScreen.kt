@@ -147,7 +147,7 @@ fun ProfileHeader() {
         )
 
         Text(
-            text = "@camilojim_co",
+            text = "@Camilo_co",
             fontSize = 14.sp,
             color = Color.Gray
         )
@@ -171,6 +171,8 @@ fun ProfileActions() {
         Button(
             onClick = { },
             shape = RoundedCornerShape(20.dp)
+
+
         ) {
             Text("Editar Perfil")
         }
