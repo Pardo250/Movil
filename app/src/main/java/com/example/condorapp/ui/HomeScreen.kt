@@ -6,10 +6,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
@@ -27,14 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
+import com.example.condorapp.ui.theme.CondorappTheme
 
-private val LightBackground = Color(0xFFF5F7F1)
-private val Green = Color(0xFF4F7336)
-private val LightGreen = Color(0xFFA1BE8F)
-private val Gray = Color(0xFF7A7A7A)
-private val White = Color.White
-private val Black = Color.Black
-
+// Entidad de UI (Datos quemados locales)
 data class Post(
     val user: String,
     val location: String,
@@ -44,90 +39,56 @@ data class Post(
 )
 
 data class HomeUiState(
-    val posts: List<Post> = emptyList(),
+    val posts: List<Post> = listOf(
+        Post("Alejandra Gomez", "Valle del Cocora", R.drawable.valle_del_cocora, "1.2k", "58"),
+        Post("Mateo Ruiz", "Cartagena Old City", R.drawable.cartagena, "980", "30"),
+        Post("Sofia Castro", "Sierra Nevada", R.drawable.santamarta, "2.5k", "120")
+    ),
     val selectedPostIndex: Int? = null
 )
 
 @Composable
-fun HomeTopBar(
+fun HomeScreenRoute(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
     onNotifications: () -> Unit = {}
 ) {
-    TopAppBar(
+    var state by remember { mutableStateOf(HomeUiState()) }
+
+    HomeScreenContent(
+        state = state,
         modifier = modifier,
-        title = {},
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = stringResource(R.string.cd_back),
-                    tint = Green
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = onNotifications) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = stringResource(R.string.cd_notifications),
-                    tint = Green
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = LightBackground
-        )
+        onPostClick = { index ->
+            state = state.copy(selectedPostIndex = index)
+            println("Post seleccionado: ${state.posts[index].user}") // Print solicitado
+        }
     )
 }
 
 @Composable
-fun ProfileAvatar(modifier: Modifier = Modifier) {
-    Image(
-        painter = painterResource(R.drawable.avatar),
-        contentDescription = stringResource(R.string.cd_profile_photo),
+fun HomeScreenContent(
+    state: HomeUiState,
+    modifier: Modifier = Modifier,
+    onPostClick: (Int) -> Unit
+) {
+    // YA NO HAY SCAFFOLD AQUÍ. Solo el contenido.
+    LazyColumn(
         modifier = modifier
-            .size(90.dp)
-            .clip(CircleShape)
-    )
-}
-
-@Composable
-fun FilterBar(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .background(LightGreen, RoundedCornerShape(40.dp))
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(bottom = 100.dp) // Espacio para el BottomBar global
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_menu),
-            contentDescription = stringResource(R.string.cd_menu),
-            tint = Green,
-            modifier = Modifier
-                .size(45.dp)
-                .padding(start = 10.dp)
-        )
+        item {
+            HeaderSection(modifier = Modifier.padding(16.dp))
+        }
 
-        Spacer(Modifier.width(40.dp))
-
-        Text(
-            text = stringResource(R.string.filter),
-            color = Black,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
-        )
-
-        Spacer(Modifier.width(40.dp))
-
-        Icon(
-            painter = painterResource(R.drawable.ic_logo),
-            contentDescription = stringResource(R.string.cd_logo),
-            tint = Green,
-            modifier = Modifier
-                .size(45.dp)
-                .padding(end = 10.dp)
-        )
+        itemsIndexed(state.posts) { index, post ->
+            PostCard(
+                post = post,
+                isSelected = state.selectedPostIndex == index,
+                onClick = { onPostClick(index) }
+            )
+        }
     }
 }
 
@@ -137,75 +98,31 @@ fun HeaderSection(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth()
     ) {
-        ProfileAvatar()
+        Image(
+            painter = painterResource(R.drawable.avatar),
+            contentDescription = null,
+            modifier = Modifier
+                .size(90.dp)
+                .clip(CircleShape)
+        )
         Spacer(Modifier.height(12.dp))
         FilterBar()
     }
 }
 
 @Composable
-fun PostHeader(post: Post, modifier: Modifier = Modifier) {
+fun FilterBar(modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = post.user.first().toString(),
-            fontWeight = FontWeight.Bold,
-            color = Green,
-            fontSize = 20.sp
-        )
-
-        Spacer(Modifier.width(16.dp))
-
-        Column(Modifier.weight(1f)) {
-            Text(post.user, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            Text(post.location, color = Gray, fontSize = 14.sp)
-        }
-
-        Icon(
-            painter = painterResource(R.drawable.ic_more),
-            contentDescription = stringResource(R.string.cd_more_options),
-            modifier = Modifier.size(22.dp)
-        )
-    }
-}
-
-@Composable
-fun PostImage(imageRes: Int, modifier: Modifier = Modifier) {
-    Image(
-        painter = painterResource(imageRes),
-        contentDescription = stringResource(R.string.cd_post_image),
-        contentScale = ContentScale.Crop,
         modifier = modifier
             .fillMaxWidth()
-            .height(240.dp)
-    )
-}
-
-@Composable
-fun PostActions(likes: String, comments: String, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(40.dp))
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_heart),
-            contentDescription = stringResource(R.string.cd_like),
-            modifier = Modifier.size(22.dp)
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(likes)
-
-        Spacer(Modifier.width(30.dp))
-
-        Icon(
-            painter = painterResource(R.drawable.ic_comment),
-            contentDescription = stringResource(R.string.cd_comment),
-            modifier = Modifier.size(22.dp)
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(comments)
+        Icon(painter = painterResource(R.drawable.ic_menu), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Text(text = "Filtros", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(painter = painterResource(R.drawable.ic_logo), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
     }
 }
 
@@ -219,154 +136,54 @@ fun PostCard(
     Card(
         shape = RoundedCornerShape(26.dp),
         modifier = modifier
-            .padding(horizontal = 20.dp, vertical = 14.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) LightGreen.copy(alpha = 0.35f) else White
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(10.dp)
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column {
-            PostHeader(post)
-            PostImage(post.imageRes)
+            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(40.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape), contentAlignment = Alignment.Center) {
+                    Text(post.user.first().toString(), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                }
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(post.user, fontWeight = FontWeight.Bold)
+                    Text(post.location, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            
+            Image(
+                painter = painterResource(post.imageRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().height(200.dp)
+            )
 
             Text(
                 text = stringResource(R.string.post_lorem),
-                modifier = Modifier.padding(20.dp),
-                color = Gray,
-                fontSize = 14.sp
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyMedium
             )
 
-            PostActions(post.likes, post.comments)
-        }
-    }
-}
-
-@Composable
-fun BottomItem(icon: Int, labelRes: Int, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = stringResource(labelRes),
-            modifier = Modifier.size(26.dp)
-        )
-        Spacer(Modifier.height(6.dp))
-        Text(text = stringResource(labelRes), fontSize = 14.sp)
-    }
-}
-
-@Composable
-fun BottomFloatingBar(modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 30.dp),
-        shape = RoundedCornerShape(60.dp),
-        elevation = CardDefaults.cardElevation(16.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .background(White)
-                .padding(vertical = 22.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            BottomItem(R.drawable.ic_explore, R.string.nav_explore)
-            BottomItem(R.drawable.ic_home, R.string.nav_home)
-            BottomItem(R.drawable.ic_profile, R.string.nav_profile)
-        }
-    }
-}
-
-@Composable
-fun HomeScreenRoute(
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit = {},
-    onNotifications: () -> Unit = {}
-) {
-    val initialPosts = remember {
-        listOf(
-            Post("Alejandra Gomez", "Valle del Cocora", R.drawable.valle_del_cocora, "1.2k", "58"),
-            Post("Mateo Ruiz", "Cartagena Old City", R.drawable.cartagena, "980", "30")
-        )
-    }
-
-    var state by remember {
-        mutableStateOf(HomeUiState(posts = initialPosts))
-    }
-
-    HomeScreenContent(
-        state = state,
-        modifier = modifier,
-        onBack = onBack,
-        onNotifications = onNotifications,
-        onPostClick = { index ->
-            state = state.copy(selectedPostIndex = index)
-        }
-    )
-}
-
-@Composable
-fun HomeScreenContent(
-    state: HomeUiState,
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit,
-    onNotifications: () -> Unit,
-    onPostClick: (Int) -> Unit
-) {
-    Scaffold(
-        modifier = modifier,
-        containerColor = LightBackground,
-        topBar = {
-            HomeTopBar(onBack = onBack, onNotifications = onNotifications)
-        },
-        bottomBar = {
-            // ✅ BottomFloatingBar como bottomBar del Scaffold
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)
-                    .padding(bottom = 22.dp)
-            ) {
-                BottomFloatingBar(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 30.dp)
-                )
+            Row(modifier = Modifier.padding(16.dp)) {
+                Icon(painter = painterResource(R.drawable.ic_heart), contentDescription = null, modifier = Modifier.size(20.dp))
+                Text(post.likes, modifier = Modifier.padding(start = 4.dp))
+                Spacer(Modifier.width(20.dp))
+                Icon(painter = painterResource(R.drawable.ic_comment), contentDescription = null, modifier = Modifier.size(20.dp))
+                Text(post.comments, modifier = Modifier.padding(start = 4.dp))
             }
         }
-    ) { innerPadding ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-        ) {
-            HeaderSection()
-
-            Spacer(Modifier.height(20.dp))
-
-            state.posts.forEachIndexed { index, post ->
-                PostCard(
-                    post = post,
-                    isSelected = state.selectedPostIndex == index,
-                    onClick = { onPostClick(index) }
-                )
-            }
-
-            // ✅ espacio extra para que el último post no quede debajo de la barra
-            Spacer(modifier = Modifier.height(120.dp))
-        }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreenRoute()
+    CondorappTheme {
+        HomeScreenRoute()
+    }
 }

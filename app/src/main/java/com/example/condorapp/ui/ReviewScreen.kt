@@ -2,10 +2,8 @@ package com.example.condorapp.ui
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -19,175 +17,185 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.condorapp.ui.theme.CondorappTheme
 
-val ScreenBg = Color(0xFFEDEFEA)
-val PrimaryGreen = Color(0xFF2F4B2F)
-val SoftGreen2 = Color(0xFF8FA77B)
-val StarBeige = Color(0xFFC7B1A1)
-val StarInactive = Color(0xFFD9D9D9)
-val ButtonGreen = Color(0xFF4F7336)
+data class ReviewUiState(
+    val rating: Int = 4,
+    val comment: String = "",
+    val title: String = "¿Qué tal estuvo tu aventura?"
+)
 
 @Composable
-fun ReviewExperienceScreen(
-    onBackClick: () -> Unit
+fun ReviewScreenRoute(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {}
 ) {
+    var state by remember { mutableStateOf(ReviewUiState()) }
 
-    var rating by remember { mutableStateOf(4) }
-    var comment by remember { mutableStateOf("") }
+    ReviewScreenContent(
+        state = state,
+        modifier = modifier,
+        onBackClick = onBackClick,
+        onRatingChange = { state = state.copy(rating = it) },
+        onCommentChange = { state = state.copy(comment = it) },
+        onPublish = {
+            println("Reseña publicada: Rating=${state.rating}, Comentario=${state.comment}")
+        }
+    )
+}
 
+@Composable
+fun ReviewScreenContent(
+    state: ReviewUiState,
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
+    onRatingChange: (Int) -> Unit,
+    onCommentChange: (String) -> Unit,
+    onPublish: () -> Unit
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(ScreenBg)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
         ) {
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            // Flecha
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .background(SoftGreen2)
-                    .clickable { onBackClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = null,
-                    tint = PrimaryGreen
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = "¿Que tal estuvo tu aventura?",
-                fontSize = 42.sp,
-                fontWeight = FontWeight.Bold,
-                color = PrimaryGreen,
-                lineHeight = 48.sp
-            )
-
             Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "¡Bienvenido de vuelta! Para nosotros, nada es más valioso que tu perspectiva. Al compartir tu experiencia, nos ayudas a construir la guía de viajes más auténtica.",
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Text(
-                text = "TU CALIFICACION",
-                color = PrimaryGreen,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(0.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    val offsets = listOf(20.dp, 10.dp, 0.dp, 10.dp, 20.dp)
-
-                    repeat(5) { index ->
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = if (index < rating) StarBeige else StarInactive,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .offset(y = offsets[index])
-                                .clickable { rating = index + 1 }
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Text(
-                text = "Añadir imagen",
-                fontWeight = FontWeight.Medium,
-                color = PrimaryGreen
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFF4F4F4))
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = SoftGreen2,
-                    modifier = Modifier.size(60.dp)
-                )
-            }
-
+            BackButton(onClick = onBackClick)
+            Spacer(modifier = Modifier.height(16.dp))
+            ReviewTitle(text = state.title)
+            Spacer(modifier = Modifier.height(16.dp))
+            ReviewDescription()
             Spacer(modifier = Modifier.height(32.dp))
-
-            Text("Comentario", fontSize = 18.sp)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = comment,
-                onValueChange = { comment = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp),
-                shape = RoundedCornerShape(16.dp)
-            )
-
-            Spacer(modifier = Modifier.height(120.dp)) // espacio para botón
+            RatingSection(rating = state.rating, onRatingChange = onRatingChange)
+            Spacer(modifier = Modifier.height(32.dp))
+            ImageUploadSection()
+            Spacer(modifier = Modifier.height(24.dp))
+            CommentField(comment = state.comment, onCommentChange = onCommentChange)
+            Spacer(modifier = Modifier.height(100.dp))
         }
 
-        Button(
-            onClick = { },
+        PublishButton(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(24.dp)
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = ButtonGreen),
-            elevation = ButtonDefaults.buttonElevation(8.dp)
-        ) {
-            Text(
-                text = "Publicar Reseña",
-                fontSize = 18.sp
-            )
+                .padding(24.dp),
+            onClick = onPublish
+        )
+    }
+}
+
+@Composable
+fun BackButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.size(48.dp),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.secondaryContainer
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(Icons.Default.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     }
 }
 
-@Preview(showSystemUi = true)
 @Composable
-fun PreviewReviewExperience() {
-    ReviewExperienceScreen(onBackClick = {})
+fun ReviewTitle(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.displaySmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+        lineHeight = 44.sp,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun ReviewDescription(modifier: Modifier = Modifier) {
+    Text(
+        text = "¡Bienvenido de vuelta! Para nosotros, nada es más valioso que tu perspectiva.",
+        style = MaterialTheme.typography.bodyLarge,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        modifier = modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+fun RatingSection(modifier: Modifier = Modifier, rating: Int, onRatingChange: (Int) -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "TU CALIFICACIÓN",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            repeat(5) { index ->
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = if (index < rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onRatingChange(index + 1) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ImageUploadSection(modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Text("Añadir imagen", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(12.dp))
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(Icons.Default.AddAPhoto, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
+@Composable
+fun CommentField(modifier: Modifier = Modifier, comment: String, onCommentChange: (String) -> Unit) {
+    Column(modifier = modifier) {
+        Text("Comentario", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = comment,
+            onValueChange = onCommentChange,
+            modifier = Modifier.fillMaxWidth().height(120.dp),
+            shape = RoundedCornerShape(16.dp),
+            placeholder = { Text("Cuéntanos más...") }
+        )
+    }
+}
+
+@Composable
+fun PublishButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Text("Publicar Reseña", style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ReviewScreenPreview() {
+    CondorappTheme { ReviewScreenRoute() }
 }

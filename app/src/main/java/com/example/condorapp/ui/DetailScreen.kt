@@ -1,4 +1,4 @@
-package com.example.condorapp.ui.screens
+package com.example.condorapp.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,15 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.condorapp.R.drawable
-
-val LightGreenBackground = Color(0xFFEFF5EA)
-val SoftGreen = Color(0xFF7C9A6D)
-val DarkGreen = Color(0xFF4F7336)
-val StarColor = Color(0xFFBFAE9F)
+import com.example.condorapp.R
+import com.example.condorapp.ui.theme.CondorappTheme
 
 data class Review(
     val name: String,
@@ -36,247 +33,223 @@ data class Review(
     val likes: Int
 )
 
+data class DetailUiState(
+    val title: String = "Valle del Cocora",
+    val location: String = "Eje Cafetero",
+    val description: String = "Imagina caminar entre las palmas más altas del mundo...",
+    val imageRes: Int = R.drawable.valle_del_cocora,
+    val reviews: List<Review> = listOf(
+        Review("Maria Valen", 5, "Category • $$ • 1.2 miles away\nSupporting line text lorem ipsum...", 12),
+        Review("Juan Perez", 4, "Un lugar increíble para visitar en familia.", 5),
+        Review("Sofia Gomez", 5, "Las mejores vistas de Colombia.", 8)
+    )
+)
+
 @Composable
-fun DetailScreen(onBackClick: () -> Unit) {
+fun DetailScreenRoute(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {}
+) {
+    var state by remember { mutableStateOf(DetailUiState()) }
 
-    var selectedTab by remember { mutableStateOf(1) }
+    DetailScreenContent(
+        state = state,
+        modifier = modifier,
+        onBackClick = onBackClick,
+        onLikeReview = { review ->
+            val updatedReviews = state.reviews.map {
+                if (it == review) it.copy(likes = it.likes + 1) else it
+            }
+            state = state.copy(reviews = updatedReviews)
+            println("Like en reseña de: ${review.name}")
+        }
+    )
+}
 
-    var reviews by remember {
-        mutableStateOf(
-            listOf(
-                Review("Maria Valen", 5, "Category • $$ • 1.2 miles away\nSupporting line text lorem ipsum...", 0),
-                Review("Maria Valen", 5, "Category • $$ • 1.2 miles away\nSupporting line text lorem ipsum...", 0),
-                Review("Maria Valen", 5, "Category • $$ • 1.2 miles away\nSupporting line text lorem ipsum...", 0)
-            )
-        )
-    }
-
+@Composable
+fun DetailScreenContent(
+    state: DetailUiState,
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
+    onLikeReview: (Review) -> Unit
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(LightGreenBackground)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-
-        LazyColumn {
-
-            item {
-                Box {
-
-                    Image(
-                        painter = painterResource(id = drawable.valle_del_cocora),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                    )
-
-                    IconButton(
-                        onClick = onBackClick,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .size(48.dp)
-                            .background(SoftGreen, CircleShape)
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            "Valle del Cocora",
-                            color = Color.White,
-                            fontSize = 36.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            "Subtitle",
-                            color = Color.White.copy(0.9f)
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Row {
-
-                            ActionButton("Agregar como Interes")
-                            Spacer(modifier = Modifier.width(8.dp))
-                            ActionButton("12 mins from hotel")
-                        }
-                    }
-                }
-            }
-
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(LightGreenBackground)
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Text("Eje Cafetero", fontSize = 24.sp)
-                    Text("Within 5 miles • $$-$$$")
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "Imagina caminar entre las palmas más altas del mundo...",
-                        fontSize = 14.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row {
-
-                        Button(
-                            onClick = {},
-                            shape = RoundedCornerShape(30.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = DarkGreen)
-                        ) {
-                            Icon(Icons.Default.Check, null)
-                            Spacer(Modifier.width(8.dp))
-                            Text("Tu experiencia")
-                        }
-
-                        Spacer(Modifier.width(12.dp))
-
-                        Button(
-                            onClick = {},
-                            shape = RoundedCornerShape(30.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = SoftGreen)
-                        ) {
-                            Text("Precios")
-                        }
-                    }
-                }
-            }
-
-            items(reviews) { review ->
-
-                ReviewItem(review) {
-                    reviews = reviews.map {
-                        if (it == review) it.copy(likes = it.likes + 1) else it
-                    }
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(100.dp))
-            }
-        }
-
-        // BOTTOM FLOATING BAR
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-                .clip(RoundedCornerShape(40.dp))
-                .background(Color.White)
-                .padding(horizontal = 40.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 100.dp)
         ) {
-
-            BottomIcon(Icons.Default.LocationOn, "Explore", selectedTab == 0) { selectedTab = 0 }
-            Spacer(Modifier.width(40.dp))
-            BottomIcon(Icons.Default.Home, "Home", selectedTab == 1, true) { selectedTab = 1 }
-            Spacer(Modifier.width(40.dp))
-            BottomIcon(Icons.Default.Person, "Profile", selectedTab == 2) { selectedTab = 2 }
-        }
-    }
-}
-
-@Composable
-fun ActionButton(text: String) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xAA4F7336))
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(text, color = Color.White)
-    }
-}
-
-@Composable
-fun ReviewItem(review: Review, onLike: () -> Unit) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFE57373))
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-
-                Text(review.name, fontWeight = FontWeight.Bold)
-
-                Row {
-                    repeat(review.rating) {
-                        Icon(Icons.Default.Star, null, tint = StarColor)
-                    }
-                }
-
-                Text(review.comment)
+            item {
+                DetailHeader(
+                    title = state.title,
+                    imageRes = state.imageRes,
+                    onBackClick = onBackClick
+                )
             }
 
-            Icon(
-                Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                modifier = Modifier.clickable { onLike() }
-            )
-        }
+            item {
+                DetailInfoSection(
+                    location = state.location,
+                    description = state.description
+                )
+            }
 
-        Divider(
-            modifier = Modifier.padding(top = 16.dp),
-            color = SoftGreen.copy(alpha = 0.4f)
-        )
+            item {
+                Text(
+                    text = "Reseñas de la comunidad",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(16.dp),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            items(state.reviews) { review ->
+                ReviewItem(review = review, onLike = { onLikeReview(review) })
+            }
+        }
     }
 }
 
 @Composable
-fun BottomIcon(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    selected: Boolean,
-    highlight: Boolean = false,
-    onClick: () -> Unit
+fun DetailHeader(
+    title: String,
+    imageRes: Int,
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit
+) {
+    Box(modifier = modifier) {
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+        )
+
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier
+                .padding(16.dp)
+                .size(48.dp)
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), CircleShape)
+        ) {
+            Icon(
+                Icons.Default.ArrowBack,
+                contentDescription = "Regresar",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+                .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                .padding(8.dp)
+        ) {
+            Text(
+                text = title,
+                color = Color.White,
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Destino Popular", color = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+fun DetailInfoSection(
+    location: String,
+    description: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Icon(
-            icon,
-            contentDescription = null,
-            tint = if (selected) DarkGreen else Color.Gray
+        Text(text = location, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
         )
-        Text(label, fontSize = 12.sp)
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            AssistChip(
+                onClick = { },
+                label = { Text("Añadir Interés") },
+                leadingIcon = { Icon(Icons.Default.Add, null) }
+            )
+            AssistChip(
+                onClick = { },
+                label = { Text("Precios") },
+                leadingIcon = { Icon(Icons.Default.AttachMoney, null) }
+            )
+        }
     }
 }
 
-@Preview(showSystemUi = true)
 @Composable
-fun PreviewDetail() {
-    DetailScreen(onBackClick = {})
+fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit) {
+    Card(
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(review.name.first().toString(), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(review.name, fontWeight = FontWeight.Bold)
+                    Row {
+                        repeat(5) { index ->
+                            Icon(
+                                Icons.Default.Star,
+                                contentDescription = null,
+                                tint = if (index < review.rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+                IconButton(onClick = onLike) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(review.likes.toString())
+                        Spacer(Modifier.width(4.dp))
+                        Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(review.comment, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DetailScreenPreview() {
+    CondorappTheme { DetailScreenRoute() }
 }

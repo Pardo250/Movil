@@ -12,312 +12,181 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
+import com.example.condorapp.ui.theme.CondorappTheme
 
 private const val TAG = "EditProfile"
 
+// Entidad de UI
 data class EditProfileUiState(
     val username: String = "",
     val fullName: String = "",
-    val bio: String = ""
+    val bio: String = "",
+    val messageRes: Int? = null
 ) {
-    val canOpenInterests: Boolean
-        get() = username.isNotBlank() || fullName.isNotBlank() || bio.isNotBlank()
-
-    val canSave: Boolean
-        get() = username.isNotBlank() && fullName.isNotBlank()
-}
-
-@Composable
-fun EditProfileBackground(content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(id = R.color.Olivafeed))
-    ) {
-        content()
-    }
-}
-
-@Composable
-fun EditProfileBackButton(onBack: () -> Unit = {}) {
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(Color(0xFF9DB38C)),
-        contentAlignment = Alignment.Center
-    ) {
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                contentDescription = stringResource(R.string.cd_back),
-                tint = Color.Black
-            )
-        }
-    }
-}
-
-@Composable
-fun EditProfileHeader(onChangePhoto: () -> Unit = {}) {
-    val avatarSize = 90.dp
-    val green = Color(0xFF0A8F3C)
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Box(
-            modifier = Modifier
-                .size(avatarSize)
-                .clip(CircleShape)
-                .background(Color(0xFF2E6B3E)),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(R.drawable.avatar),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(130.dp)
-                    .clip(CircleShape)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(onClick = onChangePhoto) {
-            Text(
-                text = stringResource(R.string.change_profile_photo),
-                color = green,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-@Composable
-fun LabeledTextField(
-    labelRes: Int,
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholderRes: Int,
-    minLines: Int = 1
-) {
-    Column {
-        Text(
-            text = stringResource(labelRes),
-            fontSize = 16.sp
-        )
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = { Text(stringResource(placeholderRes)) },
-            shape = RoundedCornerShape(12.dp),
-            minLines = minLines,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
-@Composable
-fun EditProfileButtons(
-    canOpenInterests: Boolean,
-    canSave: Boolean,
-    onDestinationInterests: () -> Unit,
-    onSaveChanges: () -> Unit,
-    onDeleteAccount: () -> Unit
-) {
-    val green = Color(0xFF0A8F3C)
-    val grayButton = Color(0xFFBDBDBD)
-    val red = Color(0xFFE53935)
-
-    Column {
-        Button(
-            onClick = onDestinationInterests,
-            enabled = canOpenInterests,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = grayButton,
-                disabledContainerColor = grayButton
-            ),
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            Text(stringResource(R.string.destination_interests))
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = onSaveChanges,
-            enabled = canSave,
-            colors = ButtonDefaults.buttonColors(containerColor = green),
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.save_changes),
-                color = Color.White
-            )
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        TextButton(
-            onClick = onDeleteAccount,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text(
-                text = stringResource(R.string.delete_account),
-                color = red
-            )
-        }
-    }
+    val canSave: Boolean get() = username.isNotBlank() && fullName.isNotBlank()
 }
 
 @Composable
 fun EditProfileScreenRoute(
-    onBack: () -> Unit = {},
-    onDestinationInterests: () -> Unit = {},
-    onChangePhoto: () -> Unit = {}
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit = {}
 ) {
     var state by remember { mutableStateOf(EditProfileUiState()) }
-    var messageRes by remember { mutableStateOf<Int?>(null) }
 
     EditProfileScreenContent(
         state = state,
+        modifier = modifier,
         onBack = onBack,
-        onChangePhoto = onChangePhoto,
         onUsernameChange = { state = state.copy(username = it) },
         onFullNameChange = { state = state.copy(fullName = it) },
         onBioChange = { state = state.copy(bio = it) },
-        onDestinationInterests = onDestinationInterests,
-        onSaveChanges = {
-
-            Log.d(
-                TAG,
-                "Información guardada -> Username: ${state.username}, FullName: ${state.fullName}, Bio: ${state.bio}"
-            )
-
-            messageRes = R.string.save_changes
+        onSave = {
+            // Requisito: Print al guardar
+            Log.d(TAG, "Guardando: ${state.username}, ${state.fullName}")
+            state = state.copy(messageRes = R.string.save_changes)
         },
         onDeleteAccount = {
-            state = EditProfileUiState()
-            Log.d(TAG, "Cuenta eliminada y formulario reiniciado")
-            messageRes = R.string.delete_account
+            Log.d(TAG, "Cuenta eliminada")
+            state = EditProfileUiState(messageRes = R.string.delete_account)
         },
-        messageRes = messageRes,
-        onDismissMessage = { messageRes = null }
+        onDismissMessage = { state = state.copy(messageRes = null) }
     )
 }
 
 @Composable
 fun EditProfileScreenContent(
     state: EditProfileUiState,
+    modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    onChangePhoto: () -> Unit,
     onUsernameChange: (String) -> Unit,
     onFullNameChange: (String) -> Unit,
     onBioChange: (String) -> Unit,
-    onDestinationInterests: () -> Unit,
-    onSaveChanges: () -> Unit,
+    onSave: () -> Unit,
     onDeleteAccount: () -> Unit,
-    messageRes: Int?,
     onDismissMessage: () -> Unit
 ) {
-    EditProfileBackground {
-        Column(
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp)
+    ) {
+        EditBackButton(onClick = onBack)
+        Spacer(Modifier.height(24.dp))
+        EditProfileHeader()
+        Spacer(Modifier.height(32.dp))
+
+        // Formularios Interactivos
+        EditField(label = "Nombre de usuario", value = state.username, onValueChange = onUsernameChange)
+        Spacer(Modifier.height(16.dp))
+        EditField(label = "Nombre completo", value = state.fullName, onValueChange = onFullNameChange)
+        Spacer(Modifier.height(16.dp))
+        EditField(label = "Biografía", value = state.bio, onValueChange = onBioChange, isLong = true)
+
+        Spacer(Modifier.height(32.dp))
+
+        // Acciones al componente mayor
+        Button(
+            onClick = onSave,
+            enabled = state.canSave,
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp)
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(12.dp)
         ) {
+            Text("Guardar Cambios", fontWeight = FontWeight.Bold)
+        }
 
-            EditProfileBackButton(onBack = onBack)
+        TextButton(
+            onClick = onDeleteAccount,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 16.dp)
+        ) {
+            Text("Eliminar cuenta", color = MaterialTheme.colorScheme.error)
+        }
 
-            Spacer(modifier = Modifier.height(30.dp))
-
-            EditProfileHeader(onChangePhoto = onChangePhoto)
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            LabeledTextField(
-                labelRes = R.string.username_label,
-                value = state.username,
-                onValueChange = onUsernameChange,
-                placeholderRes = R.string.value_placeholder
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LabeledTextField(
-                labelRes = R.string.full_name_label,
-                value = state.fullName,
-                onValueChange = onFullNameChange,
-                placeholderRes = R.string.value_placeholder
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LabeledTextField(
-                labelRes = R.string.biographic_label,
-                value = state.bio,
-                onValueChange = onBioChange,
-                placeholderRes = R.string.value_placeholder,
-                minLines = 3
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            EditProfileButtons(
-                canOpenInterests = state.canOpenInterests,
-                canSave = state.canSave,
-                onDestinationInterests = onDestinationInterests,
-                onSaveChanges = onSaveChanges,
-                onDeleteAccount = onDeleteAccount
-            )
-
-            if (messageRes != null) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(messageRes))
-                        TextButton(onClick = onDismissMessage) {
-                            Text(text = "OK")
-                        }
-                    }
+        // Feedback visual (Snackbar/Card)
+        if (state.messageRes != null) {
+            Spacer(Modifier.height(16.dp))
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(state.messageRes), modifier = Modifier.weight(1f))
+                    TextButton(onClick = onDismissMessage) { Text("OK") }
                 }
             }
         }
     }
 }
 
+@Composable
+fun EditBackButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+    ) {
+        Icon(Icons.Default.ArrowBack, contentDescription = null)
+    }
+}
+
+@Composable
+fun EditProfileHeader(modifier: Modifier = Modifier) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
+        Box {
+            Image(
+                painter = painterResource(R.drawable.avatar),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+            )
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(32.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(painter = painterResource(R.drawable.ic_back), contentDescription = null, modifier = Modifier.padding(6.dp), tint = Color.White)
+            }
+        }
+        TextButton(onClick = {}) {
+            Text("Cambiar foto de perfil", color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
+@Composable
+fun EditField(label: String, value: String, onValueChange: (String) -> Unit, isLong: Boolean = false) {
+    Column {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            minLines = if (isLong) 3 else 1
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun EditProfileScreenPreview() {
-    EditProfileScreenRoute()
+fun EditProfilePreview() {
+    CondorappTheme { EditProfileScreenRoute() }
 }
