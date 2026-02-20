@@ -66,7 +66,7 @@ fun ReviewExperienceScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = "¿Que tal estuvo tu aventura?",
@@ -93,13 +93,12 @@ fun ReviewExperienceScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(0.dp))
 
-            // ⭐ ESTRELLAS EN SEMICÍRCULO
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp),
+                    .height(80.dp),
                 contentAlignment = Alignment.Center
             ) {
 
