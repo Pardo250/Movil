@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
+import com.example.condorapp.data.PostRepository
 
 private val LightBackground = Color(0xFFF5F7F1)
 private val Green = Color(0xFF4F7336)
@@ -288,12 +289,8 @@ fun HomeScreenRoute(
     onBack: () -> Unit = {},
     onNotifications: () -> Unit = {}
 ) {
-    val initialPosts = remember {
-        listOf(
-            Post("Alejandra Gomez", "Valle del Cocora", R.drawable.valle_del_cocora, "1.2k", "58"),
-            Post("Mateo Ruiz", "Cartagena Old City", R.drawable.cartagena, "980", "30")
-        )
-    }
+    // ✅ Datos locales quemados desde repositorio
+    val initialPosts = remember { PostRepository.getPosts() }
 
     var state by remember {
         mutableStateOf(HomeUiState(posts = initialPosts))
@@ -325,7 +322,6 @@ fun HomeScreenContent(
             HomeTopBar(onBack = onBack, onNotifications = onNotifications)
         },
         bottomBar = {
-            // ✅ BottomFloatingBar como bottomBar del Scaffold
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -359,7 +355,6 @@ fun HomeScreenContent(
                 )
             }
 
-            // ✅ espacio extra para que el último post no quede debajo de la barra
             Spacer(modifier = Modifier.height(120.dp))
         }
     }
