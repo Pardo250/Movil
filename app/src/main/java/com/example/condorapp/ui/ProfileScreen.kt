@@ -18,13 +18,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 import com.example.condorapp.ui.theme.CondorappTheme
 
@@ -89,7 +87,11 @@ fun ProfileScreenContent(
 @Composable
 fun ProfileTopBar(modifier: Modifier = Modifier, onBack: () -> Unit) {
     IconButton(onClick = onBack, modifier = modifier) {
-        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Regresar")
+        Icon(
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = "Regresar",
+            tint = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
@@ -104,8 +106,17 @@ fun ProfileHeader(modifier: Modifier = Modifier, name: String, username: String)
                 .clip(CircleShape)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(text = username, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+        Text(
+            text = name,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = username,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.outline
+        )
     }
 }
 
@@ -148,7 +159,11 @@ fun ProfileTabs(modifier: Modifier = Modifier) {
 fun TabItem(modifier: Modifier = Modifier, icon: androidx.compose.ui.graphics.vector.ImageVector, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-        Text(label, style = MaterialTheme.typography.labelMedium)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
@@ -174,8 +189,32 @@ fun PhotoGrid(photos: List<Int>, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
-fun ProfileScreenPreview() {
-    CondorappTheme { ProfileScreenRoute() }
+fun ProfileScreenRouteOldDark(
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit = {},
+    onEditProfile: () -> Unit = {},
+    onShareProfile: () -> Unit = {}
+) {
+    CondorappTheme(darkTheme = true) {
+        ProfileScreenRoute(
+            modifier = modifier,
+            onBack = onBack,
+            onEditProfile = onEditProfile,
+            onShareProfile = onShareProfile
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Profile - Light")
+@Composable
+fun ProfileScreenPreviewLight() {
+    CondorappTheme(darkTheme = false) { ProfileScreenRoute() }
+}
+
+@Preview(showBackground = true, name = "Profile - Dark")
+@Composable
+fun ProfileScreenPreviewDark() {
+    CondorappTheme(darkTheme = true) { ProfileScreenRoute() }
 }

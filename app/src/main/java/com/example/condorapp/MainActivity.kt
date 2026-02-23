@@ -23,23 +23,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CondorappTheme {
-                // ESTE ES EL ÚNICO SCAFFOLD DE LA APP
                 var currentScreen by remember { mutableStateOf("login") }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    // Aquí podrías agregar una BottomBar o TopBar global si fuera necesario
                 ) { innerPadding ->
-                    // El Modifier con el padding del Scaffold se pasa a las pantallas
                     val screenModifier = Modifier.padding(innerPadding)
 
                     when (currentScreen) {
-                        "login" -> LoginScreenRoute(
+                        "login" -> HomeScreenRoute(
                             modifier = screenModifier,
-                            onSignInSuccess = { currentScreen = "home" }
-                        )
-                        "home" -> HomeScreenRoute(
-                            modifier = screenModifier
                         )
                     }
                 }

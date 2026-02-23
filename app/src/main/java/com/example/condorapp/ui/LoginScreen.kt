@@ -3,33 +3,12 @@ package com.example.condorapp.ui
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -56,7 +35,10 @@ data class LoginUiState(
 }
 
 @Composable
-fun LoginBackground(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun LoginBackground(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -75,20 +57,24 @@ fun LoginHeader(modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(R.drawable.logo2),
             contentDescription = stringResource(R.string.cd_logo_condorapp),
-            modifier = Modifier.size(260.dp)
+            modifier = Modifier.size(210.dp)
         )
         Spacer(modifier = Modifier.height(15.dp))
         Text(
             text = stringResource(R.string.login_subtitle),
             fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
         )
     }
 }
 
 @Composable
-fun EmailField(modifier: Modifier = Modifier, email: String, onEmailChange: (String) -> Unit) {
+fun EmailField(
+    modifier: Modifier = Modifier,
+    email: String,
+    onEmailChange: (String) -> Unit
+) {
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.email_label),
@@ -109,7 +95,11 @@ fun EmailField(modifier: Modifier = Modifier, email: String, onEmailChange: (Str
 }
 
 @Composable
-fun PasswordField(modifier: Modifier = Modifier, password: String, onPasswordChange: (String) -> Unit) {
+fun PasswordField(
+    modifier: Modifier = Modifier,
+    password: String,
+    onPasswordChange: (String) -> Unit
+) {
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.password_label),
@@ -131,7 +121,12 @@ fun PasswordField(modifier: Modifier = Modifier, password: String, onPasswordCha
 }
 
 @Composable
-fun PrimaryButton(modifier: Modifier = Modifier, textRes: Int, onClick: () -> Unit, enabled: Boolean = true) {
+fun PrimaryButton(
+    modifier: Modifier = Modifier,
+    textRes: Int,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
     Button(
         onClick = onClick,
         enabled = enabled,
@@ -151,7 +146,11 @@ fun DividerSection(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Divider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
-        Text(stringResource(R.string.or), modifier = Modifier.padding(horizontal = 16.dp))
+        Text(
+            text = stringResource(R.string.or),
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+        )
         Divider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
     }
 }
@@ -168,42 +167,72 @@ fun LoginForm(
     onRegister: () -> Unit,
     onDismissMessage: () -> Unit
 ) {
+    val cs = MaterialTheme.colorScheme
+
     Column(modifier = modifier) {
         EmailField(email = state.email, onEmailChange = onEmailChange)
+
         Spacer(modifier = Modifier.height(24.dp))
+
         PasswordField(password = state.password, onPasswordChange = onPasswordChange)
+
         Spacer(modifier = Modifier.height(16.dp))
+
         TextButton(onClick = onForgotPassword, modifier = Modifier.align(Alignment.End)) {
-            Text(text = stringResource(R.string.forgot_password))
+            Text(text = stringResource(R.string.forgot_password), color = cs.primary)
         }
+
         Spacer(modifier = Modifier.height(24.dp))
-        PrimaryButton(textRes = R.string.sign_in, enabled = state.canSignIn, onClick = onSignIn)
+
+        PrimaryButton(
+            textRes = R.string.sign_in,
+            enabled = state.canSignIn,
+            onClick = onSignIn
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
+
         DividerSection()
+
         Spacer(modifier = Modifier.height(24.dp))
+
+        // ✅ Botón Google: usar secondaryContainer para que se vea bien en dark
         Button(
             onClick = onContinueGoogle,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = cs.secondaryContainer,
+                contentColor = cs.onSecondaryContainer
+            )
         ) {
             Text(text = stringResource(R.string.continue_with_google), fontWeight = FontWeight.Bold)
         }
+
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = onRegister,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f))
+            colors = ButtonDefaults.buttonColors(
+                containerColor = cs.surfaceVariant,
+                contentColor = cs.onSurfaceVariant
+            )
         ) {
             Text(text = stringResource(R.string.register), fontWeight = FontWeight.Bold)
         }
 
+        // ✅ Mensaje
         if (state.messageRes != null) {
             Spacer(modifier = Modifier.height(18.dp))
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = cs.surface),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -211,8 +240,13 @@ fun LoginForm(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = stringResource(state.messageRes))
-                    TextButton(onClick = onDismissMessage) { Text("OK") }
+                    Text(
+                        text = stringResource(state.messageRes),
+                        color = cs.onSurface
+                    )
+                    TextButton(onClick = onDismissMessage) {
+                        Text(text = stringResource(R.string.ok))
+                    }
                 }
             }
         }
@@ -288,8 +322,16 @@ fun LoginScreenContent(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginScreenPreview() {
-    CondorappTheme {
+fun LoginScreenLightPreview() {
+    CondorappTheme(darkTheme = false) {
+        LoginScreenRoute()
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun LoginScreenDarkPreview() {
+    CondorappTheme(darkTheme = true) {
         LoginScreenRoute()
     }
 }

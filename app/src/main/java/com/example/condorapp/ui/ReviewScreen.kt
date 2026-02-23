@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -97,7 +96,11 @@ fun BackButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
         color = MaterialTheme.colorScheme.secondaryContainer
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Icon(Icons.Default.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            Icon(
+                Icons.Default.ArrowBack,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
+            )
         }
     }
 }
@@ -140,7 +143,10 @@ fun RatingSection(modifier: Modifier = Modifier, rating: Int, onRatingChange: (I
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = null,
-                    tint = if (index < rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                    tint = if (index < rating)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.outlineVariant,
                     modifier = Modifier
                         .size(40.dp)
                         .clickable { onRatingChange(index + 1) }
@@ -153,7 +159,12 @@ fun RatingSection(modifier: Modifier = Modifier, rating: Int, onRatingChange: (I
 @Composable
 fun ImageUploadSection(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text("Añadir imagen", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(
+            "Añadir imagen",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(modifier = Modifier.height(12.dp))
         Box(
             modifier = Modifier
@@ -163,7 +174,11 @@ fun ImageUploadSection(modifier: Modifier = Modifier) {
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.AddAPhoto, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(
+                Icons.Default.AddAPhoto,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
@@ -171,15 +186,33 @@ fun ImageUploadSection(modifier: Modifier = Modifier) {
 @Composable
 fun CommentField(modifier: Modifier = Modifier, comment: String, onCommentChange: (String) -> Unit) {
     Column(modifier = modifier) {
-        Text("Comentario", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(
+            "Comentario",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = comment,
             onValueChange = onCommentChange,
-            modifier = Modifier.fillMaxWidth().height(120.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
             shape = RoundedCornerShape(16.dp),
             placeholder = { Text("Cuéntanos más...") }
         )
+    }
+}
+
+
+@Composable
+fun ReviewScreenRouteOldDark(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {}
+) {
+    CondorappTheme(darkTheme = true) {
+        ReviewScreenRoute(modifier = modifier, onBackClick = onBackClick)
     }
 }
 
@@ -187,15 +220,23 @@ fun CommentField(modifier: Modifier = Modifier, comment: String, onCommentChange
 fun PublishButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().height(56.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
         Text("Publicar Reseña", style = MaterialTheme.typography.titleMedium)
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Review - Light")
 @Composable
-fun ReviewScreenPreview() {
-    CondorappTheme { ReviewScreenRoute() }
+fun ReviewScreenPreviewLight() {
+    CondorappTheme(darkTheme = false) { ReviewScreenRoute() }
+}
+
+@Preview(showBackground = true, name = "Review - Dark")
+@Composable
+fun ReviewScreenPreviewDark() {
+    CondorappTheme(darkTheme = true) { ReviewScreenRoute() }
 }

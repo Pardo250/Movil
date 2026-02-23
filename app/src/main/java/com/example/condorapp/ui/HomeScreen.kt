@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,13 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
-
-private val LightBackground = Color(0xFFF5F7F1)
-private val Green = Color(0xFF4F7336)
-private val LightGreen = Color(0xFFA1BE8F)
-private val Gray = Color(0xFF7A7A7A)
-private val White = Color.White
-private val Black = Color.Black
+import com.example.condorapp.data.PostRepository
+import com.example.condorapp.ui.theme.CondorappTheme
+import androidx.compose.ui.graphics.Color
 
 data class Post(
     val user: String,
@@ -62,7 +57,7 @@ fun HomeTopBar(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = stringResource(R.string.cd_back),
-                    tint = Green
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         },
@@ -71,12 +66,12 @@ fun HomeTopBar(
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = stringResource(R.string.cd_notifications),
-                    tint = Green
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = LightBackground
+            containerColor = MaterialTheme.colorScheme.background
         )
     )
 }
@@ -96,14 +91,17 @@ fun ProfileAvatar(modifier: Modifier = Modifier) {
 fun FilterBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
-            .background(LightGreen, RoundedCornerShape(40.dp))
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(40.dp)
+            )
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_menu),
             contentDescription = stringResource(R.string.cd_menu),
-            tint = Green,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .size(45.dp)
                 .padding(start = 10.dp)
@@ -113,7 +111,7 @@ fun FilterBar(modifier: Modifier = Modifier) {
 
         Text(
             text = stringResource(R.string.filter),
-            color = Black,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
@@ -123,7 +121,7 @@ fun FilterBar(modifier: Modifier = Modifier) {
         Icon(
             painter = painterResource(R.drawable.ic_logo),
             contentDescription = stringResource(R.string.cd_logo),
-            tint = Green,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .size(45.dp)
                 .padding(end = 10.dp)
@@ -152,20 +150,30 @@ fun PostHeader(post: Post, modifier: Modifier = Modifier) {
         Text(
             text = post.user.first().toString(),
             fontWeight = FontWeight.Bold,
-            color = Green,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 20.sp
         )
 
         Spacer(Modifier.width(16.dp))
 
         Column(Modifier.weight(1f)) {
-            Text(post.user, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            Text(post.location, color = Gray, fontSize = 14.sp)
+            Text(
+                text = post.user,
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = post.location,
+                color = MaterialTheme.colorScheme.outline,
+                fontSize = 14.sp
+            )
         }
 
         Icon(
             painter = painterResource(R.drawable.ic_more),
             contentDescription = stringResource(R.string.cd_more_options),
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(22.dp)
         )
     }
@@ -192,20 +200,22 @@ fun PostActions(likes: String, comments: String, modifier: Modifier = Modifier) 
         Icon(
             painter = painterResource(R.drawable.ic_heart),
             contentDescription = stringResource(R.string.cd_like),
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(22.dp)
         )
         Spacer(Modifier.width(8.dp))
-        Text(likes)
+        Text(text = likes, color = MaterialTheme.colorScheme.onSurface)
 
         Spacer(Modifier.width(30.dp))
 
         Icon(
             painter = painterResource(R.drawable.ic_comment),
             contentDescription = stringResource(R.string.cd_comment),
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(22.dp)
         )
         Spacer(Modifier.width(8.dp))
-        Text(comments)
+        Text(text = comments, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -223,7 +233,10 @@ fun PostCard(
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) LightGreen.copy(alpha = 0.35f) else White
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+            else
+                MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(10.dp)
     ) {
@@ -234,7 +247,7 @@ fun PostCard(
             Text(
                 text = stringResource(R.string.post_lorem),
                 modifier = Modifier.padding(20.dp),
-                color = Gray,
+                color = MaterialTheme.colorScheme.outline,
                 fontSize = 14.sp
             )
 
@@ -252,10 +265,15 @@ fun BottomItem(icon: Int, labelRes: Int, modifier: Modifier = Modifier) {
         Icon(
             painter = painterResource(icon),
             contentDescription = stringResource(labelRes),
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(26.dp)
         )
         Spacer(Modifier.height(6.dp))
-        Text(text = stringResource(labelRes), fontSize = 14.sp)
+        Text(
+            text = stringResource(labelRes),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -266,11 +284,12 @@ fun BottomFloatingBar(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .padding(horizontal = 30.dp),
         shape = RoundedCornerShape(60.dp),
-        elevation = CardDefaults.cardElevation(16.dp)
+        elevation = CardDefaults.cardElevation(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
-                .background(White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(vertical = 22.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -288,12 +307,7 @@ fun HomeScreenRoute(
     onBack: () -> Unit = {},
     onNotifications: () -> Unit = {}
 ) {
-    val initialPosts = remember {
-        listOf(
-            Post("Alejandra Gomez", "Valle del Cocora", R.drawable.valle_del_cocora, "1.2k", "58"),
-            Post("Mateo Ruiz", "Cartagena Old City", R.drawable.cartagena, "980", "30")
-        )
-    }
+    val initialPosts = remember { PostRepository.getPosts() }
 
     var state by remember {
         mutableStateOf(HomeUiState(posts = initialPosts))
@@ -320,12 +334,9 @@ fun HomeScreenContent(
 ) {
     Scaffold(
         modifier = modifier,
-        containerColor = LightBackground,
-        topBar = {
-            HomeTopBar(onBack = onBack, onNotifications = onNotifications)
-        },
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = { HomeTopBar(onBack = onBack, onNotifications = onNotifications) },
         bottomBar = {
-            // ✅ BottomFloatingBar como bottomBar del Scaffold
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -340,7 +351,6 @@ fun HomeScreenContent(
             }
         }
     ) { innerPadding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -359,7 +369,6 @@ fun HomeScreenContent(
                 )
             }
 
-            // ✅ espacio extra para que el último post no quede debajo de la barra
             Spacer(modifier = Modifier.height(120.dp))
         }
     }
@@ -368,5 +377,15 @@ fun HomeScreenContent(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreenRoute()
+    CondorappTheme(darkTheme = false) {
+        HomeScreenRoute()
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun HomeScreenDarkPreview() {
+    CondorappTheme(darkTheme = true) {
+        HomeScreenRoute()
+    }
 }

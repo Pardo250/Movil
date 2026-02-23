@@ -42,4 +42,6 @@
         <string name="cd_search">Search</string>
         <string name="cd_map_image">Map</string>
         <string name="cd_recommendation_image">Recommendation image</string>
+        <string name="ok">OK</string>
+        <string name="cd_change_photo">Cambiar foto</string>
 </resources>

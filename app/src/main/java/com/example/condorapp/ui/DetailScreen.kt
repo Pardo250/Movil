@@ -2,7 +2,6 @@ package com.example.condorapp.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,14 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 import com.example.condorapp.ui.theme.CondorappTheme
 
@@ -61,7 +58,6 @@ fun DetailScreenRoute(
                 if (it == review) it.copy(likes = it.likes + 1) else it
             }
             state = state.copy(reviews = updatedReviews)
-            println("Like en reseña de: ${review.name}")
         }
     )
 }
@@ -102,7 +98,8 @@ fun DetailScreenContent(
                     text = "Reseñas de la comunidad",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(16.dp),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
 
@@ -135,7 +132,10 @@ fun DetailHeader(
             modifier = Modifier
                 .padding(16.dp)
                 .size(48.dp)
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), CircleShape)
+                .background(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
+                    shape = CircleShape
+                )
         ) {
             Icon(
                 Icons.Default.ArrowBack,
@@ -144,23 +144,36 @@ fun DetailHeader(
             )
         }
 
-        Column(
+        Surface(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(16.dp)
-                .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                .padding(8.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
+            tonalElevation = 2.dp
         ) {
-            Text(
-                text = title,
-                color = Color.White,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("Destino Popular", color = Color.White)
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = title,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        "Destino Popular",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }
@@ -178,11 +191,16 @@ fun DetailInfoSection(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = location, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+        Text(
+            text = location,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -218,17 +236,27 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                         .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(review.name.first().toString(), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(
+                        review.name.first().toString(),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(review.name, fontWeight = FontWeight.Bold)
+                    Text(
+                        review.name,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Row {
                         repeat(5) { index ->
                             Icon(
                                 Icons.Default.Star,
                                 contentDescription = null,
-                                tint = if (index < review.rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                                tint = if (index < review.rating)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.outlineVariant,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -236,20 +264,48 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                 }
                 IconButton(onClick = onLike) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(review.likes.toString())
+                        Text(
+                            review.likes.toString(),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                         Spacer(Modifier.width(4.dp))
-                        Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Icon(
+                            Icons.Default.ThumbUp,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Text(review.comment, style = MaterialTheme.typography.bodySmall)
+            Text(
+                review.comment,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun DetailScreenPreview() {
-    CondorappTheme { DetailScreenRoute() }
+fun DetailScreenRouteOldDark(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {}
+) {
+    CondorappTheme(darkTheme = true) {
+        DetailScreenRoute(modifier = modifier, onBackClick = onBackClick)
+    }
+}
+
+@Preview(showBackground = true, name = "Detail - Light")
+@Composable
+fun DetailScreenPreviewLight() {
+    CondorappTheme(darkTheme = false) { DetailScreenRoute() }
+}
+
+@Preview(showBackground = true, name = "Detail - Dark")
+@Composable
+fun DetailScreenPreviewDark() {
+    CondorappTheme(darkTheme = true) { DetailScreenRoute() }
 }
