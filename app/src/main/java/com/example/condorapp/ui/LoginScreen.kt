@@ -269,12 +269,14 @@ fun LoginScreenRoute(
         onForgotPassword = { state = state.copy(messageRes = R.string.forgot_password) },
         onSignIn = {
             if (state.canSignIn) {
+                println("Inicio de sesión -> Email: ${state.email}, Password: ${state.password}")
                 state = state.copy(messageRes = R.string.sign_in)
                 onSignInSuccess()
             }
         },
         onContinueGoogle = { state = state.copy(messageRes = R.string.continue_with_google) },
         onRegister = {
+            println("Registro iniciado -> Email: ${state.email}, Password: ${state.password}")
             Log.d(TAG, "Registro iniciado -> Email: ${state.email}, Password: ${state.password}")
             state = state.copy(messageRes = R.string.register)
             onGoRegister()

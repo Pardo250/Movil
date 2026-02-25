@@ -25,25 +25,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.condorapp.R
+import com.example.condorapp.data.FeedPlace
+import com.example.condorapp.data.local.FeedRepository
 import com.example.condorapp.ui.theme.CondorappTheme
 
 data class FeedUiState(
     val selectedCategoryIndex: Int = 0,
-    val places: List<Int> = listOf(
-        R.drawable.cartagena,
-        R.drawable.valle_del_cocora,
-        R.drawable.santamarta,
-        R.drawable.medellin,
-        R.drawable.atardecer,
-        R.drawable.catedral
-    )
+    val places: List<FeedPlace> = emptyList()
 )
 
 @Composable
 fun FeedScreenRoute(
     modifier: Modifier = Modifier
 ) {
-    var state by remember { mutableStateOf(FeedUiState()) }
+    val initialPlaces = remember { FeedRepository.getPlaces() }
+    var state by remember { mutableStateOf(FeedUiState(places = initialPlaces)) }
 
     FeedScreenContent(
         state = state,
@@ -60,63 +56,55 @@ fun FeedScreenContent(
 ) {
     val cs = MaterialTheme.colorScheme
 
-    Scaffold(
-        modifier = modifier,
-        containerColor = cs.background,
-        bottomBar = {
-            BottomNavBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp)
-            )
-        }
-    ) { innerPadding ->
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(cs.background)
+            .padding(16.dp)
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Column(
+        FeedSearchBar()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        MapCard()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CategoryChips(
+            selectedIndex = state.selectedCategoryIndex,
+            onSelected = onCategorySelected
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.recommended_for_you),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = cs.onBackground
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        RecommendationGrid(
+            places = state.places,
+            modifier = Modifier.weight(1f)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        BottomNavBar(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(cs.background)
-                .padding(16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            SearchBar()
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            MapCard()
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            CategoryChips(
-                selectedIndex = state.selectedCategoryIndex,
-                onSelected = onCategorySelected
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.recommended_for_you),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = cs.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // ✅ Para que no se “coma” el bottomBar
-            RecommendationGrid(
-                places = state.places,
-                modifier = Modifier.weight(1f)
-            )
-        }
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp)
+        )
     }
 }
 
 @Composable
-fun SearchBar(modifier: Modifier = Modifier) {
+fun FeedSearchBar(modifier: Modifier = Modifier) {
     val cs = MaterialTheme.colorScheme
 
     Box(
@@ -219,7 +207,7 @@ fun FilterChip(
 
 @Composable
 fun RecommendationGrid(
-    places: List<Int>,
+    places: List<FeedPlace>,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -228,9 +216,9 @@ fun RecommendationGrid(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        items(places) { image ->
+        items(places) { place ->
             Image(
-                painter = painterResource(id = image),
+                painter = painterResource(id = place.imageRes),
                 contentDescription = stringResource(R.string.cd_recommendation_image),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

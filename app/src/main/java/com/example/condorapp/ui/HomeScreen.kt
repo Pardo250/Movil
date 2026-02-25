@@ -6,10 +6,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
@@ -26,17 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
-import com.example.condorapp.data.PostRepository
+import com.example.condorapp.data.Post
+import com.example.condorapp.data.local.PostRepository
 import com.example.condorapp.ui.theme.CondorappTheme
-import androidx.compose.ui.graphics.Color
-
-data class Post(
-    val user: String,
-    val location: String,
-    val imageRes: Int,
-    val likes: String,
-    val comments: String
-)
 
 data class HomeUiState(
     val posts: List<Post> = emptyList(),
@@ -332,45 +324,38 @@ fun HomeScreenContent(
     onNotifications: () -> Unit,
     onPostClick: (Int) -> Unit
 ) {
-    Scaffold(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = { HomeTopBar(onBack = onBack, onNotifications = onNotifications) },
-        bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)
-                    .padding(bottom = 22.dp)
-            ) {
-                BottomFloatingBar(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 30.dp)
-                )
-            }
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 120.dp)
         ) {
-            HeaderSection()
+            item {
+                HomeTopBar(onBack = onBack, onNotifications = onNotifications)
+            }
 
-            Spacer(Modifier.height(20.dp))
+            item {
+                HeaderSection()
+                Spacer(Modifier.height(20.dp))
+            }
 
-            state.posts.forEachIndexed { index, post ->
+            itemsIndexed(state.posts) { index, post ->
                 PostCard(
                     post = post,
                     isSelected = state.selectedPostIndex == index,
                     onClick = { onPostClick(index) }
                 )
             }
-
-            Spacer(modifier = Modifier.height(120.dp))
         }
+
+        BottomFloatingBar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 22.dp)
+        )
     }
 }
 

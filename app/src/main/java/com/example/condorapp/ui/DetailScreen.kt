@@ -21,25 +21,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.condorapp.R
+import com.example.condorapp.data.Review
+import com.example.condorapp.data.local.ReviewRepository
 import com.example.condorapp.ui.theme.CondorappTheme
-
-data class Review(
-    val name: String,
-    val rating: Int,
-    val comment: String,
-    val likes: Int
-)
 
 data class DetailUiState(
     val title: String = "Valle del Cocora",
     val location: String = "Eje Cafetero",
     val description: String = "Imagina caminar entre las palmas más altas del mundo...",
     val imageRes: Int = R.drawable.valle_del_cocora,
-    val reviews: List<Review> = listOf(
-        Review("Maria Valen", 5, "Category • $$ • 1.2 miles away\nSupporting line text lorem ipsum...", 12),
-        Review("Juan Perez", 4, "Un lugar increíble para visitar en familia.", 5),
-        Review("Sofia Gomez", 5, "Las mejores vistas de Colombia.", 8)
-    )
+    val reviews: List<Review> = emptyList()
 )
 
 @Composable
@@ -47,7 +38,8 @@ fun DetailScreenRoute(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {}
 ) {
-    var state by remember { mutableStateOf(DetailUiState()) }
+    val initialReviews = remember { ReviewRepository.getReviews() }
+    var state by remember { mutableStateOf(DetailUiState(reviews = initialReviews)) }
 
     DetailScreenContent(
         state = state,
@@ -285,16 +277,6 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
-}
-
-@Composable
-fun DetailScreenRouteOldDark(
-    modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {}
-) {
-    CondorappTheme(darkTheme = true) {
-        DetailScreenRoute(modifier = modifier, onBackClick = onBackClick)
     }
 }
 

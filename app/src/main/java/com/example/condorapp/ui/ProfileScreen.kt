@@ -24,19 +24,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.condorapp.R
+import com.example.condorapp.data.UserProfile
+import com.example.condorapp.data.local.UserProfileRepository
 import com.example.condorapp.ui.theme.CondorappTheme
 
 data class ProfileUiState(
-    val name: String = "Camilo Jiménez",
-    val username: String = "@Camilo_co",
-    val photos: List<Int> = listOf(
-        R.drawable.cartagena,
-        R.drawable.valle_del_cocora,
-        R.drawable.medellin,
-        R.drawable.santamarta,
-        R.drawable.catedral,
-        R.drawable.atardecer
-    )
+    val name: String = "",
+    val username: String = "",
+    val photos: List<Int> = emptyList()
 )
 
 @Composable
@@ -46,7 +41,16 @@ fun ProfileScreenRoute(
     onEditProfile: () -> Unit = {},
     onShareProfile: () -> Unit = {}
 ) {
-    val state by remember { mutableStateOf(ProfileUiState()) }
+    val profile = remember { UserProfileRepository.getProfile() }
+    val state by remember {
+        mutableStateOf(
+            ProfileUiState(
+                name = profile.name,
+                username = profile.username,
+                photos = profile.photos
+            )
+        )
+    }
 
     ProfileScreenContent(
         state = state,
@@ -186,24 +190,6 @@ fun PhotoGrid(photos: List<Int>, modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(12.dp))
             )
         }
-    }
-}
-
-
-@Composable
-fun ProfileScreenRouteOldDark(
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit = {},
-    onEditProfile: () -> Unit = {},
-    onShareProfile: () -> Unit = {}
-) {
-    CondorappTheme(darkTheme = true) {
-        ProfileScreenRoute(
-            modifier = modifier,
-            onBack = onBack,
-            onEditProfile = onEditProfile,
-            onShareProfile = onShareProfile
-        )
     }
 }
 

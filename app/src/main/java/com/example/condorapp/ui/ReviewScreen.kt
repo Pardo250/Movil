@@ -207,16 +207,6 @@ fun CommentField(modifier: Modifier = Modifier, comment: String, onCommentChange
 
 
 @Composable
-fun ReviewScreenRouteOldDark(
-    modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {}
-) {
-    CondorappTheme(darkTheme = true) {
-        ReviewScreenRoute(modifier = modifier, onBackClick = onBackClick)
-    }
-}
-
-@Composable
 fun PublishButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,

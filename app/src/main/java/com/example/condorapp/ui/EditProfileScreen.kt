@@ -49,10 +49,12 @@ fun EditProfileScreenRoute(
         onFullNameChange = { state = state.copy(fullName = it) },
         onBioChange = { state = state.copy(bio = it) },
         onSave = {
+            println("Guardando perfil -> username: ${state.username}, fullName: ${state.fullName}, bio: ${state.bio}")
             Log.d(TAG, "Guardando: ${state.username}, ${state.fullName}")
             state = state.copy(messageRes = R.string.save_changes)
         },
         onDeleteAccount = {
+            println("Cuenta eliminada para usuario: ${state.username}")
             Log.d(TAG, "Cuenta eliminada")
             state = EditProfileUiState(messageRes = R.string.delete_account)
         },
