@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.condorapp.ui.EditProfileScreenRoute
 import com.example.condorapp.ui.HomeScreenRoute
 import com.example.condorapp.ui.theme.CondorappTheme
 
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     val screenModifier = Modifier.padding(innerPadding)
 
                     when (currentScreen) {
-                        "login" -> HomeScreenRoute(
+                        "login" -> EditProfileScreenRoute(
                             modifier = screenModifier,
                         )
                     }
