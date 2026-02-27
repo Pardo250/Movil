@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,13 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 import com.example.condorapp.data.Review
+import com.example.condorapp.data.local.PostRepository
 import com.example.condorapp.data.local.ReviewRepository
 import com.example.condorapp.ui.theme.CondorappTheme
 
 data class DetailUiState(
-    val title: String = "Valle del Cocora",
-    val location: String = "Eje Cafetero",
-    val description: String = "Imagina caminar entre las palmas más altas del mundo, donde la niebla abraza las montañas verdes de Colombia.",
+    val title: String = "",
+    val location: String = "",
+    val description: String = "Descubre este increíble destino colombiano, lleno de historia, cultura y paisajes inolvidables que te conectarán con la naturaleza.",
     val imageRes: Int = R.drawable.valle_del_cocora,
     val reviews: List<Review> = emptyList()
 )
@@ -45,7 +47,22 @@ fun DetailScreen(
     onAddReview: () -> Unit
 ) {
     val initialReviews = remember { ReviewRepository.getReviews() }
-    var state by remember { mutableStateOf(DetailUiState(reviews = initialReviews, title = postId)) }
+    
+    // 🔍 Buscamos la data real del post usando el postId (location)
+    val postData = remember(postId) {
+        PostRepository.getPosts().find { it.location == postId }
+    }
+
+    var state by remember(postId) {
+        mutableStateOf(
+            DetailUiState(
+                title = postData?.location ?: postId,
+                location = postData?.user ?: "Destino Condorapp",
+                imageRes = postData?.imageRes ?: R.drawable.valle_del_cocora,
+                reviews = initialReviews
+            )
+        )
+    }
 
     DetailScreenContent(
         state = state,
@@ -195,7 +212,7 @@ fun DetailInfoSection(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = location,
+            text = "Post de $location",
             style = MaterialTheme.typography.headlineSmall,
             color = colorScheme.primary,
             fontWeight = FontWeight.Bold

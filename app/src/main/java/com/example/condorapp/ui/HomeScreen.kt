@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -97,10 +98,26 @@ fun HomeHeader(onNotifications: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(Modifier.width(48.dp))
+            // Botón de atrás circular (como en la imagen)
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(colorScheme.primary.copy(alpha = 0.4f), CircleShape)
+                    .clickable { /* Acción atrás */ },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    tint = colorScheme.onSurface,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            
             ProfileAvatar()
+            
             IconButton(onClick = onNotifications) {
-                Icon(Icons.Default.Notifications, contentDescription = null, tint = colorScheme.primary)
+                Icon(Icons.Default.Notifications, contentDescription = null, tint = colorScheme.onSurface)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -124,18 +141,40 @@ fun FilterBar() {
     Row(
         modifier = Modifier
             .width(280.dp)
-            .background(colorScheme.surfaceVariant, RoundedCornerShape(40.dp))
-            .padding(vertical = 10.dp, horizontal = 20.dp),
+            .height(54.dp)
+            .background(colorScheme.surfaceVariant, RoundedCornerShape(27.dp))
+            .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(painter = painterResource(R.drawable.ic_menu), contentDescription = null, tint = colorScheme.primary)
+        Icon(
+            painter = painterResource(R.drawable.ic_menu),
+            contentDescription = null,
+            tint = colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+        
         Text(
             stringResource(R.string.filter), 
             fontWeight = FontWeight.Bold, 
-            color = colorScheme.onSurfaceVariant
+            color = colorScheme.onSurfaceVariant,
+            fontSize = 18.sp
         )
-        Icon(painter = painterResource(R.drawable.ic_logo), contentDescription = null, tint = colorScheme.primary)
+        
+        // Logo con fondo circular
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(colorScheme.primary.copy(alpha = 0.2f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_logo), 
+                contentDescription = null, 
+                tint = colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 
