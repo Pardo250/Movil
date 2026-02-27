@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.condorapp.ui
 
 import androidx.compose.foundation.Image
@@ -8,43 +10,50 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
 import com.example.condorapp.data.Review
 import com.example.condorapp.data.local.ReviewRepository
 import com.example.condorapp.ui.theme.CondorappTheme
 
+// Usamos los mismos colores que en el Home para consistencia
+val DesignGreenDetail = Color(0xFF43664B)
+val BackgroundDetail = Color(0xFFF8F9F5)
+
 data class DetailUiState(
     val title: String = "Valle del Cocora",
     val location: String = "Eje Cafetero",
-    val description: String = "Imagina caminar entre las palmas más altas del mundo...",
+    val description: String = "Imagina caminar entre las palmas más altas del mundo, donde la niebla abraza las montañas verdes de Colombia.",
     val imageRes: Int = R.drawable.valle_del_cocora,
     val reviews: List<Review> = emptyList()
 )
 
 @Composable
-fun DetailScreenRoute(
-    modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {}
+fun DetailScreen(
+    postId: String, // Recibe el ID o nombre desde la navegación
+    onBack: () -> Unit
 ) {
     val initialReviews = remember { ReviewRepository.getReviews() }
-    var state by remember { mutableStateOf(DetailUiState(reviews = initialReviews)) }
+    // Creamos el estado inicial. En una app real, aquí buscarías los datos del post usando el postId
+    var state by remember { mutableStateOf(DetailUiState(reviews = initialReviews, title = postId)) }
 
     DetailScreenContent(
         state = state,
-        modifier = modifier,
-        onBackClick = onBackClick,
+        onBackClick = onBack,
         onLikeReview = { review ->
             val updatedReviews = state.reviews.map {
                 if (it == review) it.copy(likes = it.likes + 1) else it
@@ -64,11 +73,11 @@ fun DetailScreenContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(BackgroundDetail)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 100.dp)
+            contentPadding = PaddingValues(bottom = 32.dp)
         ) {
             item {
                 DetailHeader(
@@ -91,7 +100,7 @@ fun DetailScreenContent(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(16.dp),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = DesignGreenDetail
                 )
             }
 
@@ -116,7 +125,7 @@ fun DetailHeader(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(350.dp) // Un poco más alto para lucir la foto
         )
 
         IconButton(
@@ -125,14 +134,14 @@ fun DetailHeader(
                 .padding(16.dp)
                 .size(48.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
+                    color = Color.White.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
         ) {
             Icon(
-                Icons.Default.ArrowBack,
+                Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Regresar",
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = Color.Black
             )
         }
 
@@ -140,29 +149,28 @@ fun DetailHeader(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(16.dp),
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
-            tonalElevation = 2.dp
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White.copy(alpha = 0.9f),
+            shadowElevation = 4.dp
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = title,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.Black,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(16.dp)
+                        tint = DesignGreenDetail,
+                        modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
                         "Destino Popular",
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = Color.Gray,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -180,32 +188,35 @@ fun DetailInfoSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = location,
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary
+            color = DesignGreenDetail,
+            fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
+            color = Color.DarkGray,
+            textAlign = TextAlign.Center,
+            lineHeight = 22.sp
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             AssistChip(
                 onClick = { },
                 label = { Text("Añadir Interés") },
-                leadingIcon = { Icon(Icons.Default.Add, null) }
+                leadingIcon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp)) },
+                colors = AssistChipDefaults.assistChipColors(labelColor = DesignGreenDetail)
             )
             AssistChip(
                 onClick = { },
                 label = { Text("Precios") },
-                leadingIcon = { Icon(Icons.Default.AttachMoney, null) }
+                leadingIcon = { Icon(Icons.Default.AttachMoney, null, modifier = Modifier.size(18.dp)) }
             )
         }
     }
@@ -217,20 +228,23 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(45.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(DesignSelectedPill),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         review.name.first().toString(),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = DesignGreenDetail,
+                        fontWeight = FontWeight.Bold
                     )
                 }
                 Spacer(Modifier.width(12.dp))
@@ -238,18 +252,15 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                     Text(
                         review.name,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.Black
                     )
                     Row {
                         repeat(5) { index ->
                             Icon(
                                 Icons.Default.Star,
                                 contentDescription = null,
-                                tint = if (index < review.rating)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.outlineVariant,
-                                modifier = Modifier.size(16.dp)
+                                tint = if (index < review.rating) Color(0xFFFFB400) else Color.LightGray,
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                     }
@@ -258,14 +269,15 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             review.likes.toString(),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.Gray,
+                            fontSize = 14.sp
                         )
                         Spacer(Modifier.width(4.dp))
                         Icon(
                             Icons.Default.ThumbUp,
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            modifier = Modifier.size(18.dp),
+                            tint = DesignGreenDetail
                         )
                     }
                 }
@@ -274,20 +286,8 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
             Text(
                 review.comment,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color.DarkGray
             )
         }
     }
-}
-
-@Preview(showBackground = true, name = "Detail - Light")
-@Composable
-fun DetailScreenPreviewLight() {
-    CondorappTheme(darkTheme = false) { DetailScreenRoute() }
-}
-
-@Preview(showBackground = true, name = "Detail - Dark")
-@Composable
-fun DetailScreenPreviewDark() {
-    CondorappTheme(darkTheme = true) { DetailScreenRoute() }
 }

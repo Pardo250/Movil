@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -26,12 +27,14 @@ data class InicioUiState(
 
 @Composable
 fun InicioScreenRoute(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStartClick: () -> Unit   // ✅ callback para navegar
 ) {
     val state by remember { mutableStateOf(InicioUiState()) }
 
     InicioScreenContent(
         state = state,
+        onStartClick = onStartClick,
         modifier = modifier
     )
 }
@@ -39,6 +42,7 @@ fun InicioScreenRoute(
 @Composable
 fun InicioScreenContent(
     state: InicioUiState,
+    onStartClick: () -> Unit,   // ✅ se pasa al contenido
     modifier: Modifier = Modifier
 ) {
 
@@ -47,7 +51,6 @@ fun InicioScreenContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            // ✅ Usamos background oficial del theme
             .background(colorScheme.background)
     ) {
         Column(
@@ -63,6 +66,15 @@ fun InicioScreenContent(
             Spacer(modifier = Modifier.height(32.dp))
 
             Slogan(text = state.slogan)
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // ✅ BOTÓN PARA IR AL LOGIN
+            Button(
+                onClick = onStartClick
+            ) {
+                Text("Comenzar")
+            }
         }
     }
 }
@@ -86,9 +98,8 @@ fun Slogan(
 ) {
     Text(
         text = text,
-        // ✅ Se adapta automáticamente en modo oscuro
         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-        fontSize = 18.sp,
+        fontSize = 22.sp,
         fontWeight = FontWeight.Light,
         modifier = modifier
     )
@@ -98,7 +109,9 @@ fun Slogan(
 @Composable
 fun InicioScreenLightPreview() {
     CondorappTheme(darkTheme = false) {
-        InicioScreenRoute()
+        InicioScreenRoute(
+            onStartClick = {}
+        )
     }
 }
 
@@ -106,6 +119,8 @@ fun InicioScreenLightPreview() {
 @Composable
 fun InicioScreenDarkPreview() {
     CondorappTheme(darkTheme = true) {
-        InicioScreenRoute()
+        InicioScreenRoute(
+            onStartClick = {}
+        )
     }
 }

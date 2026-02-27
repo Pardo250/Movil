@@ -57,12 +57,12 @@ fun LoginHeader(modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(R.drawable.logo2),
             contentDescription = stringResource(R.string.cd_logo_condorapp),
-            modifier = Modifier.size(210.dp)
+            modifier = Modifier.size(230.dp)
         )
         Spacer(modifier = Modifier.height(15.dp))
         Text(
             text = stringResource(R.string.login_subtitle),
-            fontSize = 20.sp,
+            fontSize = 22.sp,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
         )
@@ -76,13 +76,16 @@ fun EmailField(
     onEmailChange: (String) -> Unit
 ) {
     Column(modifier = modifier) {
+
         Text(
             text = stringResource(R.string.email_label),
-            fontSize = 16.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
         OutlinedTextField(
             value = email,
             onValueChange = onEmailChange,
@@ -101,13 +104,16 @@ fun PasswordField(
     onPasswordChange: (String) -> Unit
 ) {
     Column(modifier = modifier) {
+
         Text(
             text = stringResource(R.string.password_label),
-            fontSize = 16.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
         OutlinedTextField(
             value = password,
             onValueChange = onPasswordChange,
@@ -133,25 +139,38 @@ fun PrimaryButton(
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(18.dp)
     ) {
-        Text(text = stringResource(textRes), fontWeight = FontWeight.Bold)
+        Text(
+            text = stringResource(textRes),
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 @Composable
 fun DividerSection(modifier: Modifier = Modifier) {
+
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Divider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
+
+        Divider(
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.outline
+        )
+
         Text(
             text = stringResource(R.string.or),
             modifier = Modifier.padding(horizontal = 16.dp),
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
         )
-        Divider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
+
+        Divider(
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.outline
+        )
     }
 }
 
@@ -167,19 +186,33 @@ fun LoginForm(
     onRegister: () -> Unit,
     onDismissMessage: () -> Unit
 ) {
+
     val cs = MaterialTheme.colorScheme
 
     Column(modifier = modifier) {
-        EmailField(email = state.email, onEmailChange = onEmailChange)
+
+        EmailField(
+            email = state.email,
+            onEmailChange = onEmailChange
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        PasswordField(password = state.password, onPasswordChange = onPasswordChange)
+        PasswordField(
+            password = state.password,
+            onPasswordChange = onPasswordChange
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
-        TextButton(onClick = onForgotPassword, modifier = Modifier.align(Alignment.End)) {
-            Text(text = stringResource(R.string.forgot_password), color = cs.primary)
+        TextButton(
+            onClick = onForgotPassword,
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(
+                text = stringResource(R.string.forgot_password),
+                color = cs.primary
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -196,56 +229,71 @@ fun LoginForm(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ✅ Botón Google: usar secondaryContainer para que se vea bien en dark
         Button(
             onClick = onContinueGoogle,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = cs.secondaryContainer,
                 contentColor = cs.onSecondaryContainer
             )
         ) {
-            Text(text = stringResource(R.string.continue_with_google), fontWeight = FontWeight.Bold)
+            Text(
+                text = stringResource(R.string.continue_with_google),
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         Button(
             onClick = onRegister,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = cs.surfaceVariant,
                 contentColor = cs.onSurfaceVariant
             )
         ) {
-            Text(text = stringResource(R.string.register), fontWeight = FontWeight.Bold)
+            Text(
+                text = stringResource(R.string.register),
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        // ✅ Mensaje
         if (state.messageRes != null) {
+
             Spacer(modifier = Modifier.height(18.dp))
+
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = cs.surface),
+                colors = CardDefaults.cardColors(
+                    containerColor = cs.surface
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
+
                 Row(
                     modifier = Modifier.padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+
                     Text(
                         text = stringResource(state.messageRes),
                         color = cs.onSurface
                     )
-                    TextButton(onClick = onDismissMessage) {
-                        Text(text = stringResource(R.string.ok))
+
+                    TextButton(
+                        onClick = onDismissMessage
+                    ) {
+                        Text(
+                            text = stringResource(R.string.ok)
+                        )
                     }
                 }
             }
@@ -256,32 +304,81 @@ fun LoginForm(
 @Composable
 fun LoginScreenRoute(
     modifier: Modifier = Modifier,
-    onSignInSuccess: () -> Unit = {},
+    onSignInSuccess: () -> Unit,   // ✅ ESTE es el que usará Navigation
     onGoRegister: () -> Unit = {}
 ) {
-    var state by remember { mutableStateOf(LoginUiState()) }
+
+    var state by remember {
+        mutableStateOf(LoginUiState())
+    }
 
     LoginScreenContent(
         modifier = modifier,
         state = state,
-        onEmailChange = { state = state.copy(email = it, messageRes = null) },
-        onPasswordChange = { state = state.copy(password = it, messageRes = null) },
-        onForgotPassword = { state = state.copy(messageRes = R.string.forgot_password) },
+
+        onEmailChange = {
+            state = state.copy(
+                email = it,
+                messageRes = null
+            )
+        },
+
+        onPasswordChange = {
+            state = state.copy(
+                password = it,
+                messageRes = null
+            )
+        },
+
+        onForgotPassword = {
+            state = state.copy(
+                messageRes = R.string.forgot_password
+            )
+        },
+
         onSignIn = {
+
             if (state.canSignIn) {
-                println("Inicio de sesión -> Email: ${state.email}, Password: ${state.password}")
-                state = state.copy(messageRes = R.string.sign_in)
+
+                Log.d(
+                    TAG,
+                    "Login correcto -> ${state.email}"
+                )
+
+                state = state.copy(
+                    messageRes = R.string.sign_in
+                )
+
+                // ✅ navega al Home
                 onSignInSuccess()
             }
         },
-        onContinueGoogle = { state = state.copy(messageRes = R.string.continue_with_google) },
+
+        onContinueGoogle = {
+            state = state.copy(
+                messageRes = R.string.continue_with_google
+            )
+        },
+
         onRegister = {
-            println("Registro iniciado -> Email: ${state.email}, Password: ${state.password}")
-            Log.d(TAG, "Registro iniciado -> Email: ${state.email}, Password: ${state.password}")
-            state = state.copy(messageRes = R.string.register)
+
+            Log.d(
+                TAG,
+                "Registro -> ${state.email}"
+            )
+
+            state = state.copy(
+                messageRes = R.string.register
+            )
+
             onGoRegister()
         },
-        onDismissMessage = { state = state.copy(messageRes = null) }
+
+        onDismissMessage = {
+            state = state.copy(
+                messageRes = null
+            )
+        }
     )
 }
 
@@ -297,17 +394,30 @@ fun LoginScreenContent(
     onRegister: () -> Unit,
     onDismissMessage: () -> Unit
 ) {
+
     LoginBackground {
+
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(
+                    rememberScrollState()
+                )
                 .padding(24.dp),
+
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(5.dp))
+
+            Spacer(
+                modifier = Modifier.height(5.dp)
+            )
+
             LoginHeader()
-            Spacer(modifier = Modifier.height(5.dp))
+
+            Spacer(
+                modifier = Modifier.height(5.dp)
+            )
+
             LoginForm(
                 state = state,
                 onEmailChange = onEmailChange,
@@ -322,18 +432,13 @@ fun LoginScreenContent(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-fun LoginScreenLightPreview() {
-    CondorappTheme(darkTheme = false) {
-        LoginScreenRoute()
-    }
-}
+fun PreviewLoginLight() {
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun LoginScreenDarkPreview() {
-    CondorappTheme(darkTheme = true) {
-        LoginScreenRoute()
+    CondorappTheme {
+        LoginScreenRoute(
+            onSignInSuccess = {}
+        )
     }
 }
