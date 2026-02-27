@@ -11,9 +11,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.example.condorapp.R
 import com.example.condorapp.data.FeedPlace
 import com.example.condorapp.data.local.FeedRepository
@@ -41,31 +37,32 @@ data class FeedUiState(
 
 @Composable
 fun FeedScreenRoute(
-    navController: NavHostController, // Agregamos el controller para la barra
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPlaceClick: (String) -> Unit
 ) {
     val initialPlaces = remember { FeedRepository.getPlaces() }
     var state by remember { mutableStateOf(FeedUiState(places = initialPlaces)) }
 
     FeedScreenContent(
         state = state,
-        navController = navController,
         modifier = modifier,
-        onCategorySelected = { index -> state = state.copy(selectedCategoryIndex = index) }
+        onCategorySelected = { index -> state = state.copy(selectedCategoryIndex = index) },
+        onPlaceClick = { place -> onPlaceClick(place.location) }
     )
 }
 
 @Composable
 fun FeedScreenContent(
     state: FeedUiState,
-    navController: NavHostController,
     modifier: Modifier = Modifier,
-    onCategorySelected: (Int) -> Unit
+    onCategorySelected: (Int) -> Unit,
+    onPlaceClick: (FeedPlace) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundApp)
+            .background(colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -93,37 +90,31 @@ fun FeedScreenContent(
                 text = stringResource(R.string.recommended_for_you),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = DesignGreenDark
+                color = colorScheme.primary
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             RecommendationGrid(
                 places = state.places,
+                onPlaceClick = onPlaceClick,
                 modifier = Modifier.weight(1f)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
         }
-
-        // BARRA INFERIOR INTEGRADA CON TU LÓGICA DE NAVEGACIÓN
-        BottomFloatingBar(
-            navController = navController,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 32.dp)
-        )
     }
 }
 
 @Composable
 fun FeedSearchBar(modifier: Modifier = Modifier) {
+    val colorScheme = MaterialTheme.colorScheme
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(55.dp),
         shape = RoundedCornerShape(28.dp),
-        color = Color.White,
+        color = colorScheme.surface,
         shadowElevation = 4.dp
     ) {
         Row(
@@ -133,13 +124,13 @@ fun FeedSearchBar(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = stringResource(R.string.cd_search),
-                tint = Color.Gray,
+                tint = colorScheme.outline,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = stringResource(R.string.search_placeholder),
-                color = Color.LightGray,
+                color = colorScheme.outline.copy(alpha = 0.6f),
                 fontSize = 16.sp
             )
         }
@@ -182,7 +173,7 @@ fun CategoryChips(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         categories.forEachIndexed { index, res ->
-            FilterChip(
+            FilterChipItem(
                 textRes = res,
                 selected = selectedIndex == index,
                 onClick = { onSelected(index) }
@@ -192,17 +183,18 @@ fun CategoryChips(
 }
 
 @Composable
-fun FilterChip(
+fun FilterChipItem(
     modifier: Modifier = Modifier,
     textRes: Int,
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Surface(
         modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
-        color = if (selected) DesignGreenDark else DesignGreenLight,
-        contentColor = if (selected) Color.White else DesignGreenDark
+        color = if (selected) colorScheme.primary else colorScheme.surfaceVariant,
+        contentColor = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant
     ) {
         Text(
             text = stringResource(textRes),
@@ -216,6 +208,7 @@ fun FilterChip(
 @Composable
 fun RecommendationGrid(
     places: List<FeedPlace>,
+    onPlaceClick: (FeedPlace) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -233,7 +226,24 @@ fun RecommendationGrid(
                 modifier = Modifier
                     .aspectRatio(0.8f)
                     .clip(RoundedCornerShape(20.dp))
+                    .clickable { onPlaceClick(place) }
             )
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Feed - Light")
+@Composable
+fun FeedScreenLightPreview() {
+    CondorappTheme(darkTheme = false) {
+        FeedScreenRoute(onPlaceClick = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Feed - Dark")
+@Composable
+fun FeedScreenDarkPreview() {
+    CondorappTheme(darkTheme = true) {
+        FeedScreenRoute(onPlaceClick = {})
     }
 }

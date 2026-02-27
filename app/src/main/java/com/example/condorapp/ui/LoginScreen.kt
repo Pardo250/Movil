@@ -50,6 +50,7 @@ fun LoginBackground(
 
 @Composable
 fun LoginHeader(modifier: Modifier = Modifier) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -63,7 +64,7 @@ fun LoginHeader(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.login_subtitle),
             fontSize = 22.sp,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            color = colorScheme.onBackground.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
         )
     }
@@ -75,13 +76,14 @@ fun EmailField(
     email: String,
     onEmailChange: (String) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(modifier = modifier) {
 
         Text(
             text = stringResource(R.string.email_label),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -92,7 +94,11 @@ fun EmailField(
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.email_placeholder)) },
             shape = RoundedCornerShape(12.dp),
-            singleLine = true
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorScheme.primary,
+                unfocusedBorderColor = colorScheme.outline
+            )
         )
     }
 }
@@ -103,13 +109,15 @@ fun PasswordField(
     password: String,
     onPasswordChange: (String) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(modifier = modifier) {
 
+        @Suppress("DEPRECATION")
         Text(
             text = stringResource(R.string.password_label),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -121,7 +129,11 @@ fun PasswordField(
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.value_placeholder)) },
             shape = RoundedCornerShape(12.dp),
-            singleLine = true
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorScheme.primary,
+                unfocusedBorderColor = colorScheme.outline
+            )
         )
     }
 }
@@ -150,26 +162,26 @@ fun PrimaryButton(
 
 @Composable
 fun DividerSection(modifier: Modifier = Modifier) {
-
+    val colorScheme = MaterialTheme.colorScheme
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Divider(
+        HorizontalDivider(
             modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.outline
+            color = colorScheme.outline
         )
 
         Text(
             text = stringResource(R.string.or),
             modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+            color = colorScheme.onBackground.copy(alpha = 0.7f)
         )
 
-        Divider(
+        HorizontalDivider(
             modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.outline
+            color = colorScheme.outline
         )
     }
 }
@@ -283,8 +295,9 @@ fun LoginForm(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
+                    @Suppress("DEPRECATION")
                     Text(
-                        text = stringResource(state.messageRes),
+                        text = stringResource(state.messageRes!!),
                         color = cs.onSurface
                     )
 
@@ -304,7 +317,7 @@ fun LoginForm(
 @Composable
 fun LoginScreenRoute(
     modifier: Modifier = Modifier,
-    onSignInSuccess: () -> Unit,   // ✅ ESTE es el que usará Navigation
+    onSignInSuccess: () -> Unit,
     onGoRegister: () -> Unit = {}
 ) {
 
@@ -349,7 +362,6 @@ fun LoginScreenRoute(
                     messageRes = R.string.sign_in
                 )
 
-                // ✅ navega al Home
                 onSignInSuccess()
             }
         },
@@ -432,11 +444,20 @@ fun LoginScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Login - Light")
 @Composable
 fun PreviewLoginLight() {
+    CondorappTheme(darkTheme = false) {
+        LoginScreenRoute(
+            onSignInSuccess = {}
+        )
+    }
+}
 
-    CondorappTheme {
+@Preview(showBackground = true, name = "Login - Dark")
+@Composable
+fun PreviewLoginDark() {
+    CondorappTheme(darkTheme = true) {
         LoginScreenRoute(
             onSignInSuccess = {}
         )

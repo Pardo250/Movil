@@ -30,10 +30,6 @@ import com.example.condorapp.data.Review
 import com.example.condorapp.data.local.ReviewRepository
 import com.example.condorapp.ui.theme.CondorappTheme
 
-// Usamos los mismos colores que en el Home para consistencia
-val DesignGreenDetail = Color(0xFF43664B)
-val BackgroundDetail = Color(0xFFF8F9F5)
-
 data class DetailUiState(
     val title: String = "Valle del Cocora",
     val location: String = "Eje Cafetero",
@@ -44,16 +40,17 @@ data class DetailUiState(
 
 @Composable
 fun DetailScreen(
-    postId: String, // Recibe el ID o nombre desde la navegación
-    onBack: () -> Unit
+    postId: String,
+    onBack: () -> Unit,
+    onAddReview: () -> Unit
 ) {
     val initialReviews = remember { ReviewRepository.getReviews() }
-    // Creamos el estado inicial. En una app real, aquí buscarías los datos del post usando el postId
     var state by remember { mutableStateOf(DetailUiState(reviews = initialReviews, title = postId)) }
 
     DetailScreenContent(
         state = state,
         onBackClick = onBack,
+        onAddReviewClick = onAddReview,
         onLikeReview = { review ->
             val updatedReviews = state.reviews.map {
                 if (it == review) it.copy(likes = it.likes + 1) else it
@@ -68,16 +65,18 @@ fun DetailScreenContent(
     state: DetailUiState,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
+    onAddReviewClick: () -> Unit,
     onLikeReview: (Review) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundDetail)
+            .background(colorScheme.background)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 32.dp)
+            contentPadding = PaddingValues(bottom = 100.dp)
         ) {
             item {
                 DetailHeader(
@@ -90,7 +89,8 @@ fun DetailScreenContent(
             item {
                 DetailInfoSection(
                     location = state.location,
-                    description = state.description
+                    description = state.description,
+                    onAddReviewClick = onAddReviewClick
                 )
             }
 
@@ -100,7 +100,7 @@ fun DetailScreenContent(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(16.dp),
                     fontWeight = FontWeight.Bold,
-                    color = DesignGreenDetail
+                    color = colorScheme.primary
                 )
             }
 
@@ -118,6 +118,7 @@ fun DetailHeader(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier) {
         Image(
             painter = painterResource(id = imageRes),
@@ -125,7 +126,7 @@ fun DetailHeader(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(350.dp) // Un poco más alto para lucir la foto
+                .height(350.dp)
         )
 
         IconButton(
@@ -134,14 +135,14 @@ fun DetailHeader(
                 .padding(16.dp)
                 .size(48.dp)
                 .background(
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = colorScheme.surface.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
         ) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Regresar",
-                tint = Color.Black
+                tint = colorScheme.onSurface
             )
         }
 
@@ -150,13 +151,13 @@ fun DetailHeader(
                 .align(Alignment.BottomStart)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-            color = Color.White.copy(alpha = 0.9f),
+            color = colorScheme.surface.copy(alpha = 0.9f),
             shadowElevation = 4.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = title,
-                    color = Color.Black,
+                    color = colorScheme.onSurface,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -164,13 +165,13 @@ fun DetailHeader(
                     Icon(
                         Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = DesignGreenDetail,
+                        tint = colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
                         "Destino Popular",
-                        color = Color.Gray,
+                        color = colorScheme.outline,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -183,8 +184,10 @@ fun DetailHeader(
 fun DetailInfoSection(
     location: String,
     description: String,
+    onAddReviewClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -194,24 +197,24 @@ fun DetailInfoSection(
         Text(
             text = location,
             style = MaterialTheme.typography.headlineSmall,
-            color = DesignGreenDetail,
+            color = colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.DarkGray,
+            color = colorScheme.onBackground.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
             lineHeight = 22.sp
         )
         Spacer(modifier = Modifier.height(20.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             AssistChip(
-                onClick = { },
-                label = { Text("Añadir Interés") },
+                onClick = onAddReviewClick,
+                label = { Text("Añadir Reseña") },
                 leadingIcon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp)) },
-                colors = AssistChipDefaults.assistChipColors(labelColor = DesignGreenDetail)
+                colors = AssistChipDefaults.assistChipColors(labelColor = colorScheme.primary)
             )
             AssistChip(
                 onClick = { },
@@ -224,12 +227,16 @@ fun DetailInfoSection(
 
 @Composable
 fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface,
+            contentColor = colorScheme.onSurface
+        ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -238,12 +245,12 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                     modifier = Modifier
                         .size(45.dp)
                         .clip(CircleShape)
-                        .background(DesignSelectedPill),
+                        .background(colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         review.name.first().toString(),
-                        color = DesignGreenDetail,
+                        color = colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -252,14 +259,14 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                     Text(
                         review.name,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = colorScheme.onSurface
                     )
                     Row {
                         repeat(5) { index ->
                             Icon(
                                 Icons.Default.Star,
                                 contentDescription = null,
-                                tint = if (index < review.rating) Color(0xFFFFB400) else Color.LightGray,
+                                tint = if (index < review.rating) Color(0xFFFFB400) else colorScheme.outlineVariant,
                                 modifier = Modifier.size(14.dp)
                             )
                         }
@@ -269,7 +276,7 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             review.likes.toString(),
-                            color = Color.Gray,
+                            color = colorScheme.outline,
                             fontSize = 14.sp
                         )
                         Spacer(Modifier.width(4.dp))
@@ -277,7 +284,7 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
                             Icons.Default.ThumbUp,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
-                            tint = DesignGreenDetail
+                            tint = colorScheme.primary
                         )
                     }
                 }
@@ -286,8 +293,24 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
             Text(
                 review.comment,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.DarkGray
+                color = colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Detail - Light")
+@Composable
+fun DetailScreenPreviewLight() {
+    CondorappTheme(darkTheme = false) {
+        DetailScreen(postId = "Valle del Cocora", onBack = {}, onAddReview = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Detail - Dark")
+@Composable
+fun DetailScreenPreviewDark() {
+    CondorappTheme(darkTheme = true) {
+        DetailScreen(postId = "Valle del Cocora", onBack = {}, onAddReview = {})
     }
 }

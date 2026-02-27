@@ -5,11 +5,11 @@ import com.example.condorapp.data.FeedPlace
 
 object FeedRepository {
     fun getPlaces(): List<FeedPlace> = listOf(
-        FeedPlace("Cartagena", R.drawable.cartagena),
-        FeedPlace("Valle del Cocora", R.drawable.valle_del_cocora),
-        FeedPlace("Santa Marta", R.drawable.santamarta),
-        FeedPlace("Medellín", R.drawable.medellin),
-        FeedPlace("Atardecer", R.drawable.atardecer),
-        FeedPlace("Catedral", R.drawable.catedral)
+        FeedPlace(R.drawable.cartagena, "Cartagena"),
+        FeedPlace(R.drawable.valle_del_cocora, "Valle del Cocora"),
+        FeedPlace(R.drawable.santamarta, "Santa Marta"),
+        FeedPlace(R.drawable.medellin, "Medellín"),
+        FeedPlace(R.drawable.atardecer, "Atardecer"),
+        FeedPlace(R.drawable.catedral, "Catedral")
     )
 }

@@ -1,6 +1,8 @@
 package com.example.condorapp.data
 
+import androidx.annotation.DrawableRes
+
 data class FeedPlace(
-    val name: String,
-    val imageRes: Int
+    @DrawableRes val imageRes: Int,
+    val location: String
 )

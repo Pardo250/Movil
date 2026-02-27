@@ -1,5 +1,6 @@
 package com.example.condorapp.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,208 +10,237 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Image
 import com.example.condorapp.R
+import com.example.condorapp.ui.theme.CondorappTheme
 
-val ScreenBg = Color(0xFFEDEFEA)
-val PrimaryGreen = Color(0xFF2F4B2F)
-val SoftGray = Color(0xFFE8E8E8)
-val RegisterGreen = Color(0xFF557A3E)
-val CancelBrown = Color(0xFFA87655)
+data class SignUpUiState(
+    val name: String = "",
+    val lastName: String = "",
+    val username: String = "",
+    val email: String = "",
+    val password: String = "",
+    val confirmPassword: String = ""
+) {
+    val canSignUp: Boolean
+        get() = name.isNotBlank() && lastName.isNotBlank() && username.isNotBlank() && 
+                email.isNotBlank() && password.isNotBlank() && password == confirmPassword
+}
 
 @Composable
-fun RegisterScreen(
+fun SignUpScreenRoute(
+    modifier: Modifier = Modifier,
+    onRegisterSuccess: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    var state by remember { mutableStateOf(SignUpUiState()) }
+
+    SignUpScreenContent(
+        state = state,
+        modifier = modifier,
+        onNameChange = { state = state.copy(name = it) },
+        onLastNameChange = { state = state.copy(lastName = it) },
+        onUsernameChange = { state = state.copy(username = it) },
+        onEmailChange = { state = state.copy(email = it) },
+        onPasswordChange = { state = state.copy(password = it) },
+        onConfirmPasswordChange = { state = state.copy(confirmPassword = it) },
+        onRegisterClick = onRegisterSuccess,
+        onCancelClick = onCancel
+    )
+}
+
+@Composable
+fun SignUpScreenContent(
+    state: SignUpUiState,
+    modifier: Modifier = Modifier,
+    onNameChange: (String) -> Unit,
+    onLastNameChange: (String) -> Unit,
+    onUsernameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
     onRegisterClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
-
-    var name by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-
+    val colorScheme = MaterialTheme.colorScheme
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(ScreenBg)
+            .background(colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(40.dp))
 
-        Spacer(modifier = Modifier.height(60.dp))
+        SignUpHeader()
 
-        Image(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = null,
-            modifier = Modifier.size(100.dp)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        SignUpForm(
+            state = state,
+            onNameChange = onNameChange,
+            onLastNameChange = onLastNameChange,
+            onUsernameChange = onUsernameChange,
+            onEmailChange = onEmailChange,
+            onPasswordChange = onPasswordChange,
+            onConfirmPasswordChange = onConfirmPasswordChange
         )
 
-        Spacer(modifier = Modifier.height(3.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "condorapp",
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold,
-            color = PrimaryGreen
+        SignUpActions(
+            canSignUp = state.canSignUp,
+            onRegisterClick = onRegisterClick,
+            onCancelClick = onCancelClick
         )
-
-        Text(
-            text = "Descubre la magia de los\nAndes y más allá",
-            textAlign = TextAlign.Center,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-
-        Text("Nombre y apellido", modifier = Modifier.align(Alignment.Start))
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = { Text("Nombre") },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = SoftGray,
-                    focusedContainerColor = SoftGray
-                )
-            )
-
-            OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
-                placeholder = { Text("Apellido") },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = SoftGray,
-                    focusedContainerColor = SoftGray
-                )
-            )
-        }
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        Text("Username", modifier = Modifier.align(Alignment.Start))
-        Spacer(modifier = Modifier.height(3.dp))
-
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            placeholder = { Text("Value") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = SoftGray,
-                focusedContainerColor = SoftGray
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Correo", modifier = Modifier.align(Alignment.Start))
-        Spacer(modifier = Modifier.height(4.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            placeholder = { Text("name@example.com") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = SoftGray,
-                focusedContainerColor = SoftGray
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Contraseña", modifier = Modifier.align(Alignment.Start))
-        Spacer(modifier = Modifier.height(4.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            placeholder = { Text("Value") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = SoftGray,
-                focusedContainerColor = SoftGray
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Confirmar Contraseña", modifier = Modifier.align(Alignment.Start))
-        Spacer(modifier = Modifier.height(4.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            placeholder = { Text("Value") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = SoftGray,
-                focusedContainerColor = SoftGray
-            )
-        )
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        Button(
-            onClick = onRegisterClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = RegisterGreen),
-            elevation = ButtonDefaults.buttonElevation(8.dp)
-        ) {
-            Text("Registrarse", fontSize = 16.sp)
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = onCancelClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = CancelBrown),
-            elevation = ButtonDefaults.buttonElevation(8.dp)
-        ) {
-            Text("Cancelar", fontSize = 16.sp)
-        }
 
         Spacer(modifier = Modifier.height(40.dp))
     }
 }
 
-@Preview(showSystemUi = true)
 @Composable
-fun PreviewRegisterScreen() {
-    RegisterScreen(
-        onRegisterClick = {},
-        onCancelClick = {}
-    )
+fun SignUpHeader(modifier: Modifier = Modifier) {
+    val colorScheme = MaterialTheme.colorScheme
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = null,
+            modifier = Modifier.size(90.dp)
+        )
+
+        Text(
+            text = "condorapp",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorScheme.primary
+        )
+
+        Text(
+            text = "Descubre la magia de los\nAndes y más allá",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            color = colorScheme.onBackground.copy(alpha = 0.6f)
+        )
+    }
+}
+
+@Composable
+fun SignUpForm(
+    state: SignUpUiState,
+    onNameChange: (String) -> Unit,
+    onLastNameChange: (String) -> Unit,
+    onUsernameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            SignUpTextField(
+                label = "Nombre",
+                value = state.name,
+                onValueChange = onNameChange,
+                modifier = Modifier.weight(1f)
+            )
+            SignUpTextField(
+                label = "Apellido",
+                value = state.lastName,
+                onValueChange = onLastNameChange,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        SignUpTextField(label = "Username", value = state.username, onValueChange = onUsernameChange)
+        SignUpTextField(label = "Correo", value = state.email, onValueChange = onEmailChange)
+        SignUpTextField(label = "Contraseña", value = state.password, onValueChange = onPasswordChange, isPassword = true)
+        SignUpTextField(label = "Confirmar Contraseña", value = state.confirmPassword, onValueChange = onConfirmPasswordChange, isPassword = true)
+    }
+}
+
+@Composable
+fun SignUpTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    isPassword: Boolean = false
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorScheme.primary,
+                unfocusedBorderColor = colorScheme.outline,
+                unfocusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                focusedContainerColor = colorScheme.surfaceVariant.copy(alpha = 0.2f)
+            )
+        )
+    }
+}
+
+@Composable
+fun SignUpActions(
+    canSignUp: Boolean,
+    onRegisterClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Button(
+            onClick = onRegisterClick,
+            enabled = canSignUp,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text("Registrarse", fontWeight = FontWeight.Bold)
+        }
+
+        OutlinedButton(
+            onClick = onCancelClick,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text("Cancelar", color = MaterialTheme.colorScheme.onBackground)
+        }
+    }
+}
+
+@Preview(showSystemUi = true, name = "SignUp - Light")
+@Composable
+fun SignUpScreenLightPreview() {
+    CondorappTheme(darkTheme = false) {
+        SignUpScreenRoute()
+    }
+}
+
+@Preview(showSystemUi = true, name = "SignUp - Dark")
+@Composable
+fun SignUpScreenDarkPreview() {
+    CondorappTheme(darkTheme = true) {
+        SignUpScreenRoute()
+    }
 }

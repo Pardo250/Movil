@@ -21,9 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.condorapp.R
+import com.example.condorapp.ui.theme.CondorappTheme
 
 private const val TAG = "EditProfile"
 
@@ -73,19 +75,24 @@ fun EditProfileScreenContent(
     onDeleteAccount: () -> Unit,
     onDismissMessage: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundApp)
+            .background(colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
         // Botón atrás circular
         IconButton(
             onClick = onBack,
-            modifier = Modifier.background(Color.White, CircleShape)
+            modifier = Modifier.background(colorScheme.surface, CircleShape)
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = Color.Black)
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack, 
+                contentDescription = null, 
+                tint = colorScheme.onSurface
+            )
         }
 
         Spacer(Modifier.height(24.dp))
@@ -105,7 +112,10 @@ fun EditProfileScreenContent(
             enabled = state.canSave,
             modifier = Modifier.fillMaxWidth().height(55.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = DesignGreenDark)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            )
         ) {
             Text(stringResource(R.string.save_changes), fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
@@ -114,18 +124,23 @@ fun EditProfileScreenContent(
             onClick = onDeleteAccount,
             modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 16.dp)
         ) {
-            Text(stringResource(R.string.delete_account), color = Color.Red)
+            Text(stringResource(R.string.delete_account), color = colorScheme.error)
         }
 
         // Feedback Card
         state.messageRes?.let {
             Card(
                 modifier = Modifier.padding(top = 20.dp),
-                colors = CardDefaults.cardColors(containerColor = DesignSelectedPill)
+                colors = CardDefaults.cardColors(
+                    containerColor = colorScheme.secondaryContainer,
+                    contentColor = colorScheme.onSecondaryContainer
+                )
             ) {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(it), Modifier.weight(1f), color = DesignGreenDark)
-                    TextButton(onClick = onDismissMessage) { Text("OK", color = DesignGreenDark) }
+                    Text(stringResource(it), Modifier.weight(1f))
+                    TextButton(onClick = onDismissMessage) { 
+                        Text("OK", color = colorScheme.primary) 
+                    }
                 }
             }
         }
@@ -134,8 +149,13 @@ fun EditProfileScreenContent(
 
 @Composable
 fun EditField(labelRes: Int, value: String, onValueChange: (String) -> Unit, isLong: Boolean = false) {
+    val colorScheme = MaterialTheme.colorScheme
     Column {
-        Text(stringResource(labelRes), fontWeight = FontWeight.Bold, color = DesignGreenDark)
+        Text(
+            stringResource(labelRes), 
+            fontWeight = FontWeight.Bold, 
+            color = colorScheme.primary
+        )
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = value,
@@ -144,8 +164,8 @@ fun EditField(labelRes: Int, value: String, onValueChange: (String) -> Unit, isL
             shape = RoundedCornerShape(14.dp),
             minLines = if (isLong) 3 else 1,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = DesignGreenDark,
-                unfocusedBorderColor = Color.LightGray
+                focusedBorderColor = colorScheme.primary,
+                unfocusedBorderColor = colorScheme.outline
             )
         )
     }
@@ -153,6 +173,7 @@ fun EditField(labelRes: Int, value: String, onValueChange: (String) -> Unit, isL
 
 @Composable
 fun EditProfileHeader() {
+    val colorScheme = MaterialTheme.colorScheme
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Image(
             painter = painterResource(R.drawable.avatar),
@@ -160,7 +181,27 @@ fun EditProfileHeader() {
             modifier = Modifier.size(100.dp).clip(CircleShape)
         )
         TextButton(onClick = {}) {
-            Text(stringResource(R.string.change_profile_photo), color = DesignGreenDark, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.change_profile_photo), 
+                color = colorScheme.primary, 
+                fontWeight = FontWeight.Bold
+            )
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Edit Profile - Light")
+@Composable
+fun EditProfilePreviewLight() {
+    CondorappTheme(darkTheme = false) {
+        EditProfileScreenRoute()
+    }
+}
+
+@Preview(showBackground = true, name = "Edit Profile - Dark")
+@Composable
+fun EditProfilePreviewDark() {
+    CondorappTheme(darkTheme = true) {
+        EditProfileScreenRoute()
     }
 }

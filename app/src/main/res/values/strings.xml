@@ -10,6 +10,8 @@
         <string name="value_placeholder">Value</string>
         <string name="destination_interests">Destination Interests</string>
         <string name="save_changes">Save Changes</string>
+        <string name="edit_profile">Edit Profile</string>
+        <string name="share_profile">Share Profile</string>
         <string name="delete_account">Delete Account</string>
         <string name="cd_notifications">Notifications</string>
         <string name="cd_menu">Menu</string>

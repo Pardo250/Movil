@@ -23,13 +23,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.example.condorapp.R
-import com.example.condorapp.data.UserProfile
 import com.example.condorapp.data.local.UserProfileRepository
 import com.example.condorapp.ui.theme.CondorappTheme
 
@@ -41,9 +40,9 @@ data class ProfileUiState(
 
 @Composable
 fun ProfileScreenRoute(
-    navController: NavHostController,
     modifier: Modifier = Modifier,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onEditProfile: () -> Unit = {}
 ) {
     val profile = remember { UserProfileRepository.getProfile() }
     val state by remember {
@@ -58,10 +57,9 @@ fun ProfileScreenRoute(
 
     ProfileScreenContent(
         state = state,
-        navController = navController,
         modifier = modifier,
         onBack = onBack,
-        onEditProfile = { navController.navigate(Destinos.EDIT_PROFILE) },
+        onEditProfile = onEditProfile,
         onShareProfile = { /* Lógica para compartir */ }
     )
 }
@@ -69,16 +67,16 @@ fun ProfileScreenRoute(
 @Composable
 fun ProfileScreenContent(
     state: ProfileUiState,
-    navController: NavHostController,
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onEditProfile: () -> Unit,
     onShareProfile: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundApp)
+            .background(colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -96,13 +94,6 @@ fun ProfileScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
             PhotoGrid(photos = state.photos, modifier = Modifier.weight(1f))
         }
-
-        BottomFloatingBar(
-            navController = navController,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 32.dp)
-        )
     }
 }
 
@@ -111,14 +102,15 @@ fun ProfileTopBar(modifier: Modifier = Modifier, onBack: () -> Unit) {
     IconButton(onClick = onBack, modifier = modifier) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Regresar",
-            tint = Color.Black
+            contentDescription = stringResource(R.string.cd_back),
+            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }
 
 @Composable
 fun ProfileHeader(modifier: Modifier = Modifier, name: String, username: String) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
         Image(
             painter = painterResource(R.drawable.avatar),
@@ -132,18 +124,19 @@ fun ProfileHeader(modifier: Modifier = Modifier, name: String, username: String)
             text = name,
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
-            color = DesignGreenDark
+            color = colorScheme.primary
         )
         Text(
             text = username,
             fontSize = 16.sp,
-            color = Color.Gray
+            color = colorScheme.outline
         )
     }
 }
 
 @Composable
 fun ProfileActions(modifier: Modifier = Modifier, onEditProfile: () -> Unit, onShareProfile: () -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier.fillMaxWidth()
@@ -152,27 +145,28 @@ fun ProfileActions(modifier: Modifier = Modifier, onEditProfile: () -> Unit, onS
             onClick = onEditProfile,
             modifier = Modifier.weight(1f).height(48.dp),
             shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = DesignGreenDark)
+            colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
         ) {
-            Text("Editar Perfil", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.edit_profile), fontWeight = FontWeight.Bold)
         }
         OutlinedButton(
             onClick = onShareProfile,
             modifier = Modifier.weight(1f).height(48.dp),
             shape = RoundedCornerShape(14.dp),
-            border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.onBackground)
         ) {
-            Text("Compartir", color = Color.Black, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.share_profile), fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
 fun ProfileTabs(modifier: Modifier = Modifier) {
+    val colorScheme = MaterialTheme.colorScheme
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier.fillMaxWidth()
-            .background(Color.White.copy(0.5f), RoundedCornerShape(16.dp))
+            .background(colorScheme.surfaceVariant.copy(0.5f), RoundedCornerShape(16.dp))
             .padding(vertical = 12.dp)
     ) {
         TabItem(icon = Icons.Default.Edit, label = "Reseñas")
@@ -183,13 +177,14 @@ fun ProfileTabs(modifier: Modifier = Modifier) {
 
 @Composable
 fun TabItem(modifier: Modifier = Modifier, icon: androidx.compose.ui.graphics.vector.ImageVector, label: String) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        Icon(icon, contentDescription = null, tint = DesignGreenDark, modifier = Modifier.size(28.dp))
+        Icon(icon, contentDescription = null, tint = colorScheme.primary, modifier = Modifier.size(28.dp))
         Text(
             label,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = colorScheme.onBackground
         )
     }
 }
@@ -213,5 +208,21 @@ fun PhotoGrid(photos: List<Int>, modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(16.dp))
             )
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Profile - Light")
+@Composable
+fun ProfileScreenPreviewLight() {
+    CondorappTheme(darkTheme = false) {
+        ProfileScreenRoute()
+    }
+}
+
+@Preview(showBackground = true, name = "Profile - Dark")
+@Composable
+fun ProfileScreenPreviewDark() {
+    CondorappTheme(darkTheme = true) {
+        ProfileScreenRoute()
     }
 }
