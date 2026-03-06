@@ -135,20 +135,25 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 8. RESEÑA
-                        composable(Screen.Review.route) {
+                        // 8. RESEÑA (DETALLE) - ✅ Actualizada para recibir ID
+                        composable(Screen.Review.route) { backStackEntry ->
+                            val reviewId = backStackEntry.arguments?.getString("reviewId") ?: "1"
                             ReviewScreenRoute(
+                                reviewId = reviewId,
                                 onBackClick = { navController.popBackStack() }
                             )
                         }
 
-                        // 9. DETALLES
+                        // 9. DETALLES - ✅ Actualizada con navegación a detalle de reseña
                         composable(Screen.Details.route) { backStackEntry ->
                             val postId = backStackEntry.arguments?.getString("postId") ?: ""
                             DetailScreen(
                                 postId = postId,
                                 onBack = { navController.popBackStack() },
-                                onAddReview = { navController.navigate(Screen.Review.route) }
+                                onAddReview = { navController.navigate(Screen.CreateReview.route) },
+                                onReviewClick = { reviewId -> 
+                                    navController.navigate(Screen.Review.createRoute(reviewId))
+                                }
                             )
                         }
 
@@ -156,6 +161,13 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.EditProfile.route) {
                             EditProfileScreenRoute(
                                 onBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        // 11. CREAR RESEÑA
+                        composable(Screen.CreateReview.route) {
+                            CreateReviewScreenRoute(
+                                onBackClick = { navController.popBackStack() }
                             )
                         }
                     }

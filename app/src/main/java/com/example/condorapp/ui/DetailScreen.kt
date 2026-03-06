@@ -4,6 +4,7 @@ package com.example.condorapp.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,11 +45,11 @@ data class DetailUiState(
 fun DetailScreen(
     postId: String,
     onBack: () -> Unit,
-    onAddReview: () -> Unit
+    onAddReview: () -> Unit,
+    onReviewClick: (String) -> Unit // ✅ Nuevo callback para navegar al detalle de la reseña
 ) {
     val initialReviews = remember { ReviewRepository.getReviews() }
     
-    // 🔍 Buscamos la data real del post usando el postId (location)
     val postData = remember(postId) {
         PostRepository.getPosts().find { it.location == postId }
     }
@@ -68,6 +69,7 @@ fun DetailScreen(
         state = state,
         onBackClick = onBack,
         onAddReviewClick = onAddReview,
+        onReviewClick = onReviewClick, // ✅ Pasamos el callback
         onLikeReview = { review ->
             val updatedReviews = state.reviews.map {
                 if (it == review) it.copy(likes = it.likes + 1) else it
@@ -83,6 +85,7 @@ fun DetailScreenContent(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onAddReviewClick: () -> Unit,
+    onReviewClick: (String) -> Unit, // ✅ Recibe callback
     onLikeReview: (Review) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -122,7 +125,11 @@ fun DetailScreenContent(
             }
 
             items(state.reviews) { review ->
-                ReviewItem(review = review, onLike = { onLikeReview(review) })
+                ReviewItem(
+                    review = review, 
+                    onLike = { onLikeReview(review) },
+                    onClick = { onReviewClick(review.id) } // ✅ Se añade acción de click
+                )
             }
         }
     }
@@ -243,12 +250,18 @@ fun DetailInfoSection(
 }
 
 @Composable
-fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit) {
+fun ReviewItem(
+    review: Review, 
+    modifier: Modifier = Modifier, 
+    onLike: () -> Unit,
+    onClick: () -> Unit // ✅ Nuevo parámetro
+) {
     val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClick() }, // ✅ Hacemos la carta clicable
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface,
@@ -320,7 +333,7 @@ fun ReviewItem(review: Review, modifier: Modifier = Modifier, onLike: () -> Unit
 @Composable
 fun DetailScreenPreviewLight() {
     CondorappTheme(darkTheme = false) {
-        DetailScreen(postId = "Valle del Cocora", onBack = {}, onAddReview = {})
+        DetailScreen(postId = "Valle del Cocora", onBack = {}, onAddReview = {}, onReviewClick = {})
     }
 }
 
@@ -328,6 +341,6 @@ fun DetailScreenPreviewLight() {
 @Composable
 fun DetailScreenPreviewDark() {
     CondorappTheme(darkTheme = true) {
-        DetailScreen(postId = "Valle del Cocora", onBack = {}, onAddReview = {})
+        DetailScreen(postId = "Valle del Cocora", onBack = {}, onAddReview = {}, onReviewClick = {})
     }
 }
