@@ -1,5 +1,9 @@
-package com.example.condorapp.ui
+package com.example.condorapp.ui.navigation
 
+/**
+ * Sealed class que define todas las rutas de navegación de la aplicación. Centraliza la definición
+ * de pantallas para evitar errores con strings.
+ */
 sealed class Screen(val route: String) {
     object Inicio : Screen("inicio")
     object Login : Screen("login")
