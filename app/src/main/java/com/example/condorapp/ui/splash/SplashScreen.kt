@@ -14,13 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.condorapp.R
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun SplashScreenRoute(
     modifier: Modifier = Modifier,
-    viewModel: SplashViewModel = viewModel(),
+    viewModel: SplashViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit,
     onNavigateToInicio: () -> Unit
 ) {
