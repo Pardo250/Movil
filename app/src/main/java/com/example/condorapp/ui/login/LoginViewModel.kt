@@ -30,12 +30,12 @@ class LoginViewModel @Inject constructor(
 
     /** Actualiza el campo de email y limpia mensajes. */
     fun onEmailChange(email: String) {
-        _uiState.update { it.copy(email = email, messageRes = null) }
+        _uiState.update { it.copy(email = email, messageRes = null, emailErrorRes = null, passwordErrorRes = null) }
     }
 
     /** Actualiza el campo de contraseña y limpia mensajes. */
     fun onPasswordChange(password: String) {
-        _uiState.update { it.copy(password = password, messageRes = null) }
+        _uiState.update { it.copy(password = password, messageRes = null, emailErrorRes = null, passwordErrorRes = null) }
     }
 
     /** Muestra mensaje de contraseña olvidada. */
@@ -56,7 +56,7 @@ class LoginViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoginSuccessful = true, messageRes = null) }
                 } catch (e: Exception) {
                     Log.e(TAG, "Login failed", e)
-                    _uiState.update { it.copy(messageRes = R.string.error_invalid_credentials) }
+                    _uiState.update { it.copy(passwordErrorRes = R.string.error_invalid_credentials) }
                 }
             }
         }
@@ -75,6 +75,6 @@ class LoginViewModel @Inject constructor(
 
     /** Oculta el mensaje de feedback. */
     fun onDismissMessage() {
-        _uiState.update { it.copy(messageRes = null) }
+        _uiState.update { it.copy(messageRes = null, emailErrorRes = null, passwordErrorRes = null) }
     }
 }

@@ -87,7 +87,7 @@ fun LoginHeader(modifier: Modifier = Modifier) {
 
 /** Campo de texto para email con label y estilo del tema. */
 @Composable
-fun EmailField(modifier: Modifier = Modifier, email: String, onEmailChange: (String) -> Unit) {
+fun EmailField(modifier: Modifier = Modifier, email: String, onEmailChange: (String) -> Unit, errorRes: Int? = null) {
     val colorScheme = MaterialTheme.colorScheme
     Column(modifier = modifier) {
         Text(
@@ -104,10 +104,18 @@ fun EmailField(modifier: Modifier = Modifier, email: String, onEmailChange: (Str
                 placeholder = { Text(stringResource(R.string.email_placeholder)) },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
+                isError = errorRes != null,
+                supportingText = {
+                    if (errorRes != null) {
+                        Text(text = stringResource(errorRes), color = colorScheme.error)
+                    }
+                },
                 colors =
                         OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorScheme.primary,
-                                unfocusedBorderColor = colorScheme.outline
+                                unfocusedBorderColor = colorScheme.outline,
+                                errorBorderColor = colorScheme.error,
+                                errorSupportingTextColor = colorScheme.error
                         )
         )
     }
@@ -118,7 +126,8 @@ fun EmailField(modifier: Modifier = Modifier, email: String, onEmailChange: (Str
 fun PasswordField(
         modifier: Modifier = Modifier,
         password: String,
-        onPasswordChange: (String) -> Unit
+        onPasswordChange: (String) -> Unit,
+        errorRes: Int? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Column(modifier = modifier) {
@@ -137,10 +146,18 @@ fun PasswordField(
                 placeholder = { Text(stringResource(R.string.value_placeholder)) },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
+                isError = errorRes != null,
+                supportingText = {
+                    if (errorRes != null) {
+                        Text(text = stringResource(errorRes), color = colorScheme.error)
+                    }
+                },
                 colors =
                         OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorScheme.primary,
-                                unfocusedBorderColor = colorScheme.outline
+                                unfocusedBorderColor = colorScheme.outline,
+                                errorBorderColor = colorScheme.error,
+                                errorSupportingTextColor = colorScheme.error
                         )
         )
     }
@@ -193,9 +210,9 @@ fun LoginForm(
     val cs = MaterialTheme.colorScheme
 
     Column(modifier = modifier) {
-        EmailField(email = state.email, onEmailChange = onEmailChange)
+        EmailField(email = state.email, onEmailChange = onEmailChange, errorRes = state.emailErrorRes)
         Spacer(modifier = Modifier.height(24.dp))
-        PasswordField(password = state.password, onPasswordChange = onPasswordChange)
+        PasswordField(password = state.password, onPasswordChange = onPasswordChange, errorRes = state.passwordErrorRes)
         Spacer(modifier = Modifier.height(6.dp))
 
         TextButton(onClick = onForgotPassword, modifier = Modifier.align(Alignment.End)) {

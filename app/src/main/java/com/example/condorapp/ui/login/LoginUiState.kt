@@ -9,6 +9,8 @@ data class LoginUiState(
         val password: String = "",
         val showPassword: Boolean = false,
         val messageRes: Int? = null,
+        val emailErrorRes: Int? = null,
+        val passwordErrorRes: Int? = null,
         val isLoginSuccessful: Boolean = false
 ) {
     /** Habilita el botón de Sign In cuando ambos campos tienen contenido. */
