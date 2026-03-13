@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "357981368604",
+    "project_id": "condorapp-c2715",
+    "storage_bucket": "condorapp-c2715.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357981368604:android:181865e4d3a6201a3fcad9",
+        "android_client_info": {
+          "package_name": "com.example.condorapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2Ia6TsXjJtqB6UwE_3eUWSSf2y1OBguA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
