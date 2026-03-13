@@ -46,4 +46,6 @@
         <string name="cd_recommendation_image">Recommendation image</string>
         <string name="ok">OK</string>
         <string name="cd_change_photo">Cambiar foto</string>
+        <string name="error_invalid_credentials">Credenciales incorrectas</string>
+        <string name="error_signup">Error al registrarse. Intente con otro correo.</string>
 </resources>

@@ -16,6 +16,7 @@ import com.example.condorapp.ui.notifications.NotificationsScreenRoute
 import com.example.condorapp.ui.profile.ProfileScreenRoute
 import com.example.condorapp.ui.review.ReviewScreenRoute
 import com.example.condorapp.ui.signup.SignUpScreenRoute
+import com.example.condorapp.ui.splash.SplashScreenRoute
 
 /**
  * Navegación centralizada de la aplicación. Define todas las rutas y la lógica de navegación entre
@@ -25,9 +26,24 @@ import com.example.condorapp.ui.signup.SignUpScreenRoute
 fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
             navController = navController,
-            startDestination = Screen.Inicio.route,
+            startDestination = Screen.Splash.route,
             modifier = modifier
     ) {
+        composable(Screen.Splash.route) {
+            SplashScreenRoute(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                },
+                onNavigateToInicio = {
+                    navController.navigate(Screen.Inicio.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // 1. INICIO
         composable(Screen.Inicio.route) {
             InicioScreenRoute(onStartClick = { navController.navigate(Screen.Login.route) })

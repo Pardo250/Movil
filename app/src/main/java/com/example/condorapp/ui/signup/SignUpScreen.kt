@@ -36,6 +36,12 @@ fun SignUpScreenRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(uiState.isSignUpSuccessful) {
+        if (uiState.isSignUpSuccessful) {
+            onRegisterSuccess()
+        }
+    }
+
     SignUpScreenContent(
             state = uiState,
             modifier = modifier,
@@ -45,7 +51,7 @@ fun SignUpScreenRoute(
             onEmailChange = viewModel::onEmailChange,
             onPasswordChange = viewModel::onPasswordChange,
             onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
-            onRegisterClick = onRegisterSuccess,
+            onRegisterClick = viewModel::onSignUp,
             onCancelClick = onCancel
     )
 }
@@ -62,7 +68,8 @@ fun SignUpScreenContent(
         onPasswordChange: (String) -> Unit,
         onConfirmPasswordChange: (String) -> Unit,
         onRegisterClick: () -> Unit,
-        onCancelClick: () -> Unit
+        onCancelClick: () -> Unit,
+        onDismissMessage: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Column(
@@ -91,6 +98,28 @@ fun SignUpScreenContent(
                 onRegisterClick = onRegisterClick,
                 onCancelClick = onCancelClick
         )
+        if (state.messageRes != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.errorContainer),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = androidx.compose.ui.res.stringResource(state.messageRes), 
+                        color = colorScheme.onErrorContainer
+                    )
+                    TextButton(onClick = onDismissMessage) {
+                        Text(text = "OK", color = colorScheme.onErrorContainer)
+                    }
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(40.dp))
     }
 }

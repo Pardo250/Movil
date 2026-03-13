@@ -8,13 +8,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+import androidx.lifecycle.viewModelScope
+import com.example.condorapp.data.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 private const val TAG = "LoginViewModel"
 
 /**
  * ViewModel para la pantalla de Login. Gestiona el estado del formulario de inicio de sesión y las
  * acciones del usuario.
  */
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -36,16 +45,20 @@ class LoginViewModel : ViewModel() {
 
     /**
      * Intenta iniciar sesión si los campos son válidos.
-     * @return true si el login fue exitoso, false en caso contrario.
      */
-    fun onSignIn(): Boolean {
+    fun onSignIn() {
         val currentState = _uiState.value
-        return if (currentState.canSignIn) {
-            Log.d(TAG, "Login correcto -> ${currentState.email}")
-            _uiState.update { it.copy(messageRes = R.string.sign_in) }
-            true
-        } else {
-            false
+        if (currentState.canSignIn) {
+            viewModelScope.launch {
+                try {
+                    authRepository.signIn(currentState.email, currentState.password)
+                    Log.d(TAG, "Login correcto -> ${currentState.email}")
+                    _uiState.update { it.copy(isLoginSuccessful = true, messageRes = null) }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Login failed", e)
+                    _uiState.update { it.copy(messageRes = R.string.error_invalid_credentials) }
+                }
+            }
         }
     }
 

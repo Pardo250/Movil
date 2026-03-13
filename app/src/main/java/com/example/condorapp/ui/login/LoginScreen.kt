@@ -35,17 +35,19 @@ fun LoginScreenRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(uiState.isLoginSuccessful) {
+        if (uiState.isLoginSuccessful) {
+            onSignInSuccess()
+        }
+    }
+
     LoginScreenContent(
             modifier = modifier,
             state = uiState,
             onEmailChange = viewModel::onEmailChange,
             onPasswordChange = viewModel::onPasswordChange,
             onForgotPassword = viewModel::onForgotPassword,
-            onSignIn = {
-                if (viewModel.onSignIn()) {
-                    onSignInSuccess()
-                }
-            },
+            onSignIn = viewModel::onSignIn,
             onContinueGoogle = viewModel::onContinueGoogle,
             onRegister = {
                 viewModel.onRegister()

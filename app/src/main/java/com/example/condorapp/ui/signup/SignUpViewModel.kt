@@ -6,10 +6,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
+import com.example.condorapp.R
+import com.example.condorapp.data.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 /**
  * ViewModel para la pantalla de registro. Gestiona los campos del formulario de creación de cuenta.
  */
-class SignUpViewModel : ViewModel() {
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
@@ -36,5 +47,25 @@ class SignUpViewModel : ViewModel() {
 
     fun onConfirmPasswordChange(confirmPassword: String) {
         _uiState.update { it.copy(confirmPassword = confirmPassword) }
+    }
+
+    fun onSignUp() {
+        val currentState = _uiState.value
+        if (currentState.canSignUp) {
+            viewModelScope.launch {
+                try {
+                    authRepository.signUp(currentState.email, currentState.password)
+                    Log.d("SignUpViewModel", "Registro exitoso -> ${currentState.email}")
+                    _uiState.update { it.copy(isSignUpSuccessful = true, messageRes = null) }
+                } catch (e: Exception) {
+                    Log.e("SignUpViewModel", "Registro failed", e)
+                    _uiState.update { it.copy(messageRes = R.string.error_signup) }
+                }
+            }
+        }
+    }
+
+    fun onDismissMessage() {
+        _uiState.update { it.copy(messageRes = null) }
     }
 }

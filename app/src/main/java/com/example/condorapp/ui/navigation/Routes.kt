@@ -5,6 +5,7 @@ package com.example.condorapp.ui.navigation
  * de pantallas para evitar errores con strings.
  */
 sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
     object Inicio : Screen("inicio")
     object Login : Screen("login")
     object SignUp : Screen("signup")
