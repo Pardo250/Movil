@@ -12,7 +12,8 @@ data class SignUpUiState(
         val password: String = "",
         val confirmPassword: String = "",
         val isSignUpSuccessful: Boolean = false,
-        val messageRes: Int? = null
+        val messageRes: Int? = null,
+        val passwordErrorRes: Int? = null
 ) {
     /** Habilita el botón de registro cuando todos los campos son válidos. */
     val canSignUp: Boolean

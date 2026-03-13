@@ -42,16 +42,21 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun onPasswordChange(password: String) {
-        _uiState.update { it.copy(password = password) }
+        _uiState.update { it.copy(password = password, passwordErrorRes = null) }
     }
 
     fun onConfirmPasswordChange(confirmPassword: String) {
-        _uiState.update { it.copy(confirmPassword = confirmPassword) }
+        _uiState.update { it.copy(confirmPassword = confirmPassword, passwordErrorRes = null) }
     }
 
     fun onSignUp() {
         val currentState = _uiState.value
         if (currentState.canSignUp) {
+            if (currentState.password.length <= 7) {
+                _uiState.update { it.copy(passwordErrorRes = R.string.error_password_too_short) }
+                return
+            }
+
             viewModelScope.launch {
                 try {
                     authRepository.signUp(currentState.email, currentState.password)
@@ -66,6 +71,6 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun onDismissMessage() {
-        _uiState.update { it.copy(messageRes = null) }
+        _uiState.update { it.copy(messageRes = null, passwordErrorRes = null) }
     }
 }

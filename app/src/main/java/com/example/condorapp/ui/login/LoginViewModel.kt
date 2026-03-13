@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.update
 
 import androidx.lifecycle.viewModelScope
 import com.example.condorapp.data.repository.AuthRepository
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -56,7 +58,22 @@ class LoginViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoginSuccessful = true, messageRes = null) }
                 } catch (e: Exception) {
                     Log.e(TAG, "Login failed", e)
-                    _uiState.update { it.copy(passwordErrorRes = R.string.error_invalid_credentials) }
+                    when (e) {
+                        is FirebaseAuthInvalidUserException -> {
+                            _uiState.update { it.copy(emailErrorRes = R.string.error_user_not_found) }
+                        }
+                        is FirebaseAuthInvalidCredentialsException -> {
+                            val errorCode = e.errorCode
+                            if (errorCode == "ERROR_INVALID_EMAIL") {
+                                _uiState.update { it.copy(emailErrorRes = R.string.error_invalid_email) }
+                            } else {
+                                _uiState.update { it.copy(passwordErrorRes = R.string.error_invalid_credentials) }
+                            }
+                        }
+                        else -> {
+                            _uiState.update { it.copy(passwordErrorRes = R.string.error_invalid_credentials) }
+                        }
+                    }
                 }
             }
         }

@@ -186,13 +186,15 @@ fun SignUpForm(
                 label = "Contraseña",
                 value = state.password,
                 onValueChange = onPasswordChange,
-                isPassword = true
+                isPassword = true,
+                errorRes = state.passwordErrorRes
         )
         SignUpTextField(
                 label = "Confirmar Contraseña",
                 value = state.confirmPassword,
                 onValueChange = onConfirmPasswordChange,
-                isPassword = true
+                isPassword = true,
+                errorRes = state.passwordErrorRes
         )
     }
 }
@@ -204,7 +206,8 @@ fun SignUpTextField(
         value: String,
         onValueChange: (String) -> Unit,
         modifier: Modifier = Modifier,
-        isPassword: Boolean = false
+        isPassword: Boolean = false,
+        errorRes: Int? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Column(modifier = modifier) {
@@ -223,6 +226,12 @@ fun SignUpTextField(
                 visualTransformation =
                         if (isPassword) PasswordVisualTransformation()
                         else VisualTransformation.None,
+                isError = errorRes != null,
+                supportingText = {
+                    if (errorRes != null) {
+                        Text(text = androidx.compose.ui.res.stringResource(errorRes), color = colorScheme.error)
+                    }
+                },
                 colors =
                         OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = colorScheme.primary,
@@ -230,7 +239,9 @@ fun SignUpTextField(
                                 unfocusedContainerColor =
                                         colorScheme.surfaceVariant.copy(alpha = 0.2f),
                                 focusedContainerColor =
-                                        colorScheme.surfaceVariant.copy(alpha = 0.2f)
+                                        colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                                errorBorderColor = colorScheme.error,
+                                errorSupportingTextColor = colorScheme.error
                         )
         )
     }
