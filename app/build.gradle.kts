@@ -5,7 +5,7 @@ plugins {
     kotlin("kapt")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.ksp)
-    alias(libs.google.services)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
 }
 
@@ -67,7 +67,7 @@ dependencies {
     implementation(libs.hilt.compose.navigation)
     kapt(libs.dagger.kapt)
 
-    implementation(libs.firebase.bom)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.firestore)
