@@ -1,6 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.dagger)
+    kotlin("kapt")
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.ksp)
+    alias(libs.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -56,6 +62,17 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.runtime:runtime-livedata:1.8.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+
+    implementation(libs.dagger.hilt)
+    implementation(libs.hilt.compose.navigation)
+    kapt(libs.dagger.kapt)
+
+    implementation(libs.firebase.bom)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+
 
 
     testImplementation(libs.junit)
