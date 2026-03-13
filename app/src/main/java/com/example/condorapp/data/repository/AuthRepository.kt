@@ -18,4 +18,8 @@ class AuthRepository @Inject constructor(
     suspend fun signUp(email: String, password: String): AuthResult {
         return remoteDataSource.signUp(email, password)
     }
+
+    fun signOut() {
+        remoteDataSource.signOut()
+    }
 }

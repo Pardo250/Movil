@@ -48,4 +48,5 @@
         <string name="cd_change_photo">Cambiar foto</string>
         <string name="error_invalid_credentials">Credenciales incorrectas</string>
         <string name="error_signup">Error al registrarse. Intente con otro correo.</string>
+        <string name="sign_out">Cerrar sesión</string>
 </resources>

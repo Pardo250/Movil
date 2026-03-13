@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.condorapp.R
 import com.example.condorapp.ui.theme.CondorappTheme
 
@@ -34,10 +35,18 @@ import com.example.condorapp.ui.theme.CondorappTheme
 @Composable
 fun EditProfileScreenRoute(
         modifier: Modifier = Modifier,
-        viewModel: EditProfileViewModel = viewModel(),
-        onBack: () -> Unit = {}
+        viewModel: EditProfileViewModel = hiltViewModel(),
+        onBack: () -> Unit = {},
+        onSignOut: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Navega a Login cuando Firebase cierra la sesión exitosamente
+    LaunchedEffect(uiState.isSignedOut) {
+        if (uiState.isSignedOut) {
+            onSignOut()
+        }
+    }
 
     EditProfileScreenContent(
             state = uiState,
@@ -48,6 +57,7 @@ fun EditProfileScreenRoute(
             onBioChange = viewModel::onBioChange,
             onSave = viewModel::onSave,
             onDeleteAccount = viewModel::onDeleteAccount,
+            onSignOut = viewModel::onSignOut,
             onDismissMessage = viewModel::onDismissMessage
     )
 }
@@ -63,6 +73,7 @@ fun EditProfileScreenContent(
         onBioChange: (String) -> Unit,
         onSave: () -> Unit,
         onDeleteAccount: () -> Unit,
+        onSignOut: () -> Unit,
         onDismissMessage: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -73,15 +84,40 @@ fun EditProfileScreenContent(
                             .verticalScroll(rememberScrollState())
                             .padding(24.dp)
     ) {
-        IconButton(
-                onClick = onBack,
-                modifier = Modifier.background(colorScheme.surface, CircleShape)
+        // Fila superior: botón atrás + botón cerrar sesión
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
-                    tint = colorScheme.onSurface
-            )
+            IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.background(colorScheme.surface, CircleShape)
+            ) {
+                Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null,
+                        tint = colorScheme.onSurface
+                )
+            }
+
+            // Botón de cerrar sesión
+            TextButton(
+                onClick = onSignOut
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                    contentDescription = stringResource(R.string.sign_out),
+                    tint = colorScheme.error,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = stringResource(R.string.sign_out),
+                    color = colorScheme.error,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
 
         Spacer(Modifier.height(24.dp))

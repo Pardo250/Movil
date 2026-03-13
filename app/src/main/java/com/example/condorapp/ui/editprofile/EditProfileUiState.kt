@@ -8,7 +8,8 @@ data class EditProfileUiState(
         val username: String = "",
         val fullName: String = "",
         val bio: String = "",
-        val messageRes: Int? = null
+        val messageRes: Int? = null,
+        val isSignedOut: Boolean = false
 ) {
     /** Habilita el botón de guardar cuando los campos obligatorios tienen contenido. */
     val canSave: Boolean

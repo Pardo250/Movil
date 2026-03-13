@@ -17,4 +17,8 @@ class AuthRemoteDataSource @Inject constructor(
     }
 
     fun getCurrentUser() = auth.currentUser
+
+    fun signOut() {
+        auth.signOut()
+    }
 }

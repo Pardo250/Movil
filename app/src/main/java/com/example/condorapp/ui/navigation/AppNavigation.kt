@@ -126,7 +126,14 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
 
         // 10. EDITAR PERFIL
         composable(Screen.EditProfile.route) {
-            EditProfileScreenRoute(onBack = { navController.popBackStack() })
+            EditProfileScreenRoute(
+                onBack = { navController.popBackStack() },
+                onSignOut = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
 
         // 11. CREAR RESEÑA
