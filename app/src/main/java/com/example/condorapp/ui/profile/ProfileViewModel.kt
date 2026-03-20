@@ -34,7 +34,7 @@ class ProfileViewModel @Inject constructor(
             it.copy(
                 name = profile.name, 
                 username = profile.username, 
-                imageUrl = photoUrl,
+                imageUrl = photoUrl ?: profile.avatarUrl,
                 photos = profile.photos
             )
         }
