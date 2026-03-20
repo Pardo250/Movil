@@ -7,5 +7,6 @@ package com.example.condorapp.ui.profile
 data class ProfileUiState(
         val name: String = "",
         val username: String = "",
+        val imageUrl: String? = null,
         val photos: List<Int> = emptyList()
 )

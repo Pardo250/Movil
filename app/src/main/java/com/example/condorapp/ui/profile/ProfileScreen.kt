@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.condorapp.R
+import com.example.condorapp.ui.components.ProfileImage
 import com.example.condorapp.ui.theme.CondorappTheme
 
 /**
@@ -70,7 +71,7 @@ fun ProfileScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
             ProfileTopBar(onBack = onBack)
             Spacer(modifier = Modifier.height(20.dp))
-            ProfileHeader(name = state.name, username = state.username)
+            ProfileHeader(name = state.name, username = state.username, imageUrl = state.imageUrl)
             Spacer(modifier = Modifier.height(24.dp))
             ProfileActions(onEditProfile = onEditProfile, onShareProfile = onShareProfile)
             Spacer(modifier = Modifier.height(24.dp))
@@ -95,13 +96,12 @@ fun ProfileTopBar(modifier: Modifier = Modifier, onBack: () -> Unit) {
 
 /** Header del perfil con avatar, nombre y username. */
 @Composable
-fun ProfileHeader(modifier: Modifier = Modifier, name: String, username: String) {
+fun ProfileHeader(modifier: Modifier = Modifier, name: String, username: String, imageUrl: String?) {
     val colorScheme = MaterialTheme.colorScheme
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
-        Image(
-                painter = painterResource(R.drawable.avatar),
-                contentDescription = null,
-                modifier = Modifier.size(120.dp).clip(CircleShape)
+        ProfileImage(
+            imageUrl = imageUrl,
+            modifier = Modifier.size(120.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(

@@ -1,7 +1,7 @@
 package com.example.condorapp.ui.notifications
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -178,8 +178,8 @@ fun NotificationItem(notification: Notification, modifier: Modifier = Modifier) 
                                 ),
                 contentAlignment = Alignment.Center
         ) {
-            Image(
-                    painter = painterResource(id = notification.avatarRes),
+            AsyncImage(
+                    model = notification.avatarUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.size(48.dp).clip(CircleShape)

@@ -2,8 +2,8 @@
 
 package com.example.condorapp.ui.detail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -77,7 +77,7 @@ fun DetailScreenContent(
             item {
                 DetailHeader(
                         title = state.title,
-                        imageRes = state.imageRes,
+                        imageUrl = state.imageUrl,
                         onBackClick = onBackClick
                 )
             }
@@ -112,14 +112,14 @@ fun DetailScreenContent(
 @Composable
 fun DetailHeader(
         title: String,
-        imageRes: Int,
+        imageUrl: String,
         modifier: Modifier = Modifier,
         onBackClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier) {
-        Image(
-                painter = painterResource(id = imageRes),
+        AsyncImage(
+                model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxWidth().height(350.dp)

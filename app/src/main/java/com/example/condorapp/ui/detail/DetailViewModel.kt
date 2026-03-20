@@ -28,7 +28,7 @@ class DetailViewModel : ViewModel() {
             it.copy(
                     title = postData?.location ?: postId,
                     location = postData?.user ?: "Destino Condorapp",
-                    imageRes = postData?.imageRes ?: R.drawable.valle_del_cocora,
+                    imageUrl = postData?.imageUrl ?: "https://example.com/valle_del_cocora.jpg",
                     reviews = reviews
             )
         }

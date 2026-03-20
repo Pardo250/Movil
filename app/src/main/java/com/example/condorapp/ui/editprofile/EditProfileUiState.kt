@@ -8,6 +8,9 @@ data class EditProfileUiState(
         val username: String = "",
         val fullName: String = "",
         val bio: String = "",
+        val imageUrl: String? = null,
+        val isUploadingImage: Boolean = false,
+        val imageUploadError: String? = null,
         val messageRes: Int? = null,
         val isSignedOut: Boolean = false
 ) {

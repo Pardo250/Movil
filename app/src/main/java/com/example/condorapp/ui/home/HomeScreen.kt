@@ -2,8 +2,8 @@
 
 package com.example.condorapp.ui.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -120,7 +120,7 @@ fun HomeHeader(modifier: Modifier = Modifier, onNotifications: () -> Unit) {
 /** Avatar circular del perfil del usuario. */
 @Composable
 fun ProfileAvatar(modifier: Modifier = Modifier) {
-    Image(
+    androidx.compose.foundation.Image(
             painter = painterResource(R.drawable.avatar),
             contentDescription = null,
             modifier = modifier.size(80.dp).clip(CircleShape)
@@ -200,8 +200,8 @@ fun PostCard(post: Post, isSelected: Boolean, onClick: () -> Unit, modifier: Mod
                     Text(post.location, color = colorScheme.outline, fontSize = 12.sp)
                 }
             }
-            Image(
-                    painter = painterResource(post.imageRes),
+            AsyncImage(
+                    model = post.imageUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxWidth().height(200.dp)

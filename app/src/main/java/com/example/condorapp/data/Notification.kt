@@ -6,5 +6,5 @@ data class Notification(
         val userName: String,
         val action: String,
         val time: String,
-        val avatarRes: Int
+        val avatarUrl: String
 )

@@ -2,8 +2,8 @@
 
 package com.example.condorapp.ui.feed
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -126,7 +126,7 @@ fun MapCard(modifier: Modifier = Modifier) {
             modifier = modifier.fillMaxWidth().height(180.dp),
             elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Image(
+        androidx.compose.foundation.Image(
                 painter = painterResource(id = R.drawable.mapa),
                 contentDescription = stringResource(R.string.cd_map_image),
                 contentScale = ContentScale.Crop,
@@ -195,8 +195,8 @@ fun RecommendationGrid(
             contentPadding = PaddingValues(bottom = 120.dp)
     ) {
         items(places) { place ->
-            Image(
-                    painter = painterResource(id = place.imageRes),
+            AsyncImage(
+                    model = place.imageUrl,
                     contentDescription = stringResource(R.string.cd_recommendation_image),
                     contentScale = ContentScale.Crop,
                     modifier =

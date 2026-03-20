@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import androidx.lifecycle.viewModelScope
+import android.net.Uri
+import com.example.condorapp.data.repository.StorageRepository
 import javax.inject.Inject
 
 private const val TAG = "EditProfileViewModel"
@@ -19,7 +23,8 @@ private const val TAG = "EditProfileViewModel"
  */
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val storageRepository: StorageRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditProfileUiState())
@@ -35,6 +40,19 @@ class EditProfileViewModel @Inject constructor(
 
     fun onBioChange(bio: String) {
         _uiState.update { it.copy(bio = bio) }
+    }
+
+    fun uploadImageToFirebase(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUploadingImage = true, imageUploadError = null) }
+            val result = storageRepository.uploadProfileImage(uri)
+            
+            result.onSuccess { url ->
+                _uiState.update { it.copy(isUploadingImage = false, imageUrl = url) }
+            }.onFailure { exception ->
+                _uiState.update { it.copy(isUploadingImage = false, imageUploadError = exception.message) }
+            }
+        }
     }
 
     /** Guarda los cambios del perfil y muestra mensaje de confirmación. */

@@ -23,9 +23,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.condorapp.R
+import com.example.condorapp.ui.components.ProfileImage
 import com.example.condorapp.ui.theme.CondorappTheme
 
 /**
@@ -58,7 +61,8 @@ fun EditProfileScreenRoute(
             onSave = viewModel::onSave,
             onDeleteAccount = viewModel::onDeleteAccount,
             onSignOut = viewModel::onSignOut,
-            onDismissMessage = viewModel::onDismissMessage
+            onDismissMessage = viewModel::onDismissMessage,
+            onImagePicked = { uri -> uri?.let { viewModel.uploadImageToFirebase(it) } }
     )
 }
 
@@ -74,7 +78,8 @@ fun EditProfileScreenContent(
         onSave: () -> Unit,
         onDeleteAccount: () -> Unit,
         onSignOut: () -> Unit,
-        onDismissMessage: () -> Unit
+        onDismissMessage: () -> Unit,
+        onImagePicked: (android.net.Uri?) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Column(
@@ -121,7 +126,19 @@ fun EditProfileScreenContent(
         }
 
         Spacer(Modifier.height(24.dp))
-        EditProfileHeader()
+        
+        val galleryLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri ->
+            onImagePicked(uri)
+        }
+        
+        EditProfileHeader(
+            imageUrl = state.imageUrl,
+            isUploading = state.isUploadingImage,
+            onChangePhotoClick = { galleryLauncher.launch("image/*") }
+        )
+        
         Spacer(Modifier.height(32.dp))
 
         EditField(
@@ -219,15 +236,24 @@ fun EditField(
 
 /** Header de edición de perfil con avatar y opción de cambiar foto. */
 @Composable
-fun EditProfileHeader(modifier: Modifier = Modifier) {
+fun EditProfileHeader(
+    imageUrl: String?,
+    isUploading: Boolean = false,
+    onChangePhotoClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val colorScheme = MaterialTheme.colorScheme
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
-        Image(
-                painter = painterResource(R.drawable.avatar),
-                contentDescription = null,
-                modifier = Modifier.size(100.dp).clip(CircleShape)
-        )
-        TextButton(onClick = {}) {
+        Box(contentAlignment = Alignment.Center) {
+            ProfileImage(
+                imageUrl = imageUrl,
+                modifier = Modifier.size(100.dp)
+            )
+            if (isUploading) {
+                CircularProgressIndicator(color = colorScheme.primary)
+            }
+        }
+        TextButton(onClick = onChangePhotoClick, enabled = !isUploading) {
             Text(
                     stringResource(R.string.change_profile_photo),
                     color = colorScheme.primary,
