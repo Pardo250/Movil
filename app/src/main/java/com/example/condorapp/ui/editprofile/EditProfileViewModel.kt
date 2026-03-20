@@ -30,6 +30,21 @@ class EditProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(EditProfileUiState())
     val uiState: StateFlow<EditProfileUiState> = _uiState.asStateFlow()
 
+    init {
+        loadCurrentProfile()
+    }
+
+    private fun loadCurrentProfile() {
+        val currentProfile = com.example.condorapp.data.local.UserProfileRepository.getProfile()
+        _uiState.update {
+            it.copy(
+                username = currentProfile.username,
+                fullName = currentProfile.name,
+                imageUrl = currentProfile.avatarUrl
+            )
+        }
+    }
+
     fun onUsernameChange(username: String) {
         _uiState.update { it.copy(username = username) }
     }

@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * ViewModel para la pantalla de detalle de un destino. Carga datos del post y las reseñas de la
- * comunidad.
+ * ViewModel para la pantalla de detalle de un destino. Carga datos del post y las reseñas de la comunidad.
+ * 
+ * Nota: No se utiliza un bloque 'init' para cargar datos de antemano porque se requiere 
+ * el ID específico (postId). La carga (loadPostDetail) es invocada explícitamente desde la UI.
  */
 class DetailViewModel : ViewModel() {
 

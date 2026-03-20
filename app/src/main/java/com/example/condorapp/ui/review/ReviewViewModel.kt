@@ -8,8 +8,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * ViewModel para la pantalla de detalle de una reseña. Carga la reseña principal y sus comentarios
- * desde el repositorio.
+ * ViewModel para la pantalla de detalle de una reseña. Carga la reseña principal y sus comentarios desde el repositorio.
+ * 
+ * Nota: No utiliza bloque 'init' porque la carga es dependiente del 'reviewId' 
+ * y se llama directamente a 'loadReview' desde la capa de la UI.
  */
 class ReviewViewModel : ViewModel() {
 
