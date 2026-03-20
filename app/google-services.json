@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "357981368604",
-    "project_id": "condorapp-c2715",
-    "storage_bucket": "condorapp-c2715.firebasestorage.app"
+    "project_number": "833430666570",
+    "project_id": "condorapp-b9bbd",
+    "storage_bucket": "condorapp-b9bbd.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:357981368604:android:181865e4d3a6201a3fcad9",
+        "mobilesdk_app_id": "1:833430666570:android:c34432966cc5735fdc95b3",
         "android_client_info": {
           "package_name": "com.example.condorapp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC2Ia6TsXjJtqB6UwE_3eUWSSf2y1OBguA"
+          "current_key": "AIzaSyD_YlqABZl9IvYuZ0wh-2QCMlxJroa1fCQ"
         }
       ],
       "services": {
