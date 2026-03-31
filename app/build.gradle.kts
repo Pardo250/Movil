@@ -76,10 +76,11 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
 
-    implementation("io.coil-kt:coil-compose:2.5.0")
-
-    implementation("com.google.firebase:firebase-storage-ktx")
-
+    // Red / API (Retrofit y OkHttp para conectarnos al backend Express)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

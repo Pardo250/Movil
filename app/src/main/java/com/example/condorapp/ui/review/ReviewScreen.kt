@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.condorapp.R
 import com.example.condorapp.data.Review
 import com.example.condorapp.ui.theme.CondorStarActive
@@ -43,7 +43,7 @@ import com.example.condorapp.ui.theme.CondorappTheme
 fun ReviewScreenRoute(
         modifier: Modifier = Modifier,
         reviewId: String = "1",
-        viewModel: ReviewViewModel = viewModel(),
+        viewModel: ReviewViewModel = hiltViewModel(),
         onBackClick: () -> Unit
 ) {
     LaunchedEffect(reviewId) { viewModel.loadReview(reviewId) }

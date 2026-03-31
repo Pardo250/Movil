@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.condorapp.data.Review
 import com.example.condorapp.ui.theme.CondorStarActive
 import com.example.condorapp.ui.theme.CondorappTheme
@@ -39,7 +39,7 @@ import com.example.condorapp.ui.theme.CondorappTheme
 fun DetailScreenRoute(
         postId: String,
         modifier: Modifier = Modifier,
-        viewModel: DetailViewModel = viewModel(),
+        viewModel: DetailViewModel = hiltViewModel(),
         onBack: () -> Unit,
         onAddReview: () -> Unit,
         onReviewClick: (String) -> Unit
