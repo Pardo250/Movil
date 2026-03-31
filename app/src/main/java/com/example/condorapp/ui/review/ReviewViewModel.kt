@@ -2,8 +2,7 @@ package com.example.condorapp.ui.review
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// import com.example.condorapp.data.local.ReviewRepository // <-- Comentamos el estático
-import com.example.condorapp.data.repository.ReviewRepository // <-- Usamos el de Dagger
+import com.example.condorapp.data.repository.ReviewRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
