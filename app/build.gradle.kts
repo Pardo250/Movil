@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage)
 
     // Red / API (Retrofit y OkHttp para conectarnos al backend Express)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
