@@ -36,7 +36,7 @@ class FeedViewModel @Inject constructor(
                 val articulos = articuloRepository.getAllArticulos()
                 val places = articulos.map { articulo ->
                     FeedPlace(
-                        imageRes = com.example.condorapp.R.drawable.valle_del_cocora,
+                        imageUrl = "",
                         location = articulo.titulo
                     )
                 }

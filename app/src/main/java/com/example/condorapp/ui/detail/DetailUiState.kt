@@ -12,7 +12,7 @@ data class DetailUiState(
         val location: String = "",
         val description: String =
                 "Descubre este increíble destino colombiano, lleno de historia, cultura y paisajes inolvidables que te conectarán con la naturaleza.",
-        val imageRes: Int = R.drawable.valle_del_cocora,
+        val imageUrl: String = "",
         val reviews: List<Review> = emptyList(),
         val isLoading: Boolean = false,
         val errorMessage: String? = null

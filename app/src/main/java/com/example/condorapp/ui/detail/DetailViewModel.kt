@@ -38,7 +38,7 @@ class DetailViewModel @Inject constructor(
                 current.copy(
                     title     = postData?.location ?: postId,
                     location  = postData?.user ?: "Destino Condorapp",
-                    imageRes  = postData?.imageRes ?: com.example.condorapp.R.drawable.valle_del_cocora,
+                    imageUrl  = "",
                     isLoading = true,
                     errorMessage = null
                 )
