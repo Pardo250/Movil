@@ -1,6 +1,5 @@
 package com.example.condorapp.ui.detail
 
-import com.example.condorapp.R
 import com.example.condorapp.data.Review
 
 /**

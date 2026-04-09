@@ -29,21 +29,20 @@ class ReviewViewModel @Inject constructor(
     fun loadReview(reviewId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            try {
-                // Como el backend Express no tiene GET /reviews/:id
-                // Simulamos trayendo las reviews de un artículo por defecto para mantener el UI funcionando
-                val reviews = reviewRepository.getReviewsByArticulo(1)
-                
+
+            val result = reviewRepository.getReviewsByArticulo(1)
+
+            result.onSuccess { reviews ->
                 val mainReview = reviews.find { it.id == reviewId } ?: reviews.firstOrNull()
                 // El backend tampoco soporta respuestas/comentarios anidados, las dejamos vacías por ahora.
                 val comments = emptyList<com.example.condorapp.data.Review>()
 
-                _uiState.update { 
-                    it.copy(review = mainReview, comments = comments, isLoading = false) 
+                _uiState.update {
+                    it.copy(review = mainReview, comments = comments, isLoading = false)
                 }
-            } catch (e: Exception) {
-                _uiState.update { 
-                    it.copy(isLoading = false, errorMessage = e.message ?: "Error desconocido")
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(isLoading = false, errorMessage = error.message ?: "Error desconocido")
                 }
             }
         }

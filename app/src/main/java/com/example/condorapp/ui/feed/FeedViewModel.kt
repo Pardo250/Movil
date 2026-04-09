@@ -32,8 +32,10 @@ class FeedViewModel @Inject constructor(
     fun loadArticulos() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            try {
-                val articulos = articuloRepository.getAllArticulos()
+
+            val result = articuloRepository.getAllArticulos()
+
+            result.onSuccess { articulos ->
                 val places = articulos.map { articulo ->
                     FeedPlace(
                         imageUrl = "",
@@ -41,9 +43,9 @@ class FeedViewModel @Inject constructor(
                     )
                 }
                 _uiState.update { it.copy(places = places, isLoading = false) }
-            } catch (e: Exception) {
+            }.onFailure { error ->
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = e.message ?: "Error desconocido")
+                    it.copy(isLoading = false, errorMessage = error.message ?: "Error desconocido")
                 }
             }
         }

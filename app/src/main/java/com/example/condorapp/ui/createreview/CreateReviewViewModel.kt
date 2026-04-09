@@ -44,21 +44,28 @@ class CreateReviewViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null, isSuccess = false) }
-            try {
-                reviewRepository.createReview(
-                    contenido    = state.comment,
-                    calificacion = state.rating,
-                    usuarioId    = usuarioId,
-                    articuloId   = articuloId
-                )
+
+            val result = reviewRepository.createReview(
+                contenido    = state.comment,
+                calificacion = state.rating,
+                usuarioId    = usuarioId,
+                articuloId   = articuloId
+            )
+
+            result.onSuccess {
                 _uiState.update {
                     it.copy(isLoading = false, isSuccess = true, comment = "", rating = 4)
                 }
-            } catch (e: Exception) {
+            }.onFailure { error ->
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = e.message ?: "Error al publicar")
+                    it.copy(isLoading = false, errorMessage = error.message ?: "Error al publicar")
                 }
             }
         }
+    }
+
+    /** Resetea el flag de navegación después de navegar. */
+    fun onNavigationHandled() {
+        _uiState.update { it.copy(isSuccess = false) }
     }
 }

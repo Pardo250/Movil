@@ -43,14 +43,15 @@ class DetailViewModel @Inject constructor(
                     errorMessage = null
                 )
             }
-            try {
-                // Intenta obtener articuloId numérico; si no, carga todas las reviews
-                val articuloId = postId.toIntOrNull() ?: 1
-                val reviews = reviewRepository.getReviewsByArticulo(articuloId)
+            // Intenta obtener articuloId numérico; si no, carga todas las reviews
+            val articuloId = postId.toIntOrNull() ?: 1
+            val result = reviewRepository.getReviewsByArticulo(articuloId)
+
+            result.onSuccess { reviews ->
                 _uiState.update { it.copy(reviews = reviews, isLoading = false) }
-            } catch (e: Exception) {
+            }.onFailure { error ->
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = e.message ?: "Error al cargar reseñas")
+                    it.copy(isLoading = false, errorMessage = error.message ?: "Error al cargar reseñas")
                 }
             }
         }
@@ -63,6 +64,30 @@ class DetailViewModel @Inject constructor(
                 if (it == review) it.copy(likes = it.likes + 1) else it
             }
             currentState.copy(reviews = updatedReviews)
+        }
+    }
+
+    /**
+     * Elimina una reseña. Aplica filtro optimista de la lista local para dar
+     * respuesta visual inmediata sin necesidad de un nuevo GET al backend.
+     */
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            val id = reviewId.toIntOrNull() ?: return@launch
+            val result = reviewRepository.deleteReview(id)
+
+            result.onSuccess {
+                // Estándar de UX: filtrar la lista local en vez de re-consultar
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        reviews = currentState.reviews.filter { it.id != reviewId }
+                    )
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "Error al eliminar reseña")
+                }
+            }
         }
     }
 }

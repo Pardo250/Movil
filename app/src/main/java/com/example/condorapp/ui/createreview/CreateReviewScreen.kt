@@ -32,6 +32,14 @@ fun CreateReviewScreenRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    // Navegar atrás automáticamente cuando la creación es exitosa
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            viewModel.onNavigationHandled()
+            onBackClick()
+        }
+    }
+
     CreateReviewScreenContent(
             state = uiState,
             modifier = modifier,
