@@ -24,7 +24,7 @@ object NetworkModule {
      *
      * IMPORTANTE: La URL DEBE terminar con "/"
      */
-    private const val BASE_URL = "http://10.0.2.2:3000/"
+    private const val BASE_URL = "http://10.195.42.88:3000/"
 
     @Provides
     @Singleton
