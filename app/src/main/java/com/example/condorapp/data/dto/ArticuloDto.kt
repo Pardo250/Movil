@@ -7,6 +7,7 @@ data class ArticuloDto(
     @SerializedName("titulo")      val titulo: String,
     @SerializedName("descripcion") val descripcion: String?,
     @SerializedName("tipo")        val tipo: String,
+    @SerializedName("imagenUrl")   val imagenUrl: String?,
     @SerializedName("createdAt")   val createdAt: String,
     @SerializedName("updatedAt")   val updatedAt: String
 )

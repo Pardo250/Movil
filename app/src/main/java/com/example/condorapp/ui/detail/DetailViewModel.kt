@@ -44,6 +44,7 @@ class DetailViewModel @Inject constructor(
                     it.copy(
                         title       = articulo.titulo,
                         location    = articulo.tipo,
+                        imageUrl    = articulo.imagenUrl,
                         description = articulo.descripcion.ifBlank {
                             "Descubre este increíble contenido, lleno de detalles y experiencias que te encantarán."
                         }

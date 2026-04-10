@@ -3,6 +3,7 @@
 package com.example.condorapp.ui.feed
 
 import androidx.compose.foundation.background
+import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -222,7 +223,7 @@ fun ArticuloGrid(
     }
 }
 
-/** Tarjeta individual de artículo en el grid con título, tipo y primera letra. */
+/** Tarjeta individual de artículo en el grid con imagen, título y tipo. */
 @Composable
 fun ArticuloGridCard(
     articulo: Articulo,
@@ -233,59 +234,63 @@ fun ArticuloGridCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f)
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Ícono circular con la primera letra del tipo
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .background(colorScheme.primary.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    articulo.tipo.first().uppercase(),
-                    fontWeight = FontWeight.Bold,
-                    color = colorScheme.primary,
-                    fontSize = 24.sp
+        Column {
+            // Imagen del artículo o fallback con inicial
+            if (articulo.imagenUrl.isNotBlank()) {
+                AsyncImage(
+                    model = articulo.imagenUrl,
+                    contentDescription = articulo.titulo,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(130.dp)
                 )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(130.dp)
+                        .background(colorScheme.primary.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        articulo.tipo.first().uppercase(),
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.primary,
+                        fontSize = 40.sp
+                    )
+                }
             }
 
-            Spacer(Modifier.height(12.dp))
-
-            // Título del artículo
-            Text(
-                text = articulo.titulo,
-                fontWeight = FontWeight.Bold,
-                color = colorScheme.onSurface,
-                fontSize = 16.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // Badge del tipo
-            Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = colorScheme.primary.copy(alpha = 0.1f)
-            ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                // Título
                 Text(
-                    text = articulo.tipo,
-                    color = colorScheme.primary,
-                    fontSize = 11.sp,
+                    text = articulo.titulo,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    color = colorScheme.onSurface,
+                    fontSize = 14.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
+                Spacer(Modifier.height(6.dp))
+                // Badge del tipo
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = colorScheme.primary.copy(alpha = 0.1f)
+                ) {
+                    Text(
+                        text = articulo.tipo,
+                        color = colorScheme.primary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
             }
         }
     }

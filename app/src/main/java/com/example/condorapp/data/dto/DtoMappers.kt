@@ -16,7 +16,8 @@ fun ArticuloDto.toArticulo(): Articulo = Articulo(
     id          = id,
     titulo      = titulo,
     descripcion = descripcion ?: "",
-    tipo        = tipo
+    tipo        = tipo,
+    imagenUrl   = imagenUrl ?: ""
 )
 
 /** Convierte un ReviewDto a un Review de la capa visual. */

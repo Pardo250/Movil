@@ -3,6 +3,7 @@
 package com.example.condorapp.ui.home
 
 import androidx.compose.foundation.background
+import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -186,7 +188,7 @@ fun FilterBar(modifier: Modifier = Modifier) {
     }
 }
 
-/** Tarjeta de un artículo del backend con título, descripción y tipo. */
+/** Tarjeta de un artículo del backend con imagen, título, descripción y tipo. */
 @Composable
 fun ArticuloCard(articulo: Articulo, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colorScheme = MaterialTheme.colorScheme
@@ -204,53 +206,63 @@ fun ArticuloCard(articulo: Articulo, isSelected: Boolean, onClick: () -> Unit, m
                     ),
             elevation = CardDefaults.cardElevation(if (isSelected) 2.dp else 8.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Ícono circular con la primera letra del tipo
-                Box(
-                    modifier = Modifier
-                        .size(45.dp)
-                        .background(colorScheme.primary.copy(alpha = 0.15f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        articulo.tipo.first().uppercase(),
-                        fontWeight = FontWeight.Bold,
-                        color = colorScheme.primary,
-                        fontSize = 20.sp
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        articulo.titulo,
-                        fontWeight = FontWeight.Bold,
-                        color = colorScheme.onSurface,
-                        fontSize = 18.sp
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = colorScheme.primary.copy(alpha = 0.1f)
+        Column {
+            // Imagen del artículo
+            if (articulo.imagenUrl.isNotBlank()) {
+                AsyncImage(
+                    model = articulo.imagenUrl,
+                    contentDescription = articulo.titulo,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth().height(200.dp)
+                )
+            }
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(45.dp)
+                            .background(colorScheme.primary.copy(alpha = 0.15f), CircleShape),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            articulo.tipo,
-                            color = colorScheme.primary,
-                            fontSize = 12.sp,
+                            articulo.tipo.first().uppercase(),
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            color = colorScheme.primary,
+                            fontSize = 20.sp
                         )
                     }
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            articulo.titulo,
+                            fontWeight = FontWeight.Bold,
+                            color = colorScheme.onSurface,
+                            fontSize = 18.sp
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = colorScheme.primary.copy(alpha = 0.1f)
+                        ) {
+                            Text(
+                                articulo.tipo,
+                                color = colorScheme.primary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
                 }
-            }
-            if (articulo.descripcion.isNotBlank()) {
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    text = articulo.descripcion,
-                    color = colorScheme.onSurface.copy(alpha = 0.7f),
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                )
+                if (articulo.descripcion.isNotBlank()) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = articulo.descripcion,
+                        color = colorScheme.onSurface.copy(alpha = 0.7f),
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
+                    )
+                }
             }
         }
     }
