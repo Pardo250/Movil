@@ -54,11 +54,12 @@ class ReviewRepository @Inject constructor(
             )
             // Al crear, el usuario actual es "Tú"
             val review = Review(
-                id      = dto.id.toString(),
-                name    = "Tú",
-                rating  = dto.calificacion,
-                comment = dto.contenido,
-                likes   = 0
+                id        = dto.id.toString(),
+                name      = "Tú",
+                rating    = dto.calificacion,
+                comment   = dto.contenido,
+                likes     = 0,
+                usuarioId = usuarioId
             )
             Result.success(review)
         } catch (e: HttpException) {

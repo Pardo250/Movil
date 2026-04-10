@@ -17,6 +17,7 @@ import com.example.condorapp.ui.profile.ProfileScreenRoute
 import com.example.condorapp.ui.review.ReviewScreenRoute
 import com.example.condorapp.ui.signup.SignUpScreenRoute
 import com.example.condorapp.ui.splash.SplashScreenRoute
+import com.example.condorapp.ui.userprofile.UserProfileScreenRoute
 
 /**
  * Navegación centralizada de la aplicación. Define todas las rutas y la lógica de navegación entre
@@ -111,15 +112,21 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             ReviewScreenRoute(reviewId = reviewId, onBackClick = { navController.popBackStack() })
         }
 
-        // 9. DETALLES
+        // 9. DETALLES del artículo
         composable(Screen.Details.route) { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId") ?: ""
             DetailScreenRoute(
                     postId = postId,
                     onBack = { navController.popBackStack() },
-                    onAddReview = { navController.navigate(Screen.CreateReview.route) },
+                    onAddReview = {
+                        val articuloId = postId.toIntOrNull() ?: 1
+                        navController.navigate(Screen.CreateReview.createRoute(articuloId))
+                    },
                     onReviewClick = { reviewId ->
                         navController.navigate(Screen.Review.createRoute(reviewId))
+                    },
+                    onUserClick = { userId ->
+                        navController.navigate(Screen.UserProfile.createRoute(userId))
                     }
             )
         }
@@ -136,9 +143,20 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             )
         }
 
-        // 11. CREAR RESEÑA
-        composable(Screen.CreateReview.route) {
-            CreateReviewScreenRoute(onBackClick = { navController.popBackStack() })
+        // 11. CREAR RESEÑA (con articuloId dinámico)
+        composable(Screen.CreateReview.route) { backStackEntry ->
+            val articuloId = backStackEntry.arguments?.getString("articuloId")?.toIntOrNull() ?: 1
+            CreateReviewScreenRoute(
+                articuloId = articuloId,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // 12. PERFIL DE OTRO USUARIO
+        composable(Screen.UserProfile.route) {
+            UserProfileScreenRoute(
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

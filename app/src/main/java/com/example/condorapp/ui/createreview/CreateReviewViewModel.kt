@@ -14,11 +14,17 @@ import javax.inject.Inject
 /**
  * ViewModel para la pantalla de creación de reseñas.
  * Publica la reseña en el backend via ReviewRepository.
+ *
+ * CURRENT_USER_ID = 1 → ID del usuario "quemado" según la guía del Sprint.
  */
 @HiltViewModel
 class CreateReviewViewModel @Inject constructor(
     private val reviewRepository: ReviewRepository
 ) : ViewModel() {
+
+    companion object {
+        const val CURRENT_USER_ID = 1
+    }
 
     private val _uiState = MutableStateFlow(CreateReviewUiState())
     val uiState: StateFlow<CreateReviewUiState> = _uiState.asStateFlow()
@@ -35,10 +41,9 @@ class CreateReviewViewModel @Inject constructor(
 
     /**
      * Publica la reseña en el backend.
-     * @param usuarioId ID del usuario autenticado
-     * @param articuloId ID del artículo que se está reseñando
+     * @param articuloId ID del artículo que se está reseñando (pasado desde la navegación)
      */
-    fun onPublish(usuarioId: Int = 1, articuloId: Int = 1) {
+    fun onPublish(articuloId: Int = 1) {
         val state = _uiState.value
         if (state.comment.isBlank()) return
 
@@ -48,7 +53,7 @@ class CreateReviewViewModel @Inject constructor(
             val result = reviewRepository.createReview(
                 contenido    = state.comment,
                 calificacion = state.rating,
-                usuarioId    = usuarioId,
+                usuarioId    = CURRENT_USER_ID,
                 articuloId   = articuloId
             )
 

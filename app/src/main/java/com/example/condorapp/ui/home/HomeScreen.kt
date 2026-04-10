@@ -3,7 +3,6 @@
 package com.example.condorapp.ui.home
 
 import androidx.compose.foundation.background
-import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,16 +24,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.condorapp.R
-import com.example.condorapp.data.Post
+import com.example.condorapp.data.Articulo
 import com.example.condorapp.ui.theme.CondorappTheme
 
 /** Composable Route para la pantalla Home. Conecta el HomeViewModel con el contenido stateless. */
 @Composable
 fun HomeScreenRoute(
         modifier: Modifier = Modifier,
-        viewModel: HomeViewModel = viewModel(),
+        viewModel: HomeViewModel = hiltViewModel(),
         onPostClick: (String) -> Unit,
         onNotificationsClick: () -> Unit
 ) {
@@ -45,30 +43,50 @@ fun HomeScreenRoute(
             state = uiState,
             modifier = modifier,
             onNotifications = onNotificationsClick,
-            onPostClick = { index ->
-                viewModel.onPostSelected(index)
-                onPostClick(uiState.posts[index].location)
+            onArticuloClick = { index ->
+                viewModel.onArticuloSelected(index)
+                val articulo = uiState.articulos[index]
+                onPostClick(articulo.id.toString())
             }
     )
 }
 
-/** Contenido stateless de la pantalla Home con lista de posts. */
+/** Contenido stateless de la pantalla Home con lista de artículos del backend. */
 @Composable
 fun HomeScreenContent(
         state: HomeUiState,
         modifier: Modifier = Modifier,
         onNotifications: () -> Unit,
-        onPostClick: (Int) -> Unit
+        onArticuloClick: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
         LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
             item { HomeHeader(onNotifications = onNotifications) }
-            itemsIndexed(state.posts) { index, post ->
-                PostCard(
-                        post = post,
-                        isSelected = state.selectedPostIndex == index,
-                        onClick = { onPostClick(index) }
+
+            if (state.isLoading) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = colorScheme.primary)
+                    }
+                }
+            }
+
+            state.errorMessage?.let { error ->
+                item {
+                    Text(
+                        text = error,
+                        color = colorScheme.error,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                    )
+                }
+            }
+
+            itemsIndexed(state.articulos) { index, articulo ->
+                ArticuloCard(
+                        articulo = articulo,
+                        isSelected = state.selectedIndex == index,
+                        onClick = { onArticuloClick(index) }
                 )
             }
         }
@@ -168,9 +186,9 @@ fun FilterBar(modifier: Modifier = Modifier) {
     }
 }
 
-/** Tarjeta de un post con imagen, usuario y ubicación. */
+/** Tarjeta de un artículo del backend con título, descripción y tipo. */
 @Composable
-fun PostCard(post: Post, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun ArticuloCard(articulo: Articulo, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colorScheme = MaterialTheme.colorScheme
     Card(
             shape = RoundedCornerShape(32.dp),
@@ -186,32 +204,54 @@ fun PostCard(post: Post, isSelected: Boolean, onClick: () -> Unit, modifier: Mod
                     ),
             elevation = CardDefaults.cardElevation(if (isSelected) 2.dp else 8.dp)
     ) {
-        Column {
-            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                        post.user.first().toString(),
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Ícono circular con la primera letra del tipo
+                Box(
+                    modifier = Modifier
+                        .size(45.dp)
+                        .background(colorScheme.primary.copy(alpha = 0.15f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        articulo.tipo.first().uppercase(),
                         fontWeight = FontWeight.Bold,
                         color = colorScheme.primary,
                         fontSize = 20.sp
-                )
+                    )
+                }
                 Spacer(Modifier.width(12.dp))
-                Column {
-                    Text(post.user, fontWeight = FontWeight.Bold, color = colorScheme.onSurface)
-                    Text(post.location, color = colorScheme.outline, fontSize = 12.sp)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        articulo.titulo,
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.onSurface,
+                        fontSize = 18.sp
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = colorScheme.primary.copy(alpha = 0.1f)
+                    ) {
+                        Text(
+                            articulo.tipo,
+                            color = colorScheme.primary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
+                    }
                 }
             }
-            AsyncImage(
-                    model = post.imageUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth().height(200.dp)
-            )
-            Text(
-                    text = stringResource(R.string.post_lorem),
-                    modifier = Modifier.padding(16.dp),
-                    color = colorScheme.onSurface.copy(alpha = 0.8f),
-                    fontSize = 14.sp
-            )
+            if (articulo.descripcion.isNotBlank()) {
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = articulo.descripcion,
+                    color = colorScheme.onSurface.copy(alpha = 0.7f),
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            }
         }
     }
 }
@@ -220,7 +260,15 @@ fun PostCard(post: Post, isSelected: Boolean, onClick: () -> Unit, modifier: Mod
 @Composable
 fun HomeScreenLightPreview() {
     CondorappTheme(darkTheme = false) {
-        HomeScreenRoute(onPostClick = {}, onNotificationsClick = {})
+        HomeScreenContent(
+            state = HomeUiState(
+                articulos = listOf(
+                    Articulo(1, "Artículo de prueba", "Descripción de prueba", "cultura")
+                )
+            ),
+            onNotifications = {},
+            onArticuloClick = {}
+        )
     }
 }
 
@@ -228,6 +276,14 @@ fun HomeScreenLightPreview() {
 @Composable
 fun HomeScreenDarkPreview() {
     CondorappTheme(darkTheme = true) {
-        HomeScreenRoute(onPostClick = {}, onNotificationsClick = {})
+        HomeScreenContent(
+            state = HomeUiState(
+                articulos = listOf(
+                    Articulo(1, "Artículo de prueba", "Descripción de prueba", "cultura")
+                )
+            ),
+            onNotifications = {},
+            onArticuloClick = {}
+        )
     }
 }

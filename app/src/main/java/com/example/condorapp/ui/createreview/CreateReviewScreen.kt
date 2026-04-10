@@ -27,6 +27,7 @@ import com.example.condorapp.ui.theme.CondorappTheme
 @Composable
 fun CreateReviewScreenRoute(
         modifier: Modifier = Modifier,
+        articuloId: Int = 1,
         viewModel: CreateReviewViewModel = hiltViewModel(),
         onBackClick: () -> Unit = {}
 ) {
@@ -46,7 +47,7 @@ fun CreateReviewScreenRoute(
             onBackClick = onBackClick,
             onRatingChange = viewModel::onRatingChange,
             onCommentChange = viewModel::onCommentChange,
-            onPublish = viewModel::onPublish
+            onPublish = { viewModel.onPublish(articuloId) }
     )
 }
 
