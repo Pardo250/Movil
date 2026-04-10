@@ -31,8 +31,8 @@ import com.example.condorapp.ui.theme.CondorStarActive
 import com.example.condorapp.ui.theme.CondorappTheme
 
 /**
- * Composable Route para la pantalla de detalle de un artículo. Conecta el DetailViewModel con el
- * contenido stateless.
+ * Composable Route para la pantalla de detalle de un artículo.
+ * Muestra las reseñas de la comunidad. Editar/Eliminar se hace desde el perfil propio.
  */
 @Composable
 fun DetailScreenRoute(
@@ -55,22 +55,8 @@ fun DetailScreenRoute(
             onAddReviewClick = onAddReview,
             onReviewClick = onReviewClick,
             onLikeReview = viewModel::onLikeReview,
-            onDeleteReview = viewModel::deleteReview,
-            onEditReview = viewModel::startEditReview,
             onUserClick = onUserClick
     )
-
-    // Diálogo de edición de review
-    if (uiState.isEditingReview) {
-        EditReviewDialog(
-            comment = uiState.editComment,
-            rating = uiState.editRating,
-            onCommentChange = viewModel::onEditCommentChange,
-            onRatingChange = viewModel::onEditRatingChange,
-            onConfirm = viewModel::confirmEditReview,
-            onDismiss = viewModel::cancelEditReview
-        )
-    }
 }
 
 /** Contenido stateless de la pantalla de detalle. */
@@ -82,8 +68,6 @@ fun DetailScreenContent(
         onAddReviewClick: () -> Unit,
         onReviewClick: (String) -> Unit,
         onLikeReview: (Review) -> Unit,
-        onDeleteReview: (String) -> Unit,
-        onEditReview: (Review) -> Unit,
         onUserClick: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -139,8 +123,6 @@ fun DetailScreenContent(
                         review = review,
                         onLike = { onLikeReview(review) },
                         onClick = { onReviewClick(review.id) },
-                        onDelete = { onDeleteReview(review.id) },
-                        onEdit = { onEditReview(review) },
                         onUserClick = onUserClick
                 )
             }
@@ -260,22 +242,19 @@ fun DetailInfoSection(
     }
 }
 
-/** Ítem de reseña con avatar, estrellas, comentario, like, y botones de editar/eliminar. */
+/**
+ * Ítem de reseña con avatar, estrellas, comentario y like.
+ * SIN botones de editar/eliminar — eso se hace desde el perfil propio.
+ */
 @Composable
 fun ReviewItem(
         review: Review,
         modifier: Modifier = Modifier,
         onLike: () -> Unit,
         onClick: () -> Unit,
-        onDelete: () -> Unit,
-        onEdit: () -> Unit,
         onUserClick: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    // Extraer userId del nombre de la review para navegación
-    // Las reviews del CURRENT_USER_ID=1 muestran botones de editar/eliminar
-    val isOwnReview = review.name == "Tú" || review.name == "Usuario desconocido"
-
     Card(
             modifier =
                     modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth().clickable {
@@ -297,9 +276,7 @@ fun ReviewItem(
                                 Modifier.size(45.dp)
                                         .clip(CircleShape)
                                         .background(colorScheme.surfaceVariant)
-                                        .clickable {
-                                            onUserClick(review.usuarioId)
-                                        },
+                                        .clickable { onUserClick(review.usuarioId) },
                         contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -348,90 +325,8 @@ fun ReviewItem(
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurface.copy(alpha = 0.7f)
             )
-
-            // Botones de editar/eliminar (siempre visibles para demostración del CRUD)
-            Spacer(Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("Editar", fontSize = 12.sp)
-                }
-                TextButton(onClick = onDelete) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = colorScheme.error
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text("Eliminar", fontSize = 12.sp, color = colorScheme.error)
-                }
-            }
         }
     }
-}
-
-/** Diálogo para editar una review existente. */
-@Composable
-fun EditReviewDialog(
-    comment: String,
-    rating: Int,
-    onCommentChange: (String) -> Unit,
-    onRatingChange: (Int) -> Unit,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Editar Reseña", fontWeight = FontWeight.Bold) },
-        text = {
-            Column {
-                Text("Calificación", fontWeight = FontWeight.Bold, color = colorScheme.primary)
-                Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    (1..5).forEach { star ->
-                        IconButton(
-                            onClick = { onRatingChange(star) },
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Star,
-                                contentDescription = null,
-                                tint = if (star <= rating) CondorStarActive
-                                       else colorScheme.outlineVariant,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-                Text("Comentario", fontWeight = FontWeight.Bold, color = colorScheme.primary)
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = comment,
-                    onValueChange = onCommentChange,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    placeholder = { Text("Escribe tu reseña...") }
-                )
-            }
-        },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Guardar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
-        }
-    )
 }
 
 @Preview(showBackground = true, name = "Detail - Light")
@@ -451,8 +346,6 @@ fun DetailScreenPreviewLight() {
             onAddReviewClick = {},
             onReviewClick = {},
             onLikeReview = {},
-            onDeleteReview = {},
-            onEditReview = {},
             onUserClick = {}
         )
     }
@@ -472,8 +365,6 @@ fun DetailScreenPreviewDark() {
             onAddReviewClick = {},
             onReviewClick = {},
             onLikeReview = {},
-            onDeleteReview = {},
-            onEditReview = {},
             onUserClick = {}
         )
     }

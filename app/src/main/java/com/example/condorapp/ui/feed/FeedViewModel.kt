@@ -2,7 +2,6 @@ package com.example.condorapp.ui.feed
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.condorapp.data.FeedPlace
 import com.example.condorapp.data.repository.ArticuloRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +13,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel para la pantalla de exploración (Feed).
- * Carga los artículos desde la API REST via ArticuloRepository.
+ * Carga todos los artículos desde el backend como recomendaciones.
  */
 @HiltViewModel
 class FeedViewModel @Inject constructor(
@@ -28,7 +27,7 @@ class FeedViewModel @Inject constructor(
         loadArticulos()
     }
 
-    /** Carga artículos desde el backend y los mapea a FeedPlace. */
+    /** Carga todos los artículos del backend. */
     fun loadArticulos() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
@@ -36,13 +35,7 @@ class FeedViewModel @Inject constructor(
             val result = articuloRepository.getAllArticulos()
 
             result.onSuccess { articulos ->
-                val places = articulos.map { articulo ->
-                    FeedPlace(
-                        imageUrl = "",
-                        location = articulo.titulo
-                    )
-                }
-                _uiState.update { it.copy(places = places, isLoading = false) }
+                _uiState.update { it.copy(articulos = articulos, isLoading = false) }
             }.onFailure { error ->
                 _uiState.update {
                     it.copy(isLoading = false, errorMessage = error.message ?: "Error desconocido")

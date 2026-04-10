@@ -4,28 +4,27 @@ import com.example.condorapp.data.dto.ArticuloDto
 import com.example.condorapp.data.remote.ApiService
 import javax.inject.Inject
 
+/**
+ * DataSource remoto para artículos. Consume ApiService directamente.
+ * Sin wrapper Response<>: Retrofit lanza HttpException en errores HTTP,
+ * y el DataSource valida el campo success del ApiResponse.
+ */
 class ArticuloRemoteDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
     suspend fun getAllArticulos(): List<ArticuloDto> {
-        val response = apiService.getAllArticulos()
-        if (response.isSuccessful) {
-            val body = response.body()
-            if (body?.success == true) {
-                return body.data ?: emptyList()
-            }
+        val apiResponse = apiService.getAllArticulos()
+        if (apiResponse.success) {
+            return apiResponse.data ?: emptyList()
         }
-        throw Exception("Error al obtener artículos: ${response.code()} ${response.message()}")
+        throw Exception(apiResponse.message ?: "Error al obtener artículos")
     }
 
     suspend fun getArticuloById(id: Int): ArticuloDto {
-        val response = apiService.getArticuloById(id)
-        if (response.isSuccessful) {
-            val body = response.body()
-            if (body?.success == true && body.data != null) {
-                return body.data
-            }
+        val apiResponse = apiService.getArticuloById(id)
+        if (apiResponse.success && apiResponse.data != null) {
+            return apiResponse.data
         }
-        throw Exception("Artículo no encontrado (id=$id): ${response.code()}")
+        throw Exception(apiResponse.message ?: "Artículo no encontrado (id=$id)")
     }
 }

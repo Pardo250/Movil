@@ -4,28 +4,27 @@ import com.example.condorapp.data.dto.UsuarioDto
 import com.example.condorapp.data.remote.ApiService
 import javax.inject.Inject
 
+/**
+ * DataSource remoto para usuarios. Consume ApiService directamente.
+ * Sin wrapper Response<>: Retrofit lanza HttpException en errores HTTP,
+ * y el DataSource valida el campo success del ApiResponse.
+ */
 class UsuarioRemoteDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
     suspend fun getAllUsuarios(): List<UsuarioDto> {
-        val response = apiService.getAllUsuarios()
-        if (response.isSuccessful) {
-            val body = response.body()
-            if (body?.success == true) {
-                return body.data ?: emptyList()
-            }
+        val apiResponse = apiService.getAllUsuarios()
+        if (apiResponse.success) {
+            return apiResponse.data ?: emptyList()
         }
-        throw Exception("Error al obtener usuarios: ${response.code()} ${response.message()}")
+        throw Exception(apiResponse.message ?: "Error al obtener usuarios")
     }
 
     suspend fun getUsuarioById(id: Int): UsuarioDto {
-        val response = apiService.getUsuarioById(id)
-        if (response.isSuccessful) {
-            val body = response.body()
-            if (body?.success == true && body.data != null) {
-                return body.data
-            }
+        val apiResponse = apiService.getUsuarioById(id)
+        if (apiResponse.success && apiResponse.data != null) {
+            return apiResponse.data
         }
-        throw Exception("Usuario no encontrado (id=$id): ${response.code()}")
+        throw Exception(apiResponse.message ?: "Usuario no encontrado (id=$id)")
     }
 }

@@ -3,12 +3,12 @@
 package com.example.condorapp.ui.feed
 
 import androidx.compose.foundation.background
-import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -21,18 +21,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.condorapp.R
-import com.example.condorapp.data.FeedPlace
+import com.example.condorapp.data.Articulo
 import com.example.condorapp.ui.theme.CondorappTheme
 
 /**
- * Composable Route para la pantalla de exploración (Feed). Conecta el FeedViewModel con el
- * contenido stateless.
+ * Composable Route para la pantalla de exploración (Feed). Muestra todos los artículos
+ * del backend como recomendados.
  */
 @Composable
 fun FeedScreenRoute(
@@ -46,7 +47,7 @@ fun FeedScreenRoute(
             state = uiState,
             modifier = modifier,
             onCategorySelected = viewModel::onCategorySelected,
-            onPlaceClick = { place -> onPlaceClick(place.location) }
+            onArticuloClick = { articulo -> onPlaceClick(articulo.id.toString()) }
     )
 }
 
@@ -56,7 +57,7 @@ fun FeedScreenContent(
         state: FeedUiState,
         modifier: Modifier = Modifier,
         onCategorySelected: (Int) -> Unit,
-        onPlaceClick: (FeedPlace) -> Unit
+        onArticuloClick: (Articulo) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -78,9 +79,27 @@ fun FeedScreenContent(
                     color = colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
-            RecommendationGrid(
-                    places = state.places,
-                    onPlaceClick = onPlaceClick,
+
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = colorScheme.primary)
+                }
+            }
+
+            state.errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    color = colorScheme.error,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            ArticuloGrid(
+                    articulos = state.articulos,
+                    onArticuloClick = onArticuloClick,
                     modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -180,11 +199,11 @@ fun FilterChipItem(
     }
 }
 
-/** Grid de recomendaciones con imágenes clicables. */
+/** Grid de artículos recomendados del backend. */
 @Composable
-fun RecommendationGrid(
-        places: List<FeedPlace>,
-        onPlaceClick: (FeedPlace) -> Unit,
+fun ArticuloGrid(
+        articulos: List<Articulo>,
+        onArticuloClick: (Articulo) -> Unit,
         modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -194,16 +213,80 @@ fun RecommendationGrid(
             modifier = modifier.fillMaxWidth(),
             contentPadding = PaddingValues(bottom = 120.dp)
     ) {
-        items(places) { place ->
-            AsyncImage(
-                    model = place.imageUrl,
-                    contentDescription = stringResource(R.string.cd_recommendation_image),
-                    contentScale = ContentScale.Crop,
-                    modifier =
-                            Modifier.aspectRatio(0.8f).clip(RoundedCornerShape(20.dp)).clickable {
-                                onPlaceClick(place)
-                            }
+        items(articulos) { articulo ->
+            ArticuloGridCard(
+                articulo = articulo,
+                onClick = { onArticuloClick(articulo) }
             )
+        }
+    }
+}
+
+/** Tarjeta individual de artículo en el grid con título, tipo y primera letra. */
+@Composable
+fun ArticuloGridCard(
+    articulo: Articulo,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(0.8f)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Ícono circular con la primera letra del tipo
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(colorScheme.primary.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    articulo.tipo.first().uppercase(),
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.primary,
+                    fontSize = 24.sp
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // Título del artículo
+            Text(
+                text = articulo.titulo,
+                fontWeight = FontWeight.Bold,
+                color = colorScheme.onSurface,
+                fontSize = 16.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // Badge del tipo
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = colorScheme.primary.copy(alpha = 0.1f)
+            ) {
+                Text(
+                    text = articulo.tipo,
+                    color = colorScheme.primary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
         }
     }
 }
@@ -211,11 +294,32 @@ fun RecommendationGrid(
 @Preview(showBackground = true, name = "Feed - Light")
 @Composable
 fun FeedScreenLightPreview() {
-    CondorappTheme(darkTheme = false) { FeedScreenRoute(onPlaceClick = {}) }
+    CondorappTheme(darkTheme = false) {
+        FeedScreenContent(
+            state = FeedUiState(
+                articulos = listOf(
+                    Articulo(1, "Valle del Cocora", "Hermoso paisaje", "paisaje"),
+                    Articulo(2, "Playa Blanca", "Arena blanca", "playa")
+                )
+            ),
+            onCategorySelected = {},
+            onArticuloClick = {}
+        )
+    }
 }
 
 @Preview(showBackground = true, name = "Feed - Dark")
 @Composable
 fun FeedScreenDarkPreview() {
-    CondorappTheme(darkTheme = true) { FeedScreenRoute(onPlaceClick = {}) }
+    CondorappTheme(darkTheme = true) {
+        FeedScreenContent(
+            state = FeedUiState(
+                articulos = listOf(
+                    Articulo(1, "Valle del Cocora", "Hermoso paisaje", "paisaje")
+                )
+            ),
+            onCategorySelected = {},
+            onArticuloClick = {}
+        )
+    }
 }

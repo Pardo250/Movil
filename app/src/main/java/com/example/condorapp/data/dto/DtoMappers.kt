@@ -21,12 +21,13 @@ fun ArticuloDto.toArticulo(): Articulo = Articulo(
 
 /** Convierte un ReviewDto a un Review de la capa visual. */
 fun ReviewDto.toReview(): Review = Review(
-    id         = id.toString(),
-    name       = usuario?.nombre ?: "Usuario desconocido",
-    rating     = calificacion,
-    comment    = contenido,
-    likes      = 0,
-    usuarioId  = usuarioId
+    id              = id.toString(),
+    name            = usuario?.nombre ?: "Usuario desconocido",
+    rating          = calificacion,
+    comment         = contenido,
+    likes           = 0,
+    usuarioId       = usuarioId,
+    articuloNombre  = articulo?.titulo ?: ""
 )
 
 /** Convierte un UsuarioDto a un UserInfo de la capa visual. */

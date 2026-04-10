@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -32,7 +33,7 @@ import com.example.condorapp.ui.theme.CondorappTheme
 
 /**
  * Composable Route para la pantalla de perfil. Conecta el ProfileViewModel con el contenido
- * stateless.
+ * stateless. Incluye editar/eliminar reviews propias.
  */
 @Composable
 fun ProfileScreenRoute(
@@ -48,8 +49,22 @@ fun ProfileScreenRoute(
         modifier = modifier,
         onBack = onBack,
         onEditProfile = onEditProfile,
-        onShareProfile = { /* Lógica para compartir */ }
+        onShareProfile = { /* Lógica para compartir */ },
+        onEditReview = viewModel::startEditReview,
+        onDeleteReview = viewModel::deleteReview
     )
+
+    // Diálogo de edición de review propia
+    if (uiState.isEditingReview) {
+        EditReviewDialog(
+            comment = uiState.editComment,
+            rating = uiState.editRating,
+            onCommentChange = viewModel::onEditCommentChange,
+            onRatingChange = viewModel::onEditRatingChange,
+            onConfirm = viewModel::confirmEditReview,
+            onDismiss = viewModel::cancelEditReview
+        )
+    }
 }
 
 /** Contenido stateless de la pantalla de perfil. */
@@ -59,7 +74,9 @@ fun ProfileScreenContent(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onEditProfile: () -> Unit,
-    onShareProfile: () -> Unit
+    onShareProfile: () -> Unit,
+    onEditReview: (Review) -> Unit,
+    onDeleteReview: (String) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -109,7 +126,11 @@ fun ProfileScreenContent(
             }
 
             items(state.reviews) { review ->
-                MyReviewItem(review = review)
+                MyReviewItem(
+                    review = review,
+                    onEdit = { onEditReview(review) },
+                    onDelete = { onDeleteReview(review.id) }
+                )
             }
         }
     }
@@ -172,9 +193,17 @@ fun ProfileActions(
     }
 }
 
-/** Ítem de reseña del usuario con calificación y comentario. */
+/**
+ * Ítem de reseña propia con calificación, comentario, nombre del artículo,
+ * y botones de editar/eliminar.
+ */
 @Composable
-fun MyReviewItem(review: Review, modifier: Modifier = Modifier) {
+fun MyReviewItem(
+    review: Review,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = modifier.fillMaxWidth().padding(vertical = 6.dp),
@@ -183,6 +212,24 @@ fun MyReviewItem(review: Review, modifier: Modifier = Modifier) {
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Nombre del artículo donde se hizo la review
+            if (review.articuloNombre.isNotBlank()) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = colorScheme.primary.copy(alpha = 0.1f)
+                ) {
+                    Text(
+                        text = "📌 ${review.articuloNombre}",
+                        color = colorScheme.primary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
+                Spacer(Modifier.height(10.dp))
+            }
+
+            // Rating con estrellas
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -214,14 +261,98 @@ fun MyReviewItem(review: Review, modifier: Modifier = Modifier) {
                     }
                 }
             }
+
+            // Comentario
             Spacer(Modifier.height(8.dp))
             Text(
                 review.comment,
                 style = MaterialTheme.typography.bodySmall,
                 color = colorScheme.onSurface.copy(alpha = 0.7f)
             )
+
+            // Botones de editar y eliminar (solo para reviews propias)
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Editar", fontSize = 12.sp)
+                }
+                TextButton(onClick = onDelete) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = colorScheme.error
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text("Eliminar", fontSize = 12.sp, color = colorScheme.error)
+                }
+            }
         }
     }
+}
+
+/** Diálogo para editar una review existente. */
+@Composable
+fun EditReviewDialog(
+    comment: String,
+    rating: Int,
+    onCommentChange: (String) -> Unit,
+    onRatingChange: (Int) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Editar Reseña", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                Text("Calificación", fontWeight = FontWeight.Bold, color = colorScheme.primary)
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    (1..5).forEach { star ->
+                        IconButton(
+                            onClick = { onRatingChange(star) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Star,
+                                contentDescription = null,
+                                tint = if (star <= rating) CondorStarActive
+                                       else colorScheme.outlineVariant,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+                Text("Comentario", fontWeight = FontWeight.Bold, color = colorScheme.primary)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = onCommentChange,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = { Text("Escribe tu reseña...") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true, name = "Profile - Light")
@@ -234,12 +365,14 @@ fun ProfileScreenPreviewLight() {
                 username = "@preview",
                 imageUrl = null,
                 reviews = listOf(
-                    Review("1", "Yo", 5, "Excelente lugar", 3)
+                    Review("1", "Yo", 5, "Excelente lugar", 3, articuloNombre = "Valle del Cocora")
                 )
             ),
             onBack = {},
             onEditProfile = {},
-            onShareProfile = {}
+            onShareProfile = {},
+            onEditReview = {},
+            onDeleteReview = {}
         )
     }
 }
@@ -257,7 +390,9 @@ fun ProfileScreenPreviewDark() {
             ),
             onBack = {},
             onEditProfile = {},
-            onShareProfile = {}
+            onShareProfile = {},
+            onEditReview = {},
+            onDeleteReview = {}
         )
     }
 }
