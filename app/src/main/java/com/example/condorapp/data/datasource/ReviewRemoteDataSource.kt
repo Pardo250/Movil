@@ -8,48 +8,29 @@ import javax.inject.Inject
 
 /**
  * DataSource remoto para reviews. Consume ApiService directamente.
- * Sin wrapper Response<>: Retrofit lanza HttpException en errores HTTP,
- * y el DataSource valida el campo success del ApiResponse.
+ * El ApiResponseUnwrapInterceptor se encarga de extraer el campo "data"
+ * del wrapper JSON, por lo que aquí recibimos los DTOs ya deserializados.
  */
 class ReviewRemoteDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
     suspend fun getReviewsByArticulo(articuloId: Int): List<ReviewDto> {
-        val apiResponse = apiService.getReviewsByArticulo(articuloId)
-        if (apiResponse.success) {
-            return apiResponse.data ?: emptyList()
-        }
-        throw Exception(apiResponse.message ?: "Error al obtener reviews del artículo $articuloId")
+        return apiService.getReviewsByArticulo(articuloId)
     }
 
     suspend fun getReviewsByUsuario(usuarioId: Int): List<ReviewDto> {
-        val apiResponse = apiService.getReviewsByUsuario(usuarioId)
-        if (apiResponse.success) {
-            return apiResponse.data ?: emptyList()
-        }
-        throw Exception(apiResponse.message ?: "Error al obtener reviews del usuario $usuarioId")
+        return apiService.getReviewsByUsuario(usuarioId)
     }
 
     suspend fun createReview(createReviewDto: CreateReviewDto): ReviewDto {
-        val apiResponse = apiService.createReview(createReviewDto)
-        if (apiResponse.success && apiResponse.data != null) {
-            return apiResponse.data
-        }
-        throw Exception(apiResponse.message ?: "Error al crear review")
+        return apiService.createReview(createReviewDto)
     }
 
     suspend fun updateReview(id: Int, updateReviewDto: UpdateReviewDto): ReviewDto {
-        val apiResponse = apiService.updateReview(id, updateReviewDto)
-        if (apiResponse.success && apiResponse.data != null) {
-            return apiResponse.data
-        }
-        throw Exception(apiResponse.message ?: "Error al actualizar review $id")
+        return apiService.updateReview(id, updateReviewDto)
     }
 
     suspend fun deleteReview(id: Int) {
-        val apiResponse = apiService.deleteReview(id)
-        if (!apiResponse.success) {
-            throw Exception(apiResponse.message ?: "Error al eliminar review $id")
-        }
+        apiService.deleteReview(id)
     }
 }

@@ -6,25 +6,17 @@ import javax.inject.Inject
 
 /**
  * DataSource remoto para artículos. Consume ApiService directamente.
- * Sin wrapper Response<>: Retrofit lanza HttpException en errores HTTP,
- * y el DataSource valida el campo success del ApiResponse.
+ * El ApiResponseUnwrapInterceptor se encarga de extraer el campo "data"
+ * del wrapper JSON, por lo que aquí recibimos los DTOs ya deserializados.
  */
 class ArticuloRemoteDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
     suspend fun getAllArticulos(): List<ArticuloDto> {
-        val apiResponse = apiService.getAllArticulos()
-        if (apiResponse.success) {
-            return apiResponse.data ?: emptyList()
-        }
-        throw Exception(apiResponse.message ?: "Error al obtener artículos")
+        return apiService.getAllArticulos()
     }
 
     suspend fun getArticuloById(id: Int): ArticuloDto {
-        val apiResponse = apiService.getArticuloById(id)
-        if (apiResponse.success && apiResponse.data != null) {
-            return apiResponse.data
-        }
-        throw Exception(apiResponse.message ?: "Artículo no encontrado (id=$id)")
+        return apiService.getArticuloById(id)
     }
 }

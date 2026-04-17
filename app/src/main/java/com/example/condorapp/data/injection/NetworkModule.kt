@@ -1,5 +1,6 @@
 package com.example.condorapp.data.injection
 
+import com.example.condorapp.data.remote.ApiResponseUnwrapInterceptor
 import com.example.condorapp.data.remote.ApiService
 import dagger.Module
 import dagger.Provides
@@ -33,6 +34,7 @@ object NetworkModule {
             level = HttpLoggingInterceptor.Level.BODY
         }
         return OkHttpClient.Builder()
+            .addInterceptor(ApiResponseUnwrapInterceptor())
             .addInterceptor(logging)
             .build()
     }
