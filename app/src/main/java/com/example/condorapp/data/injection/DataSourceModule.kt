@@ -2,10 +2,13 @@ package com.example.condorapp.data.injection
 
 import com.example.condorapp.data.datasource.ArticuloDataSource
 import com.example.condorapp.data.datasource.ArticuloFirestoreDataSource
+import com.example.condorapp.data.datasource.ArticuloRemoteDataSource
 import com.example.condorapp.data.datasource.ReviewDataSource
 import com.example.condorapp.data.datasource.ReviewFirestoreDataSource
+import com.example.condorapp.data.datasource.ReviewRemoteDataSource
 import com.example.condorapp.data.datasource.UsuarioDataSource
 import com.example.condorapp.data.datasource.UsuarioFirestoreDataSource
+import com.example.condorapp.data.datasource.UsuarioRemoteDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -30,18 +33,18 @@ abstract class DataSourceModule {
     @Binds
     @Singleton
     abstract fun bindArticuloDataSource(
-        impl: ArticuloFirestoreDataSource
+        impl: ArticuloRemoteDataSource
     ): ArticuloDataSource
 
     @Binds
     @Singleton
     abstract fun bindUsuarioDataSource(
-        impl: UsuarioFirestoreDataSource
+        impl: UsuarioRemoteDataSource
     ): UsuarioDataSource
 
     @Binds
     @Singleton
     abstract fun bindReviewDataSource(
-        impl: ReviewFirestoreDataSource
+        impl: ReviewRemoteDataSource
     ): ReviewDataSource
 }
