@@ -33,7 +33,6 @@ class EditProfileViewModel @Inject constructor(
     init {
         loadCurrentProfile()
     }
-
     private fun loadCurrentProfile() {
         val currentProfile = com.example.condorapp.data.local.UserProfileRepository.getProfile()
         _uiState.update {
