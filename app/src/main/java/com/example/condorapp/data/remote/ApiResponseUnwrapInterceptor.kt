@@ -6,18 +6,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 
-/**
- * Interceptor OkHttp que desenvuelve la respuesta genérica del backend.
- *
- * El servidor siempre retorna: { "success": true/false, "data": ..., "message": ... }
- *
- * Este interceptor:
- *  - Si "success" es true  → reemplaza el body por el contenido de "data" para que
- *    Gson deserialice directamente el DTO esperado.
- *  - Si "success" es false → genera una respuesta HTTP 500 con el "message" del
- *    backend, provocando que Retrofit lance HttpException y los repositorios lo
- *    capturen con try-catch de forma natural.
- */
 class ApiResponseUnwrapInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {

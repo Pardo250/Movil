@@ -12,15 +12,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-/**
- * Interfaz de servicio Retrofit.
- *
- * Los métodos retornan directamente los DTOs (sin ApiResponse ni Response).
- * El ApiResponseUnwrapInterceptor se encarga de extraer el campo "data" del
- * wrapper JSON del backend ({ success, data, message }) antes de que Gson
- * deserialice, y convierte respuestas con success=false en errores HTTP
- * que Retrofit lanza como HttpException.
- */
 interface ApiService {
 
     // ─── ARTÍCULOS ─────────────────────────────────────────────────────────────
