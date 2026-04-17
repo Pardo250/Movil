@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel para la pantalla de perfil de otro usuario.
- * Carga sus datos y reviews desde el backend.
+ * Carga sus datos y reviews desde Firestore.
  */
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
@@ -28,12 +28,14 @@ class UserProfileViewModel @Inject constructor(
     val uiState: StateFlow<UserProfileUiState> = _uiState.asStateFlow()
 
     init {
-        val userId = savedStateHandle.get<String>("userId")?.toIntOrNull() ?: 1
-        loadUserProfile(userId)
+        val userId = savedStateHandle.get<String>("userId") ?: ""
+        if (userId.isNotEmpty()) {
+            loadUserProfile(userId)
+        }
     }
 
     /** Carga el perfil del usuario y sus reviews. */
-    fun loadUserProfile(userId: Int) {
+    fun loadUserProfile(userId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 

@@ -42,7 +42,7 @@ fun DetailScreenRoute(
         onBack: () -> Unit,
         onAddReview: () -> Unit,
         onReviewClick: (String) -> Unit,
-        onUserClick: (Int) -> Unit = {}
+        onUserClick: (String) -> Unit = {}
 ) {
     LaunchedEffect(postId) { viewModel.loadPostDetail(postId) }
 
@@ -68,7 +68,7 @@ fun DetailScreenContent(
         onAddReviewClick: () -> Unit,
         onReviewClick: (String) -> Unit,
         onLikeReview: (Review) -> Unit,
-        onUserClick: (Int) -> Unit
+        onUserClick: (String) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -252,7 +252,7 @@ fun ReviewItem(
         modifier: Modifier = Modifier,
         onLike: () -> Unit,
         onClick: () -> Unit,
-        onUserClick: (Int) -> Unit
+        onUserClick: (String) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Card(

@@ -7,30 +7,31 @@ import com.example.condorapp.data.remote.ApiService
 import javax.inject.Inject
 
 /**
- * DataSource remoto para reviews. Consume ApiService directamente.
- * El ApiResponseUnwrapInterceptor se encarga de extraer el campo "data"
- * del wrapper JSON, por lo que aquí recibimos los DTOs ya deserializados.
+ * DataSource remoto para reviews vía Retrofit/API REST.
+ * Implementa la interfaz ReviewDataSource para permitir intercambio con Firestore.
+ * El ApiResponseUnwrapInterceptor se encarga de extraer el campo "data" del wrapper JSON.
  */
 class ReviewRemoteDataSource @Inject constructor(
     private val apiService: ApiService
-) {
-    suspend fun getReviewsByArticulo(articuloId: Int): List<ReviewDto> {
-        return apiService.getReviewsByArticulo(articuloId)
+) : ReviewDataSource {
+
+    override suspend fun getReviewsByArticulo(articuloId: String): List<ReviewDto> {
+        return apiService.getReviewsByArticulo(articuloId.toInt())
     }
 
-    suspend fun getReviewsByUsuario(usuarioId: Int): List<ReviewDto> {
-        return apiService.getReviewsByUsuario(usuarioId)
+    override suspend fun getReviewsByUsuario(usuarioId: String): List<ReviewDto> {
+        return apiService.getReviewsByUsuario(usuarioId.toInt())
     }
 
-    suspend fun createReview(createReviewDto: CreateReviewDto): ReviewDto {
-        return apiService.createReview(createReviewDto)
+    override suspend fun createReview(dto: CreateReviewDto): ReviewDto {
+        return apiService.createReview(dto)
     }
 
-    suspend fun updateReview(id: Int, updateReviewDto: UpdateReviewDto): ReviewDto {
-        return apiService.updateReview(id, updateReviewDto)
+    override suspend fun updateReview(id: String, dto: UpdateReviewDto): ReviewDto {
+        return apiService.updateReview(id.toInt(), dto)
     }
 
-    suspend fun deleteReview(id: Int) {
-        apiService.deleteReview(id)
+    override suspend fun deleteReview(id: String) {
+        apiService.deleteReview(id.toInt())
     }
 }

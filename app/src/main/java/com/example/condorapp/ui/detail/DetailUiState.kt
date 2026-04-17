@@ -9,7 +9,7 @@ import com.example.condorapp.data.Review
  * Nota: Editar/eliminar reviews se hace desde la pantalla de perfil, no desde el detalle.
  */
 data class DetailUiState(
-        val articuloId: Int = 0,
+        val articuloId: String = "",
         val title: String = "",
         val location: String = "",
         val description: String = "",

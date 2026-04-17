@@ -10,6 +10,6 @@ data class Review(
     val rating: Int,
     val comment: String,
     val likes: Int,
-    val usuarioId: Int = 0,
+    val usuarioId: String = "",
     val articuloNombre: String = ""
 )

@@ -20,20 +20,28 @@ fun ArticuloDto.toArticulo(): Articulo = Articulo(
     imagenUrl   = imagenUrl ?: ""
 )
 
-/** Convierte un ReviewDto a un Review de la capa visual. */
+/**
+ * Convierte un ReviewDto a un Review de la capa visual.
+ * Soporta tanto Retrofit (objetos anidados) como Firestore (campos desnormalizados).
+ */
 fun ReviewDto.toReview(): Review = Review(
-    id              = id.toString(),
-    name            = usuario?.nombre ?: "Usuario desconocido",
+    id              = id,
+    name            = usuario?.nombre
+                        ?: usuarioNombre.ifEmpty { "Usuario desconocido" },
     rating          = calificacion,
     comment         = contenido,
     likes           = 0,
     usuarioId       = usuarioId,
-    articuloNombre  = articulo?.titulo ?: ""
+    articuloNombre  = articulo?.titulo
+                        ?: articuloTitulo.ifEmpty { "" }
 )
 
 /** Convierte un UsuarioDto a un UserInfo de la capa visual. */
 fun UsuarioDto.toUserInfo(): UserInfo = UserInfo(
-    id     = id,
-    nombre = nombre,
-    email  = email
+    id        = id,
+    nombre    = nombre,
+    email     = email,
+    username  = username.ifEmpty { "@${nombre.lowercase().replace(" ", "_")}" },
+    bio       = bio.ifEmpty { "Sin biografía" },
+    avatarUrl = avatarUrl
 )

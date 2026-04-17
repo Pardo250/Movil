@@ -48,7 +48,7 @@ fun HomeScreenRoute(
             onArticuloClick = { index ->
                 viewModel.onArticuloSelected(index)
                 val articulo = uiState.articulos[index]
-                onPostClick(articulo.id.toString())
+                onPostClick(articulo.id)
             }
     )
 }
@@ -275,7 +275,7 @@ fun HomeScreenLightPreview() {
         HomeScreenContent(
             state = HomeUiState(
                 articulos = listOf(
-                    Articulo(1, "Artículo de prueba", "Descripción de prueba", "cultura")
+                    Articulo("1", "Artículo de prueba", "Descripción de prueba", "cultura")
                 )
             ),
             onNotifications = {},
@@ -291,7 +291,7 @@ fun HomeScreenDarkPreview() {
         HomeScreenContent(
             state = HomeUiState(
                 articulos = listOf(
-                    Articulo(1, "Artículo de prueba", "Descripción de prueba", "cultura")
+                    Articulo("1", "Artículo de prueba", "Descripción de prueba", "cultura")
                 )
             ),
             onNotifications = {},
