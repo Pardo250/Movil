@@ -48,7 +48,7 @@ fun FeedScreenRoute(
             state = uiState,
             modifier = modifier,
             onCategorySelected = viewModel::onCategorySelected,
-            onArticuloClick = { articulo -> onPlaceClick(articulo.id.toString()) }
+            onArticuloClick = { articulo -> onPlaceClick(articulo.id) }
     )
 }
 
@@ -303,8 +303,8 @@ fun FeedScreenLightPreview() {
         FeedScreenContent(
             state = FeedUiState(
                 articulos = listOf(
-                    Articulo(1, "Valle del Cocora", "Hermoso paisaje", "paisaje"),
-                    Articulo(2, "Playa Blanca", "Arena blanca", "playa")
+                    Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje"),
+                    Articulo("2", "Playa Blanca", "Arena blanca", "playa")
                 )
             ),
             onCategorySelected = {},
@@ -320,7 +320,7 @@ fun FeedScreenDarkPreview() {
         FeedScreenContent(
             state = FeedUiState(
                 articulos = listOf(
-                    Articulo(1, "Valle del Cocora", "Hermoso paisaje", "paisaje")
+                    Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje")
                 )
             ),
             onCategorySelected = {},

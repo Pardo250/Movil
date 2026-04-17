@@ -1,6 +1,5 @@
 package com.example.condorapp.data.remote
 
-import com.example.condorapp.data.dto.ApiResponse
 import com.example.condorapp.data.dto.ArticuloDto
 import com.example.condorapp.data.dto.CreateReviewDto
 import com.example.condorapp.data.dto.ReviewDto
@@ -16,43 +15,44 @@ import retrofit2.http.Path
 /**
  * Interfaz de servicio Retrofit.
  *
- * Buena práctica: los métodos retornan directamente ApiResponse<T> en vez de
- * Response<ApiResponse<T>>. Retrofit lanza HttpException automáticamente para
- * códigos HTTP no exitosos (4xx, 5xx), así que el manejo de errores HTTP
- * queda en los DataSources/Repositories con try-catch.
+ * Los métodos retornan directamente los DTOs (sin ApiResponse ni Response).
+ * El ApiResponseUnwrapInterceptor se encarga de extraer el campo "data" del
+ * wrapper JSON del backend ({ success, data, message }) antes de que Gson
+ * deserialice, y convierte respuestas con success=false en errores HTTP
+ * que Retrofit lanza como HttpException.
  */
 interface ApiService {
 
     // ─── ARTÍCULOS ─────────────────────────────────────────────────────────────
     @GET("articulos")
-    suspend fun getAllArticulos(): ApiResponse<List<ArticuloDto>>
+    suspend fun getAllArticulos(): List<ArticuloDto>
 
     @GET("articulos/{id}")
-    suspend fun getArticuloById(@Path("id") id: Int): ApiResponse<ArticuloDto>
+    suspend fun getArticuloById(@Path("id") id: Int): ArticuloDto
 
     // ─── USUARIOS ──────────────────────────────────────────────────────────────
     @GET("usuarios")
-    suspend fun getAllUsuarios(): ApiResponse<List<UsuarioDto>>
+    suspend fun getAllUsuarios(): List<UsuarioDto>
 
     @GET("usuarios/{id}")
-    suspend fun getUsuarioById(@Path("id") id: Int): ApiResponse<UsuarioDto>
+    suspend fun getUsuarioById(@Path("id") id: Int): UsuarioDto
 
     // ─── REVIEWS ───────────────────────────────────────────────────────────────
     @POST("reviews")
-    suspend fun createReview(@Body body: CreateReviewDto): ApiResponse<ReviewDto>
+    suspend fun createReview(@Body body: CreateReviewDto): ReviewDto
 
     @GET("reviews/articulo/{articuloId}")
-    suspend fun getReviewsByArticulo(@Path("articuloId") articuloId: Int): ApiResponse<List<ReviewDto>>
+    suspend fun getReviewsByArticulo(@Path("articuloId") articuloId: Int): List<ReviewDto>
 
     @GET("reviews/usuario/{usuarioId}")
-    suspend fun getReviewsByUsuario(@Path("usuarioId") usuarioId: Int): ApiResponse<List<ReviewDto>>
+    suspend fun getReviewsByUsuario(@Path("usuarioId") usuarioId: Int): List<ReviewDto>
 
     @PUT("reviews/{id}")
     suspend fun updateReview(
         @Path("id") id: Int,
         @Body body: UpdateReviewDto
-    ): ApiResponse<ReviewDto>
+    ): ReviewDto
 
     @DELETE("reviews/{id}")
-    suspend fun deleteReview(@Path("id") id: Int): ApiResponse<Unit>
+    suspend fun deleteReview(@Path("id") id: Int): Unit
 }

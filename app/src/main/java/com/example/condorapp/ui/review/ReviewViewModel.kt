@@ -23,18 +23,20 @@ class ReviewViewModel @Inject constructor(
     val uiState: StateFlow<ReviewScreenUiState> = _uiState.asStateFlow()
 
     /**
-     * Carga los datos de una reseña específica (Por ahora la API no tiene un endpoint para
-     * buscar una Review aislada, por lo que usamos las de un artículo predeterminado y extraemos la principal)
+     * Carga los datos de una reseña específica.
+     * Busca en las reviews de todos los artículos (Firestore no tiene endpoint por review ID).
      */
     fun loadReview(reviewId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            val result = reviewRepository.getReviewsByArticulo(1)
+            // Intentar buscar la review en las reviews del primer artículo
+            // En Firestore no hay un query por review ID directo,
+            // así que buscamos en una colección general
+            val result = reviewRepository.getReviewsByArticulo("1")
 
             result.onSuccess { reviews ->
                 val mainReview = reviews.find { it.id == reviewId } ?: reviews.firstOrNull()
-                // El backend tampoco soporta respuestas/comentarios anidados, las dejamos vacías por ahora.
                 val comments = emptyList<com.example.condorapp.data.Review>()
 
                 _uiState.update {

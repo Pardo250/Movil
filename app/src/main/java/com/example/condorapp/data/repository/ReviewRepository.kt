@@ -1,7 +1,7 @@
 package com.example.condorapp.data.repository
 
 import com.example.condorapp.data.Review
-import com.example.condorapp.data.datasource.ReviewRemoteDataSource
+import com.example.condorapp.data.datasource.ReviewDataSource
 import com.example.condorapp.data.dto.CreateReviewDto
 import com.example.condorapp.data.dto.UpdateReviewDto
 import com.example.condorapp.data.dto.toReview
@@ -9,8 +9,11 @@ import retrofit2.HttpException
 import javax.inject.Inject
 
 /**
- * Repositorio de reviews. Orquesta la comunicación entre el DataSource remoto
+ * Repositorio de reviews. Orquesta la comunicación entre el DataSource
  * y la capa visual, mapeando DTOs a modelos y devolviendo Result agnóstico.
+ *
+ * Depende de la interfaz ReviewDataSource, no de una implementación concreta.
+ * Esto permite cambiar Firestore ↔ Retrofit sin tocar este archivo.
  *
  * Estándar:
  * - No usa Response de Retrofit (agnóstico a tecnología).
@@ -18,11 +21,11 @@ import javax.inject.Inject
  * - Mapeo bidireccional: DTO→Review (lectura), campos UI→CreateReviewDto (escritura).
  */
 class ReviewRepository @Inject constructor(
-    private val remoteDataSource: ReviewRemoteDataSource
+    private val dataSource: ReviewDataSource
 ) {
-    suspend fun getReviewsByArticulo(articuloId: Int): Result<List<Review>> {
+    suspend fun getReviewsByArticulo(articuloId: String): Result<List<Review>> {
         return try {
-            val reviews = remoteDataSource.getReviewsByArticulo(articuloId).map { it.toReview() }
+            val reviews = dataSource.getReviewsByArticulo(articuloId).map { it.toReview() }
             Result.success(reviews)
         } catch (e: HttpException) {
             Result.failure(Exception("Error ${e.code()}: ${e.message()}"))
@@ -31,9 +34,9 @@ class ReviewRepository @Inject constructor(
         }
     }
 
-    suspend fun getReviewsByUsuario(usuarioId: Int): Result<List<Review>> {
+    suspend fun getReviewsByUsuario(usuarioId: String): Result<List<Review>> {
         return try {
-            val reviews = remoteDataSource.getReviewsByUsuario(usuarioId).map { it.toReview() }
+            val reviews = dataSource.getReviewsByUsuario(usuarioId).map { it.toReview() }
             Result.success(reviews)
         } catch (e: HttpException) {
             Result.failure(Exception("Error ${e.code()}: ${e.message()}"))
@@ -45,17 +48,17 @@ class ReviewRepository @Inject constructor(
     suspend fun createReview(
         contenido: String,
         calificacion: Int,
-        usuarioId: Int,
-        articuloId: Int
+        usuarioId: String,
+        articuloId: String,
+        usuarioNombre: String = ""
     ): Result<Review> {
         return try {
-            val dto = remoteDataSource.createReview(
-                CreateReviewDto(contenido, calificacion, usuarioId, articuloId)
+            val dto = dataSource.createReview(
+                CreateReviewDto(contenido, calificacion, usuarioId, articuloId, usuarioNombre)
             )
-            // Al crear, el usuario actual es "Tú"
             val review = Review(
-                id        = dto.id.toString(),
-                name      = "Tú",
+                id        = dto.id,
+                name      = dto.usuarioNombre.ifEmpty { "Tú" },
                 rating    = dto.calificacion,
                 comment   = dto.contenido,
                 likes     = 0,
@@ -69,9 +72,9 @@ class ReviewRepository @Inject constructor(
         }
     }
 
-    suspend fun updateReview(id: Int, contenido: String?, calificacion: Int?): Result<Review> {
+    suspend fun updateReview(id: String, contenido: String?, calificacion: Int?): Result<Review> {
         return try {
-            val dto = remoteDataSource.updateReview(id, UpdateReviewDto(contenido, calificacion))
+            val dto = dataSource.updateReview(id, UpdateReviewDto(contenido, calificacion))
             Result.success(dto.toReview())
         } catch (e: HttpException) {
             Result.failure(Exception("Error ${e.code()}: ${e.message()}"))
@@ -80,9 +83,9 @@ class ReviewRepository @Inject constructor(
         }
     }
 
-    suspend fun deleteReview(id: Int): Result<Unit> {
+    suspend fun deleteReview(id: String): Result<Unit> {
         return try {
-            remoteDataSource.deleteReview(id)
+            dataSource.deleteReview(id)
             Result.success(Unit)
         } catch (e: HttpException) {
             Result.failure(Exception("Error ${e.code()}: ${e.message()}"))

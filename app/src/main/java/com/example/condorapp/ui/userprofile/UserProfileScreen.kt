@@ -213,7 +213,7 @@ fun UserProfileScreenPreview() {
     CondorappTheme(darkTheme = false) {
         UserProfileScreenContent(
             state = UserProfileUiState(
-                user = UserInfo(1, "Juan Pérez", "juan@email.com"),
+                user = UserInfo("1", "Juan Pérez", "juan@email.com"),
                 reviews = listOf(
                     Review("1", "Juan Pérez", 5, "Muy bueno", 2),
                     Review("2", "Juan Pérez", 3, "Regular", 0)

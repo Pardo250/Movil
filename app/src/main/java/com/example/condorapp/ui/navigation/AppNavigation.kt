@@ -108,7 +108,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
 
         // 8. RESEÑA (DETALLE)
         composable(Screen.Review.route) { backStackEntry ->
-            val reviewId = backStackEntry.arguments?.getString("reviewId") ?: "1"
+            val reviewId = backStackEntry.arguments?.getString("reviewId") ?: ""
             ReviewScreenRoute(reviewId = reviewId, onBackClick = { navController.popBackStack() })
         }
 
@@ -119,8 +119,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                     postId = postId,
                     onBack = { navController.popBackStack() },
                     onAddReview = {
-                        val articuloId = postId.toIntOrNull() ?: 1
-                        navController.navigate(Screen.CreateReview.createRoute(articuloId))
+                        navController.navigate(Screen.CreateReview.createRoute(postId))
                     },
                     onReviewClick = { reviewId ->
                         navController.navigate(Screen.Review.createRoute(reviewId))
@@ -145,7 +144,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
 
         // 11. CREAR RESEÑA (con articuloId dinámico)
         composable(Screen.CreateReview.route) { backStackEntry ->
-            val articuloId = backStackEntry.arguments?.getString("articuloId")?.toIntOrNull() ?: 1
+            val articuloId = backStackEntry.arguments?.getString("articuloId") ?: ""
             CreateReviewScreenRoute(
                 articuloId = articuloId,
                 onBackClick = { navController.popBackStack() }

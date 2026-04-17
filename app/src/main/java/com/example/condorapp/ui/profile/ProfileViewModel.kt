@@ -3,9 +3,9 @@ package com.example.condorapp.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.condorapp.data.Review
-import com.example.condorapp.data.local.UserProfileRepository
 import com.example.condorapp.data.repository.AuthRepository
 import com.example.condorapp.data.repository.ReviewRepository
+import com.example.condorapp.data.repository.UsuarioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,20 +15,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel para la pantalla de perfil del usuario. Carga los datos del perfil,
- * las reviews del usuario desde el backend, y permite editar/eliminar sus propias reviews.
+ * ViewModel para la pantalla de perfil del usuario. Carga los datos del perfil
+ * desde Firestore, las reviews del usuario, y permite editar/eliminar sus propias reviews.
  *
- * CURRENT_USER_ID = 1 → ID del usuario "quemado" según la guía del Sprint.
+ * Usa FirebaseAuth.currentUser.uid como ID del usuario actual.
  */
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val usuarioRepository: UsuarioRepository,
     private val reviewRepository: ReviewRepository
 ) : ViewModel() {
 
-    companion object {
-        const val CURRENT_USER_ID = 1
-    }
+    /** UID del usuario actualmente autenticado. */
+    private val currentUserId: String
+        get() = authRepository.currentUser?.uid ?: ""
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -38,26 +39,45 @@ class ProfileViewModel @Inject constructor(
         loadMyReviews()
     }
 
-    /** Carga los datos del perfil del usuario desde el repositorio local. */
+    /** Carga los datos del perfil del usuario desde Firestore. */
     private fun loadProfile() {
-        val profile = UserProfileRepository.getProfile()
-        val photoUrl = authRepository.currentUser?.photoUrl?.toString()
-        _uiState.update {
-            it.copy(
-                name = profile.name,
-                username = profile.username,
-                imageUrl = photoUrl ?: profile.avatarUrl,
-                photos = profile.photos
-            )
+        val uid = currentUserId
+        if (uid.isEmpty()) return
+
+        viewModelScope.launch {
+            val result = usuarioRepository.getUsuarioById(uid)
+            result.onSuccess { user ->
+                val photoUrl = authRepository.currentUser?.photoUrl?.toString()
+                _uiState.update {
+                    it.copy(
+                        name     = user.nombre,
+                        username = user.username,
+                        imageUrl = photoUrl ?: user.avatarUrl.ifEmpty { null }
+                    )
+                }
+            }.onFailure { error ->
+                // Fallback: usar datos de FirebaseAuth
+                val firebaseUser = authRepository.currentUser
+                _uiState.update {
+                    it.copy(
+                        name     = firebaseUser?.displayName ?: "Usuario",
+                        username = "@${firebaseUser?.email?.substringBefore("@") ?: "user"}",
+                        imageUrl = firebaseUser?.photoUrl?.toString()
+                    )
+                }
+            }
         }
     }
 
-    /** Carga las reviews que ha realizado el usuario actual (id=1) desde el backend. */
+    /** Carga las reviews que ha realizado el usuario actual desde Firestore. */
     fun loadMyReviews() {
+        val uid = currentUserId
+        if (uid.isEmpty()) return
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            val result = reviewRepository.getReviewsByUsuario(CURRENT_USER_ID)
+            val result = reviewRepository.getReviewsByUsuario(uid)
 
             result.onSuccess { reviews ->
                 _uiState.update { it.copy(reviews = reviews, isLoading = false) }
@@ -100,10 +120,10 @@ class ProfileViewModel @Inject constructor(
         _uiState.update { it.copy(editRating = rating) }
     }
 
-    /** Confirma la edición y envía al backend. */
+    /** Confirma la edición y envía a Firestore. */
     fun confirmEditReview() {
         val state = _uiState.value
-        val reviewId = state.editReviewId?.toIntOrNull() ?: return
+        val reviewId = state.editReviewId ?: return
 
         viewModelScope.launch {
             val result = reviewRepository.updateReview(
@@ -133,11 +153,10 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    /** Elimina una review propia con filtro optimista. */
+    /** Elimina una review propia. */
     fun deleteReview(reviewId: String) {
         viewModelScope.launch {
-            val id = reviewId.toIntOrNull() ?: return@launch
-            val result = reviewRepository.deleteReview(id)
+            val result = reviewRepository.deleteReview(reviewId)
 
             result.onSuccess {
                 _uiState.update { currentState ->

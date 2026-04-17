@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel para la pantalla de detalle de un artículo.
- * Carga el artículo y sus reseñas desde el backend.
+ * Carga el artículo y sus reseñas desde Firestore.
  * Nota: Editar/eliminar reviews se hace desde ProfileViewModel.
  */
 @HiltViewModel
@@ -28,17 +28,15 @@ class DetailViewModel @Inject constructor(
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
     /**
-     * Carga los datos de un artículo y sus reseñas desde el backend.
-     * @param postId ID del artículo (String que se parsea a Int)
+     * Carga los datos de un artículo y sus reseñas.
+     * @param postId ID del artículo (String — compatible con Firestore y Retrofit)
      */
     fun loadPostDetail(postId: String) {
-        val articuloId = postId.toIntOrNull() ?: 1
-
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null, articuloId = articuloId) }
+            _uiState.update { it.copy(isLoading = true, errorMessage = null, articuloId = postId) }
 
-            // Cargar artículo del backend
-            val articuloResult = articuloRepository.getArticuloById(articuloId)
+            // Cargar artículo
+            val articuloResult = articuloRepository.getArticuloById(postId)
             articuloResult.onSuccess { articulo ->
                 _uiState.update {
                     it.copy(
@@ -52,12 +50,12 @@ class DetailViewModel @Inject constructor(
                 }
             }.onFailure {
                 _uiState.update {
-                    it.copy(title = "Artículo #$articuloId", location = "Sin conexión")
+                    it.copy(title = "Artículo", location = "Sin conexión")
                 }
             }
 
             // Cargar reviews del artículo
-            val reviewsResult = reviewRepository.getReviewsByArticulo(articuloId)
+            val reviewsResult = reviewRepository.getReviewsByArticulo(postId)
             reviewsResult.onSuccess { reviews ->
                 _uiState.update { it.copy(reviews = reviews, isLoading = false) }
             }.onFailure { error ->
