@@ -43,8 +43,7 @@ import com.example.condorapp.ui.theme.CondorappTheme
 fun FeedScreenRoute(
         modifier: Modifier = Modifier,
         viewModel: FeedViewModel = hiltViewModel(),
-        onPlaceClick: (String) -> Unit,
-        onUserClick: (String) -> Unit = {}
+        onPlaceClick: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -52,9 +51,7 @@ fun FeedScreenRoute(
             state = uiState,
             modifier = modifier,
             onCategorySelected = viewModel::onCategorySelected,
-            onToggleFilter = viewModel::onToggleFilter,
-            onArticuloClick = { articulo -> onPlaceClick(articulo.id) },
-            onUserClick = onUserClick
+            onArticuloClick = { articulo -> onPlaceClick(articulo.id) }
     )
 }
 
@@ -64,9 +61,7 @@ fun FeedScreenContent(
         state: FeedUiState,
         modifier: Modifier = Modifier,
         onCategorySelected: (Int) -> Unit,
-        onToggleFilter: (Boolean) -> Unit,
-        onArticuloClick: (Articulo) -> Unit,
-        onUserClick: (String) -> Unit
+        onArticuloClick: (Articulo) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -82,15 +77,9 @@ fun FeedScreenContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Toggle Todos / Siguiendo
-            FeedToggle(
-                showFollowingOnly = state.showFollowingOnly,
-                onToggle = onToggleFilter
-            )
-
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                    text = if (state.showFollowingOnly) "Actividad reciente" else stringResource(R.string.recommended_for_you),
+                    text = stringResource(R.string.recommended_for_you),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = colorScheme.primary
@@ -114,83 +103,17 @@ fun FeedScreenContent(
                 )
             }
 
-            if (state.showFollowingOnly) {
-                // Mostrar feed de reviews
-                if (!state.isLoading && state.reviews.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        Text("No hay actividad reciente de los usuarios que sigues.", color = colorScheme.outline)
-                    }
-                } else {
-                    androidx.compose.foundation.lazy.LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(bottom = 120.dp)
-                    ) {
-                        lazyItems(state.reviews) { review ->
-                            ReviewItem(
-                                review = review,
-                                onLike = { /* En el feed no se puede dar like directamente por ahora */ },
-                                onClick = { onArticuloClick(Articulo(id = review.articuloId, titulo = review.articuloNombre, descripcion = "", tipo = "general", imagenUrl = "")) },
-                                onUserClick = onUserClick,
-                                modifier = Modifier.padding(horizontal = 0.dp, vertical = 6.dp)
-                            )
-                        }
-                    }
-                }
-            } else {
-                // Mostrar grid de artículos
-                ArticuloGrid(
-                        articulos = state.articulos,
-                        onArticuloClick = onArticuloClick,
-                        modifier = Modifier.weight(1f)
-                )
-            }
+            // Mostrar grid de artículos
+            ArticuloGrid(
+                    articulos = state.articulos,
+                    onArticuloClick = onArticuloClick,
+                    modifier = Modifier.weight(1f)
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
-/** Toggle visual para cambiar entre Todos y Siguiendo */
-@Composable
-fun FeedToggle(showFollowingOnly: Boolean, onToggle: (Boolean) -> Unit) {
-    val colorScheme = MaterialTheme.colorScheme
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
-            .padding(4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(16.dp))
-                .background(if (!showFollowingOnly) colorScheme.primary else androidx.compose.ui.graphics.Color.Transparent)
-                .clickable { onToggle(false) }
-                .padding(vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "Todos", 
-                fontWeight = FontWeight.Bold, 
-                color = if (!showFollowingOnly) colorScheme.onPrimary else colorScheme.onSurfaceVariant
-            )
-        }
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(16.dp))
-                .background(if (showFollowingOnly) colorScheme.primary else androidx.compose.ui.graphics.Color.Transparent)
-                .clickable { onToggle(true) }
-                .padding(vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "Siguiendo", 
-                fontWeight = FontWeight.Bold, 
-                color = if (showFollowingOnly) colorScheme.onPrimary else colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
 
 /** Barra de búsqueda decorativa. */
 @Composable
@@ -389,13 +312,10 @@ fun FeedScreenLightPreview() {
                 articulos = listOf(
                     Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje"),
                     Articulo("2", "Playa Blanca", "Arena blanca", "playa")
-                ),
-                showFollowingOnly = false
+                )
             ),
             onCategorySelected = {},
-            onToggleFilter = {},
-            onArticuloClick = {},
-            onUserClick = {}
+            onArticuloClick = {}
         )
     }
 }
@@ -408,13 +328,10 @@ fun FeedScreenDarkPreview() {
             state = FeedUiState(
                 articulos = listOf(
                     Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje")
-                ),
-                showFollowingOnly = false
+                )
             ),
             onCategorySelected = {},
-            onToggleFilter = {},
-            onArticuloClick = {},
-            onUserClick = {}
+            onArticuloClick = {}
         )
     }
 }

@@ -10,8 +10,6 @@ import com.example.condorapp.data.Review
 data class FeedUiState(
         val selectedCategoryIndex: Int = 0,
         val articulos: List<Articulo> = emptyList(),
-        val reviews: List<Review> = emptyList(),
-        val showFollowingOnly: Boolean = false,
         val isLoading: Boolean = false,
         val errorMessage: String? = null
 )
