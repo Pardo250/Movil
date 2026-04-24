@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import kotlinx.coroutines.tasks.await
+
 /**
  * ViewModel para la pantalla de notificaciones.
  * Lee en tiempo real la subcolección notifications/{uid}/items de Firestore.
@@ -99,6 +101,3 @@ class NotificationsViewModel @Inject constructor(
     }
 }
 
-// Extensión para usar .await() sin importar extra
-private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
-    kotlinx.coroutines.tasks.await(this)
