@@ -33,18 +33,18 @@ abstract class DataSourceModule {
     @Binds
     @Singleton
     abstract fun bindArticuloDataSource(
-        impl: ArticuloRemoteDataSource
+        impl: ArticuloFirestoreDataSource
     ): ArticuloDataSource
 
     @Binds
     @Singleton
     abstract fun bindUsuarioDataSource(
-        impl: UsuarioRemoteDataSource
+        impl: UsuarioFirestoreDataSource
     ): UsuarioDataSource
 
     @Binds
     @Singleton
     abstract fun bindReviewDataSource(
-        impl: ReviewRemoteDataSource
+        impl: ReviewFirestoreDataSource
     ): ReviewDataSource
 }
