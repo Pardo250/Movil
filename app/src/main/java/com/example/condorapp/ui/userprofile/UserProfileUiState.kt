@@ -10,6 +10,9 @@ import com.example.condorapp.data.UserInfo
 data class UserProfileUiState(
     val user: UserInfo? = null,
     val reviews: List<Review> = emptyList(),
+    val isFollowing: Boolean = false,
+    val followersCount: Int = 0,
+    val followingCount: Int = 0,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )

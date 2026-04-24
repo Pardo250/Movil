@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -311,8 +312,8 @@ fun ReviewItem(
                         Text(review.likes.toString(), color = colorScheme.outline, fontSize = 14.sp)
                         Spacer(Modifier.width(4.dp))
                         Icon(
-                                Icons.Default.ThumbUp,
-                                contentDescription = null,
+                                if (review.likedByMe) Icons.Default.ThumbUp else Icons.Outlined.ThumbUp,
+                                contentDescription = "Like",
                                 modifier = Modifier.size(18.dp),
                                 tint = colorScheme.primary
                         )

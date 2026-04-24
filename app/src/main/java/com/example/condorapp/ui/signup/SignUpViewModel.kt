@@ -82,6 +82,7 @@ class SignUpViewModel @Inject constructor(
                     }
 
                     Log.d("SignUpViewModel", "Perfil guardado en Firestore -> $fullName")
+                    authRepository.saveFcmToken()
                     _uiState.update { it.copy(isSignUpSuccessful = true, messageRes = null) }
                 } catch (e: Exception) {
                     Log.e("SignUpViewModel", "Registro failed", e)

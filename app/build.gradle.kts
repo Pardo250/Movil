@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.storage)
+    implementation(libs.firebase.messaging)
     implementation(libs.coil.compose)
 
     // Red / API (Retrofit y OkHttp para conectarnos al backend Express)

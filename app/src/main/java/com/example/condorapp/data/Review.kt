@@ -11,5 +11,7 @@ data class Review(
     val comment: String,
     val likes: Int,
     val usuarioId: String = "",
-    val articuloNombre: String = ""
+    val articuloId: String = "",
+    val articuloNombre: String = "",
+    val likedByMe: Boolean = false
 )

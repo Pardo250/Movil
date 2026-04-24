@@ -4,6 +4,7 @@ import com.example.condorapp.data.dto.CreateReviewDto
 import com.example.condorapp.data.dto.ReviewDto
 import com.example.condorapp.data.dto.UpdateReviewDto
 import com.example.condorapp.data.remote.ApiService
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -33,5 +34,21 @@ class ReviewRemoteDataSource @Inject constructor(
 
     override suspend fun deleteReview(id: String) {
         apiService.deleteReview(id.toInt())
+    }
+
+    override suspend fun toggleLike(reviewId: String, userId: String): Boolean {
+        throw UnsupportedOperationException("Social features not implemented in REST backend")
+    }
+
+    override suspend fun isLikedByUser(reviewId: String, userId: String): Boolean {
+        throw UnsupportedOperationException("Social features not implemented in REST backend")
+    }
+
+    override fun listenReviewsByArticulo(articuloId: String): Flow<List<ReviewDto>> {
+        throw UnsupportedOperationException("Realtime features not implemented in REST backend")
+    }
+
+    override suspend fun getAllReviews(): List<ReviewDto> {
+        throw UnsupportedOperationException("Not implemented in REST backend")
     }
 }

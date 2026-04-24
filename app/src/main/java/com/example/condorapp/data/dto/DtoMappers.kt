@@ -30,7 +30,7 @@ fun ReviewDto.toReview(): Review = Review(
                         ?: usuarioNombre.ifEmpty { "Usuario desconocido" },
     rating          = calificacion,
     comment         = contenido,
-    likes           = 0,
+    likes           = likesCount,
     usuarioId       = usuarioId,
     articuloNombre  = articulo?.titulo
                         ?: articuloTitulo.ifEmpty { "" }
@@ -43,5 +43,7 @@ fun UsuarioDto.toUserInfo(): UserInfo = UserInfo(
     email     = email,
     username  = username.ifEmpty { "@${nombre.lowercase().replace(" ", "_")}" },
     bio       = bio.ifEmpty { "Sin biografía" },
-    avatarUrl = avatarUrl
+    avatarUrl = avatarUrl,
+    followersCount = followersCount,
+    followingCount = followingCount
 )

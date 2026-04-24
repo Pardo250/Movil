@@ -55,6 +55,7 @@ class LoginViewModel @Inject constructor(
                 try {
                     authRepository.signIn(currentState.email, currentState.password)
                     Log.d(TAG, "Login correcto -> ${currentState.email}")
+                    authRepository.saveFcmToken()
                     _uiState.update { it.copy(isLoginSuccessful = true, messageRes = null) }
                 } catch (e: Exception) {
                     Log.e(TAG, "Login failed", e)

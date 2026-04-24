@@ -1,6 +1,7 @@
 package com.example.condorapp.ui.userprofile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,23 +35,27 @@ import com.example.condorapp.ui.theme.CondorappTheme
 fun UserProfileScreenRoute(
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel(),
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onFollowListClick: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     UserProfileScreenContent(
         state = uiState,
         modifier = modifier,
-        onBack = onBack
+        onBack = onBack,
+        onFollowToggle = viewModel::toggleFollow,
+        onFollowListClick = onFollowListClick
     )
 }
 
-/** Contenido stateless de la pantalla de perfil de otro usuario. */
 @Composable
 fun UserProfileScreenContent(
     state: UserProfileUiState,
     modifier: Modifier = Modifier,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onFollowToggle: () -> Unit,
+    onFollowListClick: (String) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -113,6 +118,51 @@ fun UserProfileScreenContent(
                                 text = user.email,
                                 fontSize = 14.sp,
                                 color = colorScheme.outline
+                            )
+                        }
+                        
+                        Spacer(Modifier.height(16.dp))
+
+                        // Contadores clickeables
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .clickable { onFollowListClick(user.id) }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text("${state.followersCount}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = colorScheme.onBackground)
+                                Text("Seguidores", color = colorScheme.outline, fontSize = 14.sp)
+                            }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .clickable { onFollowListClick(user.id) }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text("${state.followingCount}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = colorScheme.onBackground)
+                                Text("Siguiendo", color = colorScheme.outline, fontSize = 14.sp)
+                            }
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+                        
+                        // Botón Seguir / Siguiendo
+                        Button(
+                            onClick = onFollowToggle,
+                            shape = RoundedCornerShape(20.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (state.isFollowing) colorScheme.surfaceVariant else colorScheme.primary,
+                                contentColor = if (state.isFollowing) colorScheme.onSurfaceVariant else colorScheme.onPrimary
+                            ),
+                            modifier = Modifier.width(200.dp)
+                        ) {
+                            Text(
+                                text = if (state.isFollowing) "Siguiendo" else "Seguir",
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
@@ -214,12 +264,17 @@ fun UserProfileScreenPreview() {
         UserProfileScreenContent(
             state = UserProfileUiState(
                 user = UserInfo("1", "Juan Pérez", "juan@email.com"),
+                isFollowing = false,
+                followersCount = 120,
+                followingCount = 45,
                 reviews = listOf(
                     Review("1", "Juan Pérez", 5, "Muy bueno", 2),
                     Review("2", "Juan Pérez", 3, "Regular", 0)
                 )
             ),
-            onBack = {}
+            onBack = {},
+            onFollowToggle = {},
+            onFollowListClick = {}
         )
     }
 }

@@ -3,6 +3,7 @@
 package com.example.condorapp.ui.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,7 +41,8 @@ fun ProfileScreenRoute(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
     onBack: () -> Unit = {},
-    onEditProfile: () -> Unit = {}
+    onEditProfile: () -> Unit = {},
+    onFollowListClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -51,7 +53,8 @@ fun ProfileScreenRoute(
         onEditProfile = onEditProfile,
         onShareProfile = { /* Lógica para compartir */ },
         onEditReview = viewModel::startEditReview,
-        onDeleteReview = viewModel::deleteReview
+        onDeleteReview = viewModel::deleteReview,
+        onFollowListClick = onFollowListClick
     )
 
     // Diálogo de edición de review propia
@@ -76,7 +79,8 @@ fun ProfileScreenContent(
     onEditProfile: () -> Unit,
     onShareProfile: () -> Unit,
     onEditReview: (Review) -> Unit,
-    onDeleteReview: (String) -> Unit
+    onDeleteReview: (String) -> Unit,
+    onFollowListClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -87,7 +91,16 @@ fun ProfileScreenContent(
             item { Spacer(modifier = Modifier.height(24.dp)) }
             item { ProfileTopBar(onBack = onBack) }
             item { Spacer(modifier = Modifier.height(20.dp)) }
-            item { ProfileHeader(name = state.name, username = state.username, imageUrl = state.imageUrl) }
+            item { 
+                ProfileHeader(
+                    name = state.name, 
+                    username = state.username, 
+                    imageUrl = state.imageUrl,
+                    followersCount = state.followersCount,
+                    followingCount = state.followingCount,
+                    onFollowListClick = onFollowListClick
+                ) 
+            }
             item { Spacer(modifier = Modifier.height(24.dp)) }
             item { ProfileActions(onEditProfile = onEditProfile, onShareProfile = onShareProfile) }
             item { Spacer(modifier = Modifier.height(24.dp)) }
@@ -148,9 +161,17 @@ fun ProfileTopBar(modifier: Modifier = Modifier, onBack: () -> Unit) {
     }
 }
 
-/** Header del perfil con avatar, nombre y username. */
+/** Header del perfil con avatar, nombre, username y contadores sociales. */
 @Composable
-fun ProfileHeader(modifier: Modifier = Modifier, name: String, username: String, imageUrl: String?) {
+fun ProfileHeader(
+    modifier: Modifier = Modifier, 
+    name: String, 
+    username: String, 
+    imageUrl: String?,
+    followersCount: Int,
+    followingCount: Int,
+    onFollowListClick: () -> Unit
+) {
     val colorScheme = MaterialTheme.colorScheme
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
         ProfileImage(
@@ -165,6 +186,33 @@ fun ProfileHeader(modifier: Modifier = Modifier, name: String, username: String,
             color = colorScheme.primary
         )
         Text(text = username, fontSize = 16.sp, color = colorScheme.outline)
+        
+        Spacer(Modifier.height(16.dp))
+        
+        // Contadores clickeables
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable { onFollowListClick() }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("$followersCount", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = colorScheme.onBackground)
+                Text("Seguidores", color = colorScheme.outline, fontSize = 14.sp)
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable { onFollowListClick() }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("$followingCount", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = colorScheme.onBackground)
+                Text("Siguiendo", color = colorScheme.outline, fontSize = 14.sp)
+            }
+        }
     }
 }
 
@@ -364,6 +412,8 @@ fun ProfileScreenPreviewLight() {
                 name = "Preview User",
                 username = "@preview",
                 imageUrl = null,
+                followersCount = 150,
+                followingCount = 42,
                 reviews = listOf(
                     Review("1", "Yo", 5, "Excelente lugar", 3, articuloNombre = "Valle del Cocora")
                 )
@@ -372,7 +422,8 @@ fun ProfileScreenPreviewLight() {
             onEditProfile = {},
             onShareProfile = {},
             onEditReview = {},
-            onDeleteReview = {}
+            onDeleteReview = {},
+            onFollowListClick = {}
         )
     }
 }
@@ -392,7 +443,8 @@ fun ProfileScreenPreviewDark() {
             onEditProfile = {},
             onShareProfile = {},
             onEditReview = {},
-            onDeleteReview = {}
+            onDeleteReview = {},
+            onFollowListClick = {}
         )
     }
 }

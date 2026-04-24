@@ -30,6 +30,27 @@ class UsuarioRemoteDataSource @Inject constructor(
 
     override suspend fun updateUsuario(id: String, fields: Map<String, Any>) {
         // El backend REST no tiene endpoint PUT /usuarios por ahora
+        // El backend REST no tiene endpoint PUT /usuarios por ahora
         throw UnsupportedOperationException("PUT /usuarios no implementado en el backend REST")
+    }
+
+    override suspend fun toggleFollow(followerId: String, followingId: String): Boolean {
+        throw UnsupportedOperationException("Social features not implemented in REST backend")
+    }
+
+    override suspend fun isFollowing(followerId: String, followingId: String): Boolean {
+        throw UnsupportedOperationException("Social features not implemented in REST backend")
+    }
+
+    override suspend fun getFollowers(userId: String): List<UsuarioDto> {
+        throw UnsupportedOperationException("Social features not implemented in REST backend")
+    }
+
+    override suspend fun getFollowing(userId: String): List<UsuarioDto> {
+        throw UnsupportedOperationException("Social features not implemented in REST backend")
+    }
+
+    override suspend fun getFollowingIds(userId: String): List<String> {
+        throw UnsupportedOperationException("Social features not implemented in REST backend")
     }
 }

@@ -12,6 +12,8 @@ data class ProfileUiState(
     val imageUrl: String? = null,
     val photos: List<String> = emptyList(),
     val reviews: List<Review> = emptyList(),
+    val followersCount: Int = 0,
+    val followingCount: Int = 0,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     // Campos de edición inline

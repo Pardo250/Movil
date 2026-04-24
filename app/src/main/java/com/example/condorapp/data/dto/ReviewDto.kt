@@ -20,6 +20,7 @@ data class ReviewDto(
     @SerializedName("calificacion")   val calificacion: Int = 0,
     @SerializedName("usuarioId")      val usuarioId: String = "",
     @SerializedName("articuloId")     val articuloId: String = "",
+    @SerializedName("likesCount")     val likesCount: Int = 0,
     @SerializedName("createdAt")      val createdAt: String = "",
     @SerializedName("updatedAt")      val updatedAt: String = "",
     // Objetos anidados (Retrofit — viene del backend con JOINs)

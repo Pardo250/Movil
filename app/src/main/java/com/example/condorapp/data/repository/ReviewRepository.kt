@@ -5,6 +5,8 @@ import com.example.condorapp.data.datasource.ReviewDataSource
 import com.example.condorapp.data.dto.CreateReviewDto
 import com.example.condorapp.data.dto.UpdateReviewDto
 import com.example.condorapp.data.dto.toReview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -91,6 +93,41 @@ class ReviewRepository @Inject constructor(
             Result.failure(Exception("Error ${e.code()}: ${e.message()}"))
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    suspend fun getAllReviews(): Result<List<Review>> {
+        return try {
+            val reviews = dataSource.getAllReviews().map { it.toReview() }
+            Result.success(reviews)
+        } catch (e: HttpException) {
+            Result.failure(Exception("Error ${e.code()}: ${e.message()}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun toggleLike(reviewId: String, userId: String): Result<Boolean> {
+        return try {
+            val isNowLiked = dataSource.toggleLike(reviewId, userId)
+            Result.success(isNowLiked)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun isLikedByUser(reviewId: String, userId: String): Result<Boolean> {
+        return try {
+            val isLiked = dataSource.isLikedByUser(reviewId, userId)
+            Result.success(isLiked)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun listenReviewsByArticulo(articuloId: String): Flow<Result<List<Review>>> {
+        return dataSource.listenReviewsByArticulo(articuloId).map { list ->
+            Result.success(list.map { it.toReview() })
         }
     }
 }

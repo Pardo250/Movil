@@ -11,5 +11,7 @@ data class UserInfo(
     val email: String,
     val username: String = "",
     val bio: String = "",
-    val avatarUrl: String = ""
+    val avatarUrl: String = "",
+    val followersCount: Int = 0,
+    val followingCount: Int = 0
 )

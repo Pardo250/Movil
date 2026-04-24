@@ -70,4 +70,49 @@ class UsuarioRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun toggleFollow(followerId: String, followingId: String): Result<Boolean> {
+        return try {
+            val isNowFollowing = dataSource.toggleFollow(followerId, followingId)
+            Result.success(isNowFollowing)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun isFollowing(followerId: String, followingId: String): Result<Boolean> {
+        return try {
+            val following = dataSource.isFollowing(followerId, followingId)
+            Result.success(following)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getFollowers(userId: String): Result<List<UserInfo>> {
+        return try {
+            val followers = dataSource.getFollowers(userId).map { it.toUserInfo() }
+            Result.success(followers)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getFollowing(userId: String): Result<List<UserInfo>> {
+        return try {
+            val following = dataSource.getFollowing(userId).map { it.toUserInfo() }
+            Result.success(following)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getFollowingIds(userId: String): Result<List<String>> {
+        return try {
+            val ids = dataSource.getFollowingIds(userId)
+            Result.success(ids)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

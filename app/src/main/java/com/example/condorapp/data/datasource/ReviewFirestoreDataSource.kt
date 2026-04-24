@@ -4,7 +4,11 @@ import com.example.condorapp.data.dto.CreateReviewDto
 import com.example.condorapp.data.dto.ReviewDto
 import com.example.condorapp.data.dto.UpdateReviewDto
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -75,5 +79,59 @@ class ReviewFirestoreDataSource @Inject constructor(
 
     override suspend fun deleteReview(id: String) {
         collection.document(id).delete().await()
+    }
+
+    override suspend fun toggleLike(reviewId: String, userId: String): Boolean {
+        return db.runTransaction { transaction ->
+            val reviewRef = collection.document(reviewId)
+            val likeRef = reviewRef.collection("likes").document(userId)
+            
+            val likeDoc = transaction.get(likeRef)
+            val isCurrentlyLiked = likeDoc.exists()
+
+            if (isCurrentlyLiked) {
+                // Unlike
+                transaction.delete(likeRef)
+                transaction.update(reviewRef, "likesCount", FieldValue.increment(-1))
+                false
+            } else {
+                // Like
+                transaction.set(likeRef, mapOf("timestamp" to FieldValue.serverTimestamp()))
+                transaction.update(reviewRef, "likesCount", FieldValue.increment(1))
+                true
+            }
+        }.await()
+    }
+
+    override suspend fun isLikedByUser(reviewId: String, userId: String): Boolean {
+        val doc = collection.document(reviewId).collection("likes").document(userId).get().await()
+        return doc.exists()
+    }
+
+    override fun listenReviewsByArticulo(articuloId: String): Flow<List<ReviewDto>> = callbackFlow {
+        val listener = collection.whereEqualTo("articuloId", articuloId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                
+                if (snapshot != null) {
+                    val reviews = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(ReviewDto::class.java)?.copy(id = doc.id)
+                    }
+                    trySend(reviews)
+                }
+            }
+            
+        awaitClose { listener.remove() }
+    }
+
+    override suspend fun getAllReviews(): List<ReviewDto> {
+        val snapshot = collection.get().await()
+        return snapshot.documents.map { doc ->
+            doc.toObject(ReviewDto::class.java)?.copy(id = doc.id)
+                ?: ReviewDto(id = doc.id)
+        }
     }
 }
