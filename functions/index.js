@@ -29,7 +29,7 @@ exports.sendLikeNotification = onDocumentCreated("reviews/{reviewId}/likes/{user
     const ownerId = reviewData.usuarioId;
     const reviewTitle = reviewData.articuloNombre || "un artículo";
 
-    // Evitar enviar notificación si el usuario le da like a su propia reseña
+    // Evitar notificación si el usuario le da like a su propia reseña
     if (ownerId === likerUserId) {
         console.log("El usuario le dio like a su propia reseña, no se envía notificación.");
         return null;
@@ -38,8 +38,23 @@ exports.sendLikeNotification = onDocumentCreated("reviews/{reviewId}/likes/{user
     // 2. Obtener los datos de quien dio like
     const likerSnap = await admin.firestore().collection("usuarios").doc(likerUserId).get();
     const likerName = likerSnap.exists ? likerSnap.data().nombre : "Alguien";
+    const likerAvatar = likerSnap.exists ? (likerSnap.data().avatarUrl || "") : "";
 
-    // 3. Obtener el FCM token del dueño del review
+    // 3. Guardar notificación en Firestore (para la pantalla de notificaciones)
+    await admin.firestore()
+        .collection("notifications")
+        .doc(ownerId)
+        .collection("items")
+        .add({
+            type: "like",
+            userName: likerName,
+            action: `le dio like a tu reseña en ${reviewTitle}`,
+            time: "Ahora",
+            avatarUrl: likerAvatar,
+            createdAt: Date.now()
+        });
+
+    // 4. Obtener FCM token del dueño para push notification
     const ownerSnap = await admin.firestore().collection("usuarios").doc(ownerId).get();
     if (!ownerSnap.exists) {
         console.log("El dueño del review no existe.");
@@ -54,7 +69,7 @@ exports.sendLikeNotification = onDocumentCreated("reviews/{reviewId}/likes/{user
         return null;
     }
 
-    // 4. Enviar notificación
+    // 5. Enviar push notification
     const message = {
         notification: {
             title: "¡Nuevo Like! 👍",

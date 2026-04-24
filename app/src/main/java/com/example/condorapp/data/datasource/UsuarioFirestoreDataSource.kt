@@ -52,7 +52,11 @@ class UsuarioFirestoreDataSource @Inject constructor(
     }
 
     override suspend fun toggleFollow(followerId: String, followingId: String): Boolean {
-        return db.runTransaction { transaction ->
+        // Obtener nombre del seguidor para la notificación
+        val followerDoc = collection.document(followerId).get().await()
+        val followerName = followerDoc.getString("nombre") ?: "Alguien"
+
+        val nowFollowing = db.runTransaction { transaction ->
             val followerRef = collection.document(followerId)
             val followingRef = collection.document(followingId)
             
@@ -78,6 +82,26 @@ class UsuarioFirestoreDataSource @Inject constructor(
                 true
             }
         }.await()
+
+        // Guardar notificación en Firestore si acaba de seguir (no al dejar de seguir)
+        if (nowFollowing) {
+            try {
+                val notifRef = db.collection("notifications")
+                    .document(followingId)
+                    .collection("items")
+                    .document()
+                notifRef.set(mapOf(
+                    "type"      to "follow",
+                    "userName"  to followerName,
+                    "action"    to "ahora te sigue",
+                    "time"      to "Ahora",
+                    "avatarUrl" to "",
+                    "createdAt" to System.currentTimeMillis()
+                )).await()
+            } catch (_: Exception) {}
+        }
+
+        return nowFollowing
     }
 
     override suspend fun isFollowing(followerId: String, followingId: String): Boolean {

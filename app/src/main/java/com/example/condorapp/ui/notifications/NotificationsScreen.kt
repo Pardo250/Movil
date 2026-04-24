@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.condorapp.R
 import com.example.condorapp.data.Notification
 import com.example.condorapp.ui.theme.CondorappTheme
@@ -35,7 +35,7 @@ import com.example.condorapp.ui.theme.CondorappTheme
 @Composable
 fun NotificationsScreenRoute(
         modifier: Modifier = Modifier,
-        viewModel: NotificationsViewModel = viewModel(),
+        viewModel: NotificationsViewModel = hiltViewModel(),
         onBack: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -58,6 +58,13 @@ fun NotificationsScreenContent(
         onTabSelected: (String) -> Unit,
         onClearAll: () -> Unit
 ) {
+    // Filtrar notificaciones según el tab seleccionado
+    val filtered = when (state.selectedTab) {
+        "Likes"    -> state.notifications.filter { it.type == "like" }
+        "Followers" -> state.notifications.filter { it.type == "follow" }
+        else       -> state.notifications // "Todo"
+    }
+
     Column(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Spacer(modifier = Modifier.height(20.dp))
         NotificationTopBar(onBack = onBack, onClearAll = onClearAll)
@@ -68,13 +75,28 @@ fun NotificationsScreenContent(
                 modifier = Modifier.padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
-        LazyColumn(
-                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-                modifier = Modifier.weight(1f)
-        ) {
-            items(state.notifications) { notification ->
-                NotificationItem(notification = notification)
+
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        } else if (filtered.isEmpty()) {
+            Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                Text(
+                    "No tienes notificaciones",
+                    color = MaterialTheme.colorScheme.outline,
+                    fontSize = 16.sp
+                )
+            }
+        } else {
+            LazyColumn(
+                    contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                    modifier = Modifier.weight(1f)
+            ) {
+                items(filtered) { notification ->
+                    NotificationItem(notification = notification)
+                }
             }
         }
     }
@@ -134,7 +156,7 @@ fun NotificationTabs(
                             )
                             .padding(4.dp)
     ) {
-        val tabs = listOf("Todo", "Menciones", "Followers", "likes")
+        val tabs = listOf("Todo", "Likes", "Followers")
         tabs.forEach { tab ->
             val isSelected = tab == selectedTab
             Box(

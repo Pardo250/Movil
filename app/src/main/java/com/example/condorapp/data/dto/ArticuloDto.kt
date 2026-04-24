@@ -1,17 +1,19 @@
 package com.example.condorapp.data.dto
 
-import com.google.gson.annotations.SerializedName
+import com.google.firebase.firestore.PropertyName
 
 /**
- * DTO para artículos. Compatible con Firestore (constructor vacío, IDs String)
- * y con Retrofit/Gson (@SerializedName).
+ * DTO para artículos. Compatible con Firestore y Retrofit.
+ *
+ * NOTA sobre timestamps: Firestore puede guardar createdAt/updatedAt como Timestamp objects.
+ * Para evitar el error "Can't convert object of type ... to String", ignoramos esos campos
+ * usando @get:Exclude/@set:Exclude de Firestore, o simplemente no los mapeamos en el DTO.
+ * Los timestamps no se usan en la UI, así que se omiten aquí.
  */
 data class ArticuloDto(
-    @SerializedName("id")          val id: String = "",
-    @SerializedName("titulo")      val titulo: String = "",
-    @SerializedName("descripcion") val descripcion: String? = null,
-    @SerializedName("tipo")        val tipo: String = "",
-    @SerializedName("imagenUrl")   val imagenUrl: String? = null,
-    @SerializedName("createdAt")   val createdAt: String = "",
-    @SerializedName("updatedAt")   val updatedAt: String = ""
+    val id: String = "",
+    val titulo: String = "",
+    val descripcion: String? = null,
+    val tipo: String = "",
+    val imagenUrl: String? = null
 )

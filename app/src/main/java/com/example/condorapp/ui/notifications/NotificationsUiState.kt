@@ -8,5 +8,6 @@ import com.example.condorapp.data.Notification
  */
 data class NotificationsUiState(
         val selectedTab: String = "Todo",
-        val notifications: List<Notification> = emptyList()
+        val notifications: List<Notification> = emptyList(),
+        val isLoading: Boolean = false
 )

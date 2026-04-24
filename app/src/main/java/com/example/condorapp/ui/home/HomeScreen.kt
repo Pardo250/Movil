@@ -7,12 +7,14 @@ import coil.compose.AsyncImage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +31,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.condorapp.R
 import com.example.condorapp.data.Articulo
+import com.example.condorapp.data.Review
+import com.example.condorapp.ui.theme.CondorStarActive
 import com.example.condorapp.ui.theme.CondorappTheme
 
 /** Composable Route para la pantalla Home. Conecta el HomeViewModel con el contenido stateless. */
@@ -45,6 +49,7 @@ fun HomeScreenRoute(
             state = uiState,
             modifier = modifier,
             onNotifications = onNotificationsClick,
+            onToggleFilter = viewModel::onToggleFilter,
             onArticuloClick = { index ->
                 viewModel.onArticuloSelected(index)
                 val articulo = uiState.articulos[index]
@@ -59,12 +64,22 @@ fun HomeScreenContent(
         state: HomeUiState,
         modifier: Modifier = Modifier,
         onNotifications: () -> Unit,
+        onToggleFilter: (Boolean) -> Unit,
         onArticuloClick: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
         LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
             item { HomeHeader(onNotifications = onNotifications) }
+
+            // Toggle Todos / Siguiendo
+            item {
+                HomeToggle(
+                    showFollowingOnly = state.showFollowingOnly,
+                    onToggle = onToggleFilter,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                )
+            }
 
             if (state.isLoading) {
                 item {
@@ -84,12 +99,29 @@ fun HomeScreenContent(
                 }
             }
 
-            itemsIndexed(state.articulos) { index, articulo ->
-                ArticuloCard(
-                        articulo = articulo,
-                        isSelected = state.selectedIndex == index,
-                        onClick = { onArticuloClick(index) }
-                )
+            if (state.showFollowingOnly) {
+                // Modo Siguiendo: mostrar reviews de usuarios seguidos
+                if (state.reviews.isEmpty() && !state.isLoading) {
+                    item {
+                        Text(
+                            text = "No hay reseñas de usuarios que sigues aún.",
+                            color = colorScheme.outline,
+                            modifier = Modifier.padding(20.dp)
+                        )
+                    }
+                }
+                items(state.reviews, key = { it.id }) { review ->
+                    ReviewCardHome(review = review)
+                }
+            } else {
+                // Modo Todos: mostrar artículos
+                itemsIndexed(state.articulos) { index, articulo ->
+                    ArticuloCard(
+                            articulo = articulo,
+                            isSelected = state.selectedIndex == index,
+                            onClick = { onArticuloClick(index) }
+                    )
+                }
             }
         }
     }
@@ -268,6 +300,99 @@ fun ArticuloCard(articulo: Articulo, isSelected: Boolean, onClick: () -> Unit, m
     }
 }
 
+/** Toggle Todos / Siguiendo para el Home. */
+@Composable
+fun HomeToggle(
+    showFollowingOnly: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colorScheme.surfaceVariant, RoundedCornerShape(30.dp))
+            .padding(4.dp)
+    ) {
+        listOf(false, true).forEach { isFollowing ->
+            val isSelected = showFollowingOnly == isFollowing
+            val label = if (isFollowing) "Siguiendo" else "Todos"
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(
+                        if (isSelected) colorScheme.primary else colorScheme.surfaceVariant,
+                        RoundedCornerShape(30.dp)
+                    )
+                    .clip(RoundedCornerShape(30.dp))
+                    .clickable { onToggle(isFollowing) }
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    label,
+                    color = if (isSelected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+        }
+    }
+}
+
+/** Tarjeta compacta de review para el feed del Home. */
+@Composable
+fun ReviewCardHome(review: Review, modifier: Modifier = Modifier) {
+    val colorScheme = MaterialTheme.colorScheme
+    Card(
+        modifier = modifier
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(colorScheme.primary.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        review.name.firstOrNull()?.toString() ?: "?",
+                        color = colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(review.name, fontWeight = FontWeight.Bold, color = colorScheme.onSurface, fontSize = 14.sp)
+                    if (review.articuloNombre.isNotBlank()) {
+                        Text("en ${review.articuloNombre}", color = colorScheme.outline, fontSize = 12.sp)
+                    }
+                }
+                Row {
+                    repeat(5) { i ->
+                        Icon(
+                            Icons.Default.Star, null,
+                            tint = if (i < review.rating) CondorStarActive else colorScheme.outlineVariant,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+            if (review.comment.isNotBlank()) {
+                Spacer(Modifier.height(8.dp))
+                Text(review.comment, style = MaterialTheme.typography.bodySmall,
+                    color = colorScheme.onSurface.copy(alpha = 0.7f))
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true, name = "Home - Light")
 @Composable
 fun HomeScreenLightPreview() {
@@ -279,6 +404,7 @@ fun HomeScreenLightPreview() {
                 )
             ),
             onNotifications = {},
+            onToggleFilter = {},
             onArticuloClick = {}
         )
     }
@@ -295,6 +421,7 @@ fun HomeScreenDarkPreview() {
                 )
             ),
             onNotifications = {},
+            onToggleFilter = {},
             onArticuloClick = {}
         )
     }

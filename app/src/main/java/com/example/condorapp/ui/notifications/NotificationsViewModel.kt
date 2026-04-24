@@ -1,38 +1,104 @@
 package com.example.condorapp.ui.notifications
 
 import androidx.lifecycle.ViewModel
-import com.example.condorapp.data.local.NotificationRepository
+import androidx.lifecycle.viewModelScope
+import com.example.condorapp.data.Notification
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
- * ViewModel para la pantalla de notificaciones. Carga las notificaciones desde el repositorio y
- * gestiona tabs y acciones.
+ * ViewModel para la pantalla de notificaciones.
+ * Lee en tiempo real la subcolección notifications/{uid}/items de Firestore.
+ *
+ * Las notificaciones se crean desde:
+ *   - Cloud Function sendLikeNotification (cuando alguien da like)
+ *   - UsuarioFirestoreDataSource.toggleFollow() (cuando alguien te sigue)
  */
-class NotificationsViewModel : ViewModel() {
+@HiltViewModel
+class NotificationsViewModel @Inject constructor(
+    private val db: FirebaseFirestore,
+    private val auth: FirebaseAuth
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NotificationsUiState())
     val uiState: StateFlow<NotificationsUiState> = _uiState.asStateFlow()
 
     init {
-        loadNotifications()
+        listenNotifications()
     }
 
-    /** Carga la lista de notificaciones desde el repositorio local. */
-    private fun loadNotifications() {
-        val notifications = NotificationRepository.getNotifications()
-        _uiState.update { it.copy(notifications = notifications) }
+    /** Escucha en tiempo real las notificaciones del usuario actual en Firestore. */
+    private fun listenNotifications() {
+        val uid = auth.currentUser?.uid ?: return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+
+            callbackFlow<List<Notification>> {
+                val listener = db.collection("notifications")
+                    .document(uid)
+                    .collection("items")
+                    .orderBy("createdAt", Query.Direction.DESCENDING)
+                    .limit(50)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null || snapshot == null) {
+                            trySend(emptyList())
+                            return@addSnapshotListener
+                        }
+                        val list = snapshot.documents.mapNotNull { doc ->
+                            try {
+                                Notification(
+                                    id        = doc.id,
+                                    userName  = doc.getString("userName") ?: "",
+                                    action    = doc.getString("action") ?: "",
+                                    time      = doc.getString("time") ?: "",
+                                    avatarUrl = doc.getString("avatarUrl") ?: "",
+                                    type      = doc.getString("type") ?: "like",
+                                    createdAt = doc.getLong("createdAt") ?: 0L
+                                )
+                            } catch (e: Exception) { null }
+                        }
+                        trySend(list)
+                    }
+                awaitClose { listener.remove() }
+            }.collect { notifications ->
+                _uiState.update { it.copy(notifications = notifications, isLoading = false) }
+            }
+        }
     }
 
-    /** Cambia el tab seleccionado. */
+    /** Cambia el tab seleccionado (Todos / Likes / Seguidores). */
     fun onTabSelected(tab: String) {
         _uiState.update { it.copy(selectedTab = tab) }
     }
 
-    /** Limpia todas las notificaciones. */
+    /** Limpia todas las notificaciones del usuario en Firestore. */
     fun onClearAll() {
-        _uiState.update { it.copy(notifications = emptyList()) }
+        val uid = auth.currentUser?.uid ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(notifications = emptyList()) }
+            // Eliminar en Firestore (sin bloquear la UI)
+            try {
+                val items = db.collection("notifications").document(uid)
+                    .collection("items").get().await()
+                val batch = db.batch()
+                items.documents.forEach { batch.delete(it.reference) }
+                batch.commit()
+            } catch (_: Exception) {}
+        }
     }
 }
+
+// Extensión para usar .await() sin importar extra
+private suspend fun <T> com.google.android.gms.tasks.Task<T>.await(): T =
+    kotlinx.coroutines.tasks.await(this)
