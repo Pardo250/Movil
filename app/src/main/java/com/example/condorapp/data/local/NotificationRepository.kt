@@ -6,7 +6,7 @@ import com.example.condorapp.data.Notification
 object NotificationRepository {
         fun getNotifications(): List<Notification> =
                 listOf(
-                        Notification(
+                        /*Notification(
                                 1,
                                 "Maria Valen",
                                 "Ahora te sigue",
@@ -33,6 +33,6 @@ object NotificationRepository {
                                 "Ahora te sigue",
                                 "hace 5 días.",
                                 "https://i.pravatar.cc/150?img=4"
-                        )
+                        )*/
                 )
 }
