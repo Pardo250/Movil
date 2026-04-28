@@ -54,7 +54,7 @@ class EditProfileViewModel @Inject constructor(
                         username = user.username,
                         fullName = user.nombre,
                         bio      = user.bio,
-                        imageUrl = photoUrl ?: user.avatarUrl.ifEmpty { null }
+                        imageUrl = user.avatarUrl.ifEmpty { photoUrl }
                     )
                 }
             }.onFailure {

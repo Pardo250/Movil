@@ -99,27 +99,28 @@ fun HomeScreenContent(
                 }
             }
 
-            if (state.showFollowingOnly) {
-                // Modo Siguiendo: mostrar reviews de usuarios seguidos
-                if (state.reviews.isEmpty() && !state.isLoading) {
-                    item {
-                        Text(
-                            text = "No hay reseñas de usuarios que sigues aún.",
-                            color = colorScheme.outline,
-                            modifier = Modifier.padding(20.dp)
-                        )
-                    }
-                }
-                items(state.reviews, key = { it.id }) { review ->
-                    ReviewCardHome(review = review)
+            val articlesToShow = if (state.showFollowingOnly) {
+                val reviewedArticleIds = state.reviews.map { it.articuloId }.toSet()
+                state.articulos.filter { it.id in reviewedArticleIds }
+            } else {
+                state.articulos
+            }
+
+            if (state.showFollowingOnly && articlesToShow.isEmpty() && !state.isLoading) {
+                item {
+                    Text(
+                        text = "No hay artículos reseñados por los usuarios que sigues aún.",
+                        color = colorScheme.outline,
+                        modifier = Modifier.padding(20.dp)
+                    )
                 }
             } else {
-                // Modo Todos: mostrar artículos
-                itemsIndexed(state.articulos) { index, articulo ->
+                items(articlesToShow, key = { it.id }) { articulo ->
+                    val originalIndex = state.articulos.indexOf(articulo)
                     ArticuloCard(
                             articulo = articulo,
-                            isSelected = state.selectedIndex == index,
-                            onClick = { onArticuloClick(index) }
+                            isSelected = state.selectedIndex == originalIndex,
+                            onClick = { onArticuloClick(originalIndex) }
                     )
                 }
             }

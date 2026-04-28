@@ -90,9 +90,6 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             FeedScreenRoute(
                     onPlaceClick = { placeId ->
                         navController.navigate(Screen.Details.createRoute(placeId))
-                    },
-                    onUserClick = { userId ->
-                        navController.navigate(Screen.UserProfile.createRoute(userId))
                     }
             )
         }

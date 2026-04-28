@@ -42,7 +42,7 @@ class FCMService : FirebaseMessagingService() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(uid).update("fcmToken", token)
+            db.collection("usuarios").document(uid).update("fcmToken", token)
                 .addOnSuccessListener { Log.d("FCMService", "Token actualizado en Firestore") }
                 .addOnFailureListener { e -> Log.e("FCMService", "Error actualizando token", e) }
         }

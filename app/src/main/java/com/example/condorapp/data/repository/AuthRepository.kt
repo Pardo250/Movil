@@ -36,7 +36,7 @@ class AuthRepository @Inject constructor(
         try {
             val user = currentUser ?: return
             val token = messaging.token.await()
-            firestore.collection("users").document(user.uid).update("fcmToken", token).await()
+            firestore.collection("usuarios").document(user.uid).update("fcmToken", token).await()
         } catch (e: Exception) {
             // Ignorar errores silenciosamente, el token no es crítico para el uso básico
             e.printStackTrace()

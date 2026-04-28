@@ -52,7 +52,7 @@ class ProfileViewModel @Inject constructor(
                     it.copy(
                         name     = user.nombre,
                         username = user.username,
-                        imageUrl = photoUrl ?: user.avatarUrl.ifEmpty { null },
+                        imageUrl = user.avatarUrl.ifEmpty { photoUrl },
                         followersCount = user.followersCount,
                         followingCount = user.followingCount
                     )
