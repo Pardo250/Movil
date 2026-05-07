@@ -14,6 +14,14 @@ object AuthModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth {
-        return FirebaseAuth.getInstance()
+        val auth = FirebaseAuth.getInstance()
+        if (com.example.condorapp.BuildConfig.DEBUG) {
+            try {
+                auth.useEmulator("10.0.2.2", 9099)
+            } catch (e: Exception) {
+                // Ignorar si ya fue configurado
+            }
+        }
+        return auth
     }
 }

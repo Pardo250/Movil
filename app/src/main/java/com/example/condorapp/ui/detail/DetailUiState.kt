@@ -16,6 +16,7 @@ data class DetailUiState(
         val imageUrl: String = "",
         val reviews: List<Review> = emptyList(),
         val likedReviewIds: Set<String> = emptySet(),
+        val isSaved: Boolean = false,
         val isLoading: Boolean = false,
         val errorMessage: String? = null
 )

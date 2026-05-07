@@ -36,7 +36,14 @@ class FeedViewModel @Inject constructor(
             val result = articuloRepository.getAllArticulos()
 
             result.onSuccess { articulos ->
-                _uiState.update { it.copy(articulos = articulos, isLoading = false) }
+                _uiState.update { state -> 
+                    // Conservamos el filtro actual si es que lo hay al recargar
+                    val query = state.searchQuery
+                    val filtered = if (query.isBlank()) articulos else articulos.filter { 
+                        it.titulo.contains(query, true) || it.tipo.contains(query, true) 
+                    }
+                    state.copy(articulos = articulos, filteredArticulos = filtered, isLoading = false) 
+                }
             }.onFailure { error ->
                 _uiState.update {
                     it.copy(isLoading = false, errorMessage = error.message ?: "Error desconocido")
@@ -48,6 +55,20 @@ class FeedViewModel @Inject constructor(
     /** Actualiza la categoría seleccionada. */
     fun onCategorySelected(index: Int) {
         _uiState.update { it.copy(selectedCategoryIndex = index) }
+    }
+
+    /** Actualiza la búsqueda y filtra la lista de artículos. */
+    fun onSearchQueryChange(query: String) {
+        _uiState.update { state ->
+            val filtered = if (query.isBlank()) {
+                state.articulos
+            } else {
+                state.articulos.filter {
+                    it.titulo.contains(query, ignoreCase = true) || it.tipo.contains(query, ignoreCase = true)
+                }
+            }
+            state.copy(searchQuery = query, filteredArticulos = filtered)
+        }
     }
 
 

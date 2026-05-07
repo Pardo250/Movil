@@ -56,7 +56,8 @@ fun DetailScreenRoute(
             onAddReviewClick = onAddReview,
             onReviewClick = onReviewClick,
             onLikeReview = viewModel::onLikeReview,
-            onUserClick = onUserClick
+            onUserClick = onUserClick,
+            onToggleSave = viewModel::onToggleSave
     )
 }
 
@@ -69,7 +70,8 @@ fun DetailScreenContent(
         onAddReviewClick: () -> Unit,
         onReviewClick: (String) -> Unit,
         onLikeReview: (Review) -> Unit,
-        onUserClick: (String) -> Unit
+        onUserClick: (String) -> Unit,
+        onToggleSave: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -81,7 +83,9 @@ fun DetailScreenContent(
                 DetailHeader(
                         title = state.title,
                         imageUrl = state.imageUrl,
-                        onBackClick = onBackClick
+                        isSaved = state.isSaved,
+                        onBackClick = onBackClick,
+                        onToggleSave = onToggleSave
                 )
             }
             item {
@@ -136,8 +140,10 @@ fun DetailScreenContent(
 fun DetailHeader(
         title: String,
         imageUrl: String,
+        isSaved: Boolean,
         modifier: Modifier = Modifier,
-        onBackClick: () -> Unit
+        onBackClick: () -> Unit,
+        onToggleSave: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier) {
@@ -163,6 +169,26 @@ fun DetailHeader(
                     tint = colorScheme.onSurface
             )
         }
+        
+        // Botón de Guardado (Bookmark) en la esquina superior derecha
+        IconButton(
+                onClick = onToggleSave,
+                modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .size(48.dp)
+                        .background(
+                                color = colorScheme.surface.copy(alpha = 0.7f),
+                                shape = CircleShape
+                        )
+        ) {
+            Icon(
+                    if (isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    contentDescription = "Guardar",
+                    tint = if (isSaved) colorScheme.primary else colorScheme.onSurface
+            )
+        }
+
         Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
@@ -347,7 +373,8 @@ fun DetailScreenPreviewLight() {
             onAddReviewClick = {},
             onReviewClick = {},
             onLikeReview = {},
-            onUserClick = {}
+            onUserClick = {},
+            onToggleSave = {}
         )
     }
 }
@@ -366,7 +393,8 @@ fun DetailScreenPreviewDark() {
             onAddReviewClick = {},
             onReviewClick = {},
             onLikeReview = {},
-            onUserClick = {}
+            onUserClick = {},
+            onToggleSave = {}
         )
     }
 }

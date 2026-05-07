@@ -17,4 +17,5 @@ interface UsuarioDataSource {
     suspend fun getFollowers(userId: String): List<UsuarioDto>
     suspend fun getFollowing(userId: String): List<UsuarioDto>
     suspend fun getFollowingIds(userId: String): List<String>
+    suspend fun toggleSaveArticle(userId: String, articleId: String): Boolean
 }

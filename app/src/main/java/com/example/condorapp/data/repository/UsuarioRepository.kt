@@ -115,4 +115,13 @@ class UsuarioRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun toggleSaveArticle(userId: String, articleId: String): Result<Boolean> {
+        return try {
+            val isSaved = dataSource.toggleSaveArticle(userId, articleId)
+            Result.success(isSaved)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

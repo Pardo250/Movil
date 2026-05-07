@@ -16,6 +16,14 @@ object StorageModule {
     @Provides
     @Singleton
     fun provideFirebaseStorage(): FirebaseStorage {
-        return Firebase.storage
+        val storage = Firebase.storage
+        if (com.example.condorapp.BuildConfig.DEBUG) {
+            try {
+                storage.useEmulator("10.0.2.2", 9199)
+            } catch (e: Exception) {
+                // Ignorar si ya fue configurado
+            }
+        }
+        return storage
     }
 }

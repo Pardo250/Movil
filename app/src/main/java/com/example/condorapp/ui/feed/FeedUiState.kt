@@ -9,7 +9,9 @@ import com.example.condorapp.data.Review
  */
 data class FeedUiState(
         val selectedCategoryIndex: Int = 0,
+        val searchQuery: String = "",
         val articulos: List<Articulo> = emptyList(),
+        val filteredArticulos: List<Articulo> = emptyList(),
         val isLoading: Boolean = false,
         val errorMessage: String? = null
 )

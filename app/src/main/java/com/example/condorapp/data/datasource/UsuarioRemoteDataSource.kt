@@ -53,4 +53,8 @@ class UsuarioRemoteDataSource @Inject constructor(
     override suspend fun getFollowingIds(userId: String): List<String> {
         throw UnsupportedOperationException("Social features not implemented in REST backend")
     }
+
+    override suspend fun toggleSaveArticle(userId: String, articleId: String): Boolean {
+        throw UnsupportedOperationException("Save article not implemented in REST backend")
+    }
 }

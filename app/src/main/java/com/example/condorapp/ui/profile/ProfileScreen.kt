@@ -54,7 +54,8 @@ fun ProfileScreenRoute(
         onShareProfile = { /* Lógica para compartir */ },
         onEditReview = viewModel::startEditReview,
         onDeleteReview = viewModel::deleteReview,
-        onFollowListClick = onFollowListClick
+        onFollowListClick = onFollowListClick,
+        onTabSelected = viewModel::onTabSelected
     )
 
     // Diálogo de edición de review propia
@@ -80,7 +81,8 @@ fun ProfileScreenContent(
     onShareProfile: () -> Unit,
     onEditReview: (Review) -> Unit,
     onDeleteReview: (String) -> Unit,
-    onFollowListClick: () -> Unit
+    onFollowListClick: () -> Unit,
+    onTabSelected: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -104,15 +106,27 @@ fun ProfileScreenContent(
             item { Spacer(modifier = Modifier.height(24.dp)) }
             item { ProfileActions(onEditProfile = onEditProfile, onShareProfile = onShareProfile) }
             item { Spacer(modifier = Modifier.height(24.dp)) }
+            
             item {
-                Text(
-                    text = "Mis Reseñas",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colorScheme.primary,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                TabRow(
+                    selectedTabIndex = if (state.isShowingSaved) 1 else 0,
+                    containerColor = colorScheme.background,
+                    contentColor = colorScheme.primary
+                ) {
+                    Tab(
+                        selected = !state.isShowingSaved,
+                        onClick = { onTabSelected(0) },
+                        text = { Text("Mis Reseñas", fontWeight = FontWeight.Bold) }
+                    )
+                    Tab(
+                        selected = state.isShowingSaved,
+                        onClick = { onTabSelected(1) },
+                        text = { Text("Guardados", fontWeight = FontWeight.Bold) }
+                    )
+                }
             }
+            
+            item { Spacer(modifier = Modifier.height(8.dp)) }
 
             if (state.isLoading) {
                 item {
@@ -128,22 +142,48 @@ fun ProfileScreenContent(
                 }
             }
 
-            if (!state.isLoading && state.reviews.isEmpty() && state.errorMessage == null) {
-                item {
-                    Text(
-                        text = "Aún no has hecho reseñas.",
-                        color = colorScheme.outline,
-                        modifier = Modifier.padding(vertical = 16.dp)
+            if (!state.isShowingSaved) {
+                if (!state.isLoading && state.reviews.isEmpty() && state.errorMessage == null) {
+                    item {
+                        Text(
+                            text = "Aún no has hecho reseñas.",
+                            color = colorScheme.outline,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
+                }
+
+                items(state.reviews) { review ->
+                    MyReviewItem(
+                        review = review,
+                        onEdit = { onEditReview(review) },
+                        onDelete = { onDeleteReview(review.id) }
                     )
                 }
-            }
+            } else {
+                if (!state.isLoading && state.savedArticles.isEmpty() && state.errorMessage == null) {
+                    item {
+                        Text(
+                            text = "No tienes artículos guardados.",
+                            color = colorScheme.outline,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
+                }
 
-            items(state.reviews) { review ->
-                MyReviewItem(
-                    review = review,
-                    onEdit = { onEditReview(review) },
-                    onDelete = { onDeleteReview(review.id) }
-                )
+                items(state.savedArticles) { articulo ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+                        elevation = CardDefaults.cardElevation(2.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(articulo.titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = colorScheme.onSurface)
+                            Text(articulo.tipo, color = colorScheme.primary, fontSize = 12.sp)
+                        }
+                    }
+                }
             }
         }
     }
@@ -423,7 +463,8 @@ fun ProfileScreenPreviewLight() {
             onShareProfile = {},
             onEditReview = {},
             onDeleteReview = {},
-            onFollowListClick = {}
+            onFollowListClick = {},
+            onTabSelected = {}
         )
     }
 }
@@ -444,7 +485,8 @@ fun ProfileScreenPreviewDark() {
             onShareProfile = {},
             onEditReview = {},
             onDeleteReview = {},
-            onFollowListClick = {}
+            onFollowListClick = {},
+            onTabSelected = {}
         )
     }
 }

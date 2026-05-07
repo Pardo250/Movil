@@ -51,6 +51,7 @@ fun FeedScreenRoute(
             state = uiState,
             modifier = modifier,
             onCategorySelected = viewModel::onCategorySelected,
+            onSearchQueryChange = viewModel::onSearchQueryChange,
             onArticuloClick = { articulo -> onPlaceClick(articulo.id) }
     )
 }
@@ -61,13 +62,17 @@ fun FeedScreenContent(
         state: FeedUiState,
         modifier: Modifier = Modifier,
         onCategorySelected: (Int) -> Unit,
+        onSearchQueryChange: (String) -> Unit,
         onArticuloClick: (Articulo) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
             Spacer(modifier = Modifier.height(40.dp))
-            FeedSearchBar()
+            FeedSearchBar(
+                query = state.searchQuery,
+                onQueryChange = onSearchQueryChange
+            )
             Spacer(modifier = Modifier.height(20.dp))
             MapCard()
             Spacer(modifier = Modifier.height(20.dp))
@@ -103,9 +108,9 @@ fun FeedScreenContent(
                 )
             }
 
-            // Mostrar grid de artículos
+            // Mostrar grid de artículos filtrados
             ArticuloGrid(
-                    articulos = state.articulos,
+                    articulos = state.filteredArticulos,
                     onArticuloClick = onArticuloClick,
                     modifier = Modifier.weight(1f)
             )
@@ -115,34 +120,40 @@ fun FeedScreenContent(
 }
 
 
-/** Barra de búsqueda decorativa. */
+/** Barra de búsqueda funcional. */
 @Composable
-fun FeedSearchBar(modifier: Modifier = Modifier) {
+fun FeedSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val colorScheme = MaterialTheme.colorScheme
-    Surface(
-            modifier = modifier.fillMaxWidth().height(55.dp),
-            shape = RoundedCornerShape(28.dp),
-            color = colorScheme.surface,
-            shadowElevation = 4.dp
-    ) {
-        Row(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-        ) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface,
+            focusedBorderColor = colorScheme.primary,
+            unfocusedBorderColor = colorScheme.surfaceVariant
+        ),
+        leadingIcon = {
             Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(R.string.cd_search),
-                    tint = colorScheme.outline,
-                    modifier = Modifier.size(24.dp)
+                imageVector = Icons.Default.Search,
+                contentDescription = stringResource(R.string.cd_search),
+                tint = colorScheme.outline
             )
-            Spacer(modifier = Modifier.width(12.dp))
+        },
+        placeholder = {
             Text(
-                    text = stringResource(R.string.search_placeholder),
-                    color = colorScheme.outline.copy(alpha = 0.6f),
-                    fontSize = 16.sp
+                text = stringResource(R.string.search_placeholder),
+                color = colorScheme.outline.copy(alpha = 0.6f)
             )
-        }
-    }
+        },
+        singleLine = true
+    )
 }
 
 /** Tarjeta con imagen del mapa. */
@@ -312,9 +323,14 @@ fun FeedScreenLightPreview() {
                 articulos = listOf(
                     Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje"),
                     Articulo("2", "Playa Blanca", "Arena blanca", "playa")
+                ),
+                filteredArticulos = listOf(
+                    Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje"),
+                    Articulo("2", "Playa Blanca", "Arena blanca", "playa")
                 )
             ),
             onCategorySelected = {},
+            onSearchQueryChange = {},
             onArticuloClick = {}
         )
     }
@@ -328,9 +344,13 @@ fun FeedScreenDarkPreview() {
             state = FeedUiState(
                 articulos = listOf(
                     Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje")
+                ),
+                filteredArticulos = listOf(
+                    Articulo("1", "Valle del Cocora", "Hermoso paisaje", "paisaje")
                 )
             ),
             onCategorySelected = {},
+            onSearchQueryChange = {},
             onArticuloClick = {}
         )
     }

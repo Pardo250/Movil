@@ -6,6 +6,7 @@ import com.example.condorapp.data.Review
 import com.example.condorapp.data.repository.ArticuloRepository
 import com.example.condorapp.data.repository.AuthRepository
 import com.example.condorapp.data.repository.ReviewRepository
+import com.example.condorapp.data.repository.UsuarioRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class DetailViewModel @Inject constructor(
     private val articuloRepository: ArticuloRepository,
     private val reviewRepository: ReviewRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val usuarioRepository: UsuarioRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
@@ -58,6 +60,15 @@ class DetailViewModel @Inject constructor(
             }.onFailure {
                 _uiState.update {
                     it.copy(title = "Artículo", location = "Sin conexión")
+                }
+            }
+
+            // Cargar estado de guardado
+            val uid = currentUserId
+            if (uid.isNotEmpty()) {
+                val userResult = usuarioRepository.getUsuarioById(uid)
+                userResult.onSuccess { user ->
+                    _uiState.update { it.copy(isSaved = user.savedArticles.contains(postId)) }
                 }
             }
 
@@ -119,6 +130,28 @@ class DetailViewModel @Inject constructor(
             reviewRepository.toggleLike(review.id, uid)
             // No necesitamos revertir el optimistic update en onFailure porque
             // el Flow de listenReviewsByArticulo emitirá el estado real automáticamente
+        }
+    }
+
+    /** Realiza toggle de guardar artículo en el perfil del usuario. */
+    fun onToggleSave() {
+        val uid = currentUserId
+        val postId = _uiState.value.articuloId
+        if (uid.isEmpty() || postId.isEmpty()) return
+
+        val currentlySaved = _uiState.value.isSaved
+        
+        // Optimistic update
+        _uiState.update { it.copy(isSaved = !currentlySaved) }
+
+        viewModelScope.launch {
+            val result = usuarioRepository.toggleSaveArticle(uid, postId)
+            result.onFailure {
+                // Rollback en caso de error
+                _uiState.update { state -> state.copy(isSaved = currentlySaved) }
+            }.onSuccess { isNowSaved ->
+                _uiState.update { state -> state.copy(isSaved = isNowSaved) }
+            }
         }
     }
 }

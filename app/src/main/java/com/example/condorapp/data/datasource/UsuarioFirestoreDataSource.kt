@@ -143,4 +143,18 @@ class UsuarioFirestoreDataSource @Inject constructor(
         val followingSnapshot = collection.document(userId).collection("following").get().await()
         return followingSnapshot.documents.map { it.id }
     }
+
+    override suspend fun toggleSaveArticle(userId: String, articleId: String): Boolean {
+        val userRef = collection.document(userId)
+        val snapshot = userRef.get().await()
+        val savedArticles = snapshot.get("savedArticles") as? List<*> ?: emptyList<Any>()
+        
+        return if (savedArticles.contains(articleId)) {
+            userRef.update("savedArticles", com.google.firebase.firestore.FieldValue.arrayRemove(articleId)).await()
+            false
+        } else {
+            userRef.update("savedArticles", com.google.firebase.firestore.FieldValue.arrayUnion(articleId)).await()
+            true
+        }
+    }
 }

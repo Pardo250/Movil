@@ -13,5 +13,6 @@ data class UserInfo(
     val bio: String = "",
     val avatarUrl: String = "",
     val followersCount: Int = 0,
-    val followingCount: Int = 0
+    val followingCount: Int = 0,
+    val savedArticles: List<String> = emptyList()
 )

@@ -45,5 +45,6 @@ fun UsuarioDto.toUserInfo(): UserInfo = UserInfo(
     bio       = bio.ifEmpty { "Sin biografía" },
     avatarUrl = avatarUrl,
     followersCount = followersCount,
-    followingCount = followingCount
+    followingCount = followingCount,
+    savedArticles = savedArticles
 )

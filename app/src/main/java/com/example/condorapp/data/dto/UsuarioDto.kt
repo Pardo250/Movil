@@ -17,6 +17,7 @@ data class UsuarioDto(
     @SerializedName("followersCount") val followersCount: Int = 0,
     @SerializedName("followingCount") val followingCount: Int = 0,
     @SerializedName("fcmToken")  val fcmToken: String? = null,
+    @SerializedName("savedArticles") val savedArticles: List<String> = emptyList(),
     @SerializedName("createdAt") val createdAt: String = "",
     @SerializedName("updatedAt") val updatedAt: String = ""
 )

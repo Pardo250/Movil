@@ -6,6 +6,7 @@ import com.example.condorapp.data.Review
 import com.example.condorapp.data.repository.AuthRepository
 import com.example.condorapp.data.repository.ReviewRepository
 import com.example.condorapp.data.repository.UsuarioRepository
+import com.example.condorapp.data.repository.ArticuloRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val usuarioRepository: UsuarioRepository,
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val articuloRepository: ArticuloRepository
 ) : ViewModel() {
 
     /** UID del usuario actualmente autenticado. */
@@ -89,6 +91,24 @@ class ProfileViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun loadSavedArticles(ids: List<String>) {
+        if (ids.isEmpty()) {
+            _uiState.update { it.copy(savedArticles = emptyList()) }
+            return
+        }
+        viewModelScope.launch {
+            val articles = mutableListOf<com.example.condorapp.data.Articulo>()
+            for (id in ids) {
+                articuloRepository.getArticuloById(id).onSuccess { articles.add(it) }
+            }
+            _uiState.update { it.copy(savedArticles = articles) }
+        }
+    }
+
+    fun onTabSelected(index: Int) {
+        _uiState.update { it.copy(isShowingSaved = index == 1) }
     }
 
     // ─── Edición de reviews propias ─────────────────────────────────────────
