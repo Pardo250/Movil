@@ -64,7 +64,7 @@ async function seedDatabase() {
         id: userId,
         nombre: nombre,
         email: faker.internet.email(),
-        username: "@" + faker.internet.username().toLowerCase(),
+        username: "@" + faker.internet.userName().toLowerCase(),
         bio: faker.lorem.sentence(),
         avatarUrl: faker.image.avatar(),
         followersCount: 0,
