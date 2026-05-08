@@ -231,6 +231,7 @@ fun ArticuloCard(articulo: Articulo, isSelected: Boolean, onClick: () -> Unit, m
             modifier =
                     modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                             .fillMaxWidth()
+                            .testTag("articulo_card")
                             .clickable { onClick() },
             colors =
                     CardDefaults.cardColors(

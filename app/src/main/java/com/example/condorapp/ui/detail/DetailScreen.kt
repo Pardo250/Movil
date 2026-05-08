@@ -320,7 +320,9 @@ fun ReviewItem(
                         review.name,
                         fontWeight = FontWeight.Bold,
                         color = colorScheme.onSurface,
-                        modifier = Modifier.clickable { onUserClick(review.usuarioId) }
+                        modifier = Modifier
+                            .testTag("review_author_name")
+                            .clickable { onUserClick(review.usuarioId) }
                     )
                     Row {
                         repeat(5) { index ->

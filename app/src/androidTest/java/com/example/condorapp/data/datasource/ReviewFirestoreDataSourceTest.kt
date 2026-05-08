@@ -120,5 +120,6 @@ class ReviewFirestoreDataSourceTest {
         assertThat(reviewsX).hasSize(2)
         assertThat(reviewsY).hasSize(1)
         assertThat(reviewsX.map { it.contenido }).containsExactly("R1", "R2")
+        Unit
     }
 }

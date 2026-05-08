@@ -74,19 +74,22 @@ class UsuarioFirestoreDataSourceTest {
 
     @Test
     fun testToggleFollow() = runBlocking {
+        val follower = java.util.UUID.randomUUID().toString()
+        val following = java.util.UUID.randomUUID().toString()
+
         // Arrange
-        dataSource.saveUsuario("follower", UsuarioDto(id = "follower", nombre = "A"))
-        dataSource.saveUsuario("following", UsuarioDto(id = "following", nombre = "B"))
+        dataSource.saveUsuario(follower, UsuarioDto(id = follower, nombre = "A"))
+        dataSource.saveUsuario(following, UsuarioDto(id = following, nombre = "B"))
 
         // Act & Assert 1: Seguir
-        val nowFollowing = dataSource.toggleFollow("follower", "following")
+        val nowFollowing = dataSource.toggleFollow(follower, following)
         assertThat(nowFollowing).isTrue()
-        assertThat(dataSource.isFollowing("follower", "following")).isTrue()
+        assertThat(dataSource.isFollowing(follower, following)).isTrue()
 
         // Act & Assert 2: Dejar de seguir
-        val nowFollowing2 = dataSource.toggleFollow("follower", "following")
+        val nowFollowing2 = dataSource.toggleFollow(follower, following)
         assertThat(nowFollowing2).isFalse()
-        assertThat(dataSource.isFollowing("follower", "following")).isFalse()
+        assertThat(dataSource.isFollowing(follower, following)).isFalse()
     }
 
     @Test
@@ -101,6 +104,7 @@ class UsuarioFirestoreDataSourceTest {
         // Assert
         assertThat(result).hasSize(2)
         assertThat(result.map { it.nombre }).containsExactly("Alice", "Bob")
+        Unit
     }
 
     @Test

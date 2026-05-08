@@ -70,17 +70,21 @@ class UsuarioRepositoryIntegrationTest {
 
     @Test
     fun testToggleFollow_Integration() = runBlocking {
+        val f1 = java.util.UUID.randomUUID().toString()
+        val f2 = java.util.UUID.randomUUID().toString()
+
         // Arrange
-        repository.saveUsuario("f1", "Follower", "f1@t.com", "f1")
-        repository.saveUsuario("f2", "Following", "f2@t.com", "f2")
+        repository.saveUsuario(f1, "Follower", "f1@t.com", "f1")
+        repository.saveUsuario(f2, "Following", "f2@t.com", "f2")
 
         // Act: Follow
-        val result1 = repository.toggleFollow("f1", "f2")
-        assertThat(result1.getOrNull()).isTrue()
+        val result1 = repository.toggleFollow(f1, f2)
+        assertThat(result1.getOrThrow()).isTrue()
 
         // Assert
-        val followingList = repository.getFollowing("f1")
+        val followingList = repository.getFollowing(f1)
         assertThat(followingList.getOrNull()).hasSize(1)
+        Unit
     }
 
     @Test
@@ -96,5 +100,6 @@ class UsuarioRepositoryIntegrationTest {
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrNull()).hasSize(2)
         assertThat(result.getOrNull()?.map { it.nombre }).containsExactly("Alice", "Bob")
+        Unit
     }
 }

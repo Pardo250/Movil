@@ -168,29 +168,36 @@ fun SignUpForm(
                     label = "Nombre",
                     value = state.name,
                     onValueChange = onNameChange,
-                    modifier = Modifier.weight(1f).testTag("signup_name")
+                    modifier = Modifier.weight(1f),
+                    testTag = "signup_name"
             )
             SignUpTextField(
                     label = "Apellido",
                     value = state.lastName,
                     onValueChange = onLastNameChange,
-                    modifier = Modifier.weight(1f).testTag("signup_lastname")
+                    modifier = Modifier.weight(1f),
+                    testTag = "signup_lastname"
             )
         }
         SignUpTextField(
                 label = "Username",
                 value = state.username,
                 onValueChange = onUsernameChange,
-                modifier = Modifier.testTag("signup_username")
+                testTag = "signup_username"
         )
-        SignUpTextField(label = "Correo", value = state.email, onValueChange = onEmailChange, modifier = Modifier.testTag("signup_email"))
+        SignUpTextField(
+                label = "Correo", 
+                value = state.email, 
+                onValueChange = onEmailChange, 
+                testTag = "signup_email"
+        )
         SignUpTextField(
                 label = "Contraseña",
                 value = state.password,
                 onValueChange = onPasswordChange,
                 isPassword = true,
                 errorRes = state.passwordErrorRes,
-                modifier = Modifier.testTag("signup_password")
+                testTag = "signup_password"
         )
         SignUpTextField(
                 label = "Confirmar Contraseña",
@@ -198,7 +205,7 @@ fun SignUpForm(
                 onValueChange = onConfirmPasswordChange,
                 isPassword = true,
                 errorRes = state.passwordErrorRes,
-                modifier = Modifier.testTag("signup_confirm_password")
+                testTag = "signup_confirm_password"
         )
     }
 }
@@ -210,6 +217,7 @@ fun SignUpTextField(
         value: String,
         onValueChange: (String) -> Unit,
         modifier: Modifier = Modifier,
+        testTag: String? = null,
         isPassword: Boolean = false,
         errorRes: Int? = null
 ) {
@@ -222,10 +230,13 @@ fun SignUpTextField(
                 fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(4.dp))
+        val textFieldModifier = Modifier.fillMaxWidth().let {
+            if (testTag != null) it.testTag(testTag) else it
+        }
         OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = textFieldModifier,
                 shape = RoundedCornerShape(12.dp),
                 visualTransformation =
                         if (isPassword) PasswordVisualTransformation()
