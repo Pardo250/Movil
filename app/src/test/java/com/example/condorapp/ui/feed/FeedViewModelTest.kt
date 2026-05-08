@@ -3,11 +3,11 @@ package com.example.condorapp.ui.feed
 import com.example.condorapp.MainDispatcherRule
 import com.example.condorapp.data.Articulo
 import com.example.condorapp.data.repository.ArticuloRepository
+import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -29,9 +29,9 @@ class FeedViewModelTest {
         val viewModel = FeedViewModel(repository)
 
         // Assert
-        assertEquals(1, viewModel.uiState.value.articulos.size)
-        assertEquals("Playa", viewModel.uiState.value.articulos.first().titulo)
-        assertEquals(false, viewModel.uiState.value.isLoading)
+        assertThat(viewModel.uiState.value.articulos).hasSize(1)
+        assertThat(viewModel.uiState.value.articulos.first().titulo).isEqualTo("Playa")
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
     }
 
     @Test
@@ -43,8 +43,8 @@ class FeedViewModelTest {
         val viewModel = FeedViewModel(repository)
 
         // Assert
-        assertEquals("Error de red", viewModel.uiState.value.errorMessage)
-        assertEquals(false, viewModel.uiState.value.isLoading)
+        assertThat(viewModel.uiState.value.errorMessage).isEqualTo("Error de red")
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
     }
 
     @Test
@@ -57,7 +57,7 @@ class FeedViewModelTest {
         viewModel.onCategorySelected(2)
 
         // Assert
-        assertEquals(2, viewModel.uiState.value.selectedCategoryIndex)
+        assertThat(viewModel.uiState.value.selectedCategoryIndex).isEqualTo(2)
     }
 
     @Test
@@ -74,8 +74,23 @@ class FeedViewModelTest {
         viewModel.onSearchQueryChange("Playa")
 
         // Assert
-        assertEquals("Playa", viewModel.uiState.value.searchQuery)
-        assertEquals(1, viewModel.uiState.value.filteredArticulos.size)
-        assertEquals("Playa Blanca", viewModel.uiState.value.filteredArticulos.first().titulo)
+        assertThat(viewModel.uiState.value.searchQuery).isEqualTo("Playa")
+        assertThat(viewModel.uiState.value.filteredArticulos).hasSize(1)
+        assertThat(viewModel.uiState.value.filteredArticulos.first().titulo).isEqualTo("Playa Blanca")
+    }
+
+    @Test
+    fun `init with empty result shows empty list and no error`() = runTest {
+        // Arrange
+        coEvery { repository.getAllArticulos() } returns Result.success(emptyList())
+
+        // Act
+        val viewModel = FeedViewModel(repository)
+
+        // Assert
+        assertThat(viewModel.uiState.value.articulos).isEmpty()
+        assertThat(viewModel.uiState.value.filteredArticulos).isEmpty()
+        assertThat(viewModel.uiState.value.errorMessage).isNull()
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
     }
 }

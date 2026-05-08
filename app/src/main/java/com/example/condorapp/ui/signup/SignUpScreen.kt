@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -167,34 +168,37 @@ fun SignUpForm(
                     label = "Nombre",
                     value = state.name,
                     onValueChange = onNameChange,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).testTag("signup_name")
             )
             SignUpTextField(
                     label = "Apellido",
                     value = state.lastName,
                     onValueChange = onLastNameChange,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).testTag("signup_lastname")
             )
         }
         SignUpTextField(
                 label = "Username",
                 value = state.username,
-                onValueChange = onUsernameChange
+                onValueChange = onUsernameChange,
+                modifier = Modifier.testTag("signup_username")
         )
-        SignUpTextField(label = "Correo", value = state.email, onValueChange = onEmailChange)
+        SignUpTextField(label = "Correo", value = state.email, onValueChange = onEmailChange, modifier = Modifier.testTag("signup_email"))
         SignUpTextField(
                 label = "Contraseña",
                 value = state.password,
                 onValueChange = onPasswordChange,
                 isPassword = true,
-                errorRes = state.passwordErrorRes
+                errorRes = state.passwordErrorRes,
+                modifier = Modifier.testTag("signup_password")
         )
         SignUpTextField(
                 label = "Confirmar Contraseña",
                 value = state.confirmPassword,
                 onValueChange = onConfirmPasswordChange,
                 isPassword = true,
-                errorRes = state.passwordErrorRes
+                errorRes = state.passwordErrorRes,
+                modifier = Modifier.testTag("signup_confirm_password")
         )
     }
 }
@@ -259,7 +263,7 @@ fun SignUpActions(
         Button(
                 onClick = onRegisterClick,
                 enabled = canSignUp,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
+                modifier = Modifier.fillMaxWidth().height(52.dp).testTag("signup_button"),
                 shape = RoundedCornerShape(14.dp)
         ) { Text("Registrarse", fontWeight = FontWeight.Bold) }
         OutlinedButton(

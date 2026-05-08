@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -100,7 +101,7 @@ fun EmailField(modifier: Modifier = Modifier, email: String, onEmailChange: (Str
         OutlinedTextField(
                 value = email,
                 onValueChange = onEmailChange,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("login_email"),
                 placeholder = { Text(stringResource(R.string.email_placeholder)) },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
@@ -142,7 +143,7 @@ fun PasswordField(
                 value = password,
                 onValueChange = onPasswordChange,
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("login_password"),
                 placeholder = { Text(stringResource(R.string.value_placeholder)) },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
@@ -174,7 +175,7 @@ fun PrimaryButton(
     Button(
             onClick = onClick,
             enabled = enabled,
-            modifier = modifier.fillMaxWidth().height(50.dp),
+            modifier = modifier.fillMaxWidth().height(50.dp).testTag("login_signin_button"),
             shape = RoundedCornerShape(18.dp)
     ) { Text(text = stringResource(textRes), fontWeight = FontWeight.Bold) }
 }
@@ -242,7 +243,7 @@ fun LoginForm(
 
         Button(
                 onClick = onRegister,
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier.fillMaxWidth().height(50.dp).testTag("login_register_button"),
                 shape = RoundedCornerShape(18.dp),
                 colors =
                         ButtonDefaults.buttonColors(

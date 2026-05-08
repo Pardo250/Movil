@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -103,7 +104,8 @@ fun UserProfileScreenContent(
                             text = user.nombre,
                             fontSize = 26.sp,
                             fontWeight = FontWeight.Bold,
-                            color = colorScheme.primary
+                            color = colorScheme.primary,
+                            modifier = Modifier.testTag("userprofile_name")
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -134,7 +136,7 @@ fun UserProfileScreenContent(
                                     .clickable { onFollowListClick(user.id) }
                                     .padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
-                                Text("${state.followersCount}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = colorScheme.onBackground)
+                                Text("${state.followersCount}", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = colorScheme.onBackground, modifier = Modifier.testTag("userprofile_followers_count"))
                                 Text("Seguidores", color = colorScheme.outline, fontSize = 14.sp)
                             }
                             Column(
@@ -158,7 +160,7 @@ fun UserProfileScreenContent(
                                 containerColor = if (state.isFollowing) colorScheme.surfaceVariant else colorScheme.primary,
                                 contentColor = if (state.isFollowing) colorScheme.onSurfaceVariant else colorScheme.onPrimary
                             ),
-                            modifier = Modifier.width(200.dp)
+                            modifier = Modifier.width(200.dp).testTag("userprofile_follow_button")
                         ) {
                             Text(
                                 text = if (state.isFollowing) "Siguiendo" else "Seguir",

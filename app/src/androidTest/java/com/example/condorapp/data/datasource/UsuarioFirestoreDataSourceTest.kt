@@ -2,11 +2,11 @@ package com.example.condorapp.data.datasource
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.condorapp.data.dto.UsuarioDto
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,40 +40,83 @@ class UsuarioFirestoreDataSourceTest {
         }
     }
 
+    // ─── Arrange / Act / Assert ─────────────────────────────────
+
     @Test
     fun testSaveAndGetUsuario() = runBlocking {
-        val dto = UsuarioDto(id = "user123", nombre = "Carlos")
-        dataSource.saveUsuario("user123", dto)
+        // Arrange
+        val dto = UsuarioDto(id = "user123", nombre = "Carlos", email = "carlos@test.com")
 
+        // Act
+        dataSource.saveUsuario("user123", dto)
         val retrieved = dataSource.getUsuarioById("user123")
-        assertEquals("Carlos", retrieved.nombre)
+
+        // Assert
+        assertThat(retrieved).isNotNull()
+        assertThat(retrieved.nombre).isEqualTo("Carlos")
+        assertThat(retrieved.email).isEqualTo("carlos@test.com")
     }
 
     @Test
     fun testUpdateUsuario() = runBlocking {
+        // Arrange
         val dto = UsuarioDto(id = "user123", nombre = "Carlos", bio = "Bio 1")
         dataSource.saveUsuario("user123", dto)
 
+        // Act
         dataSource.updateUsuario("user123", mapOf("bio" to "Nueva bio"))
-
         val retrieved = dataSource.getUsuarioById("user123")
-        assertEquals("Carlos", retrieved.nombre) // Permanece igual
-        assertEquals("Nueva bio", retrieved.bio)  // Actualizado
+
+        // Assert
+        assertThat(retrieved.nombre).isEqualTo("Carlos") // Permanece igual
+        assertThat(retrieved.bio).isEqualTo("Nueva bio")  // Actualizado
     }
 
     @Test
     fun testToggleFollow() = runBlocking {
+        // Arrange
         dataSource.saveUsuario("follower", UsuarioDto(id = "follower", nombre = "A"))
         dataSource.saveUsuario("following", UsuarioDto(id = "following", nombre = "B"))
 
         // Act & Assert 1: Seguir
         val nowFollowing = dataSource.toggleFollow("follower", "following")
-        assertTrue(nowFollowing)
-        assertTrue(dataSource.isFollowing("follower", "following"))
+        assertThat(nowFollowing).isTrue()
+        assertThat(dataSource.isFollowing("follower", "following")).isTrue()
 
         // Act & Assert 2: Dejar de seguir
         val nowFollowing2 = dataSource.toggleFollow("follower", "following")
-        assertFalse(nowFollowing2)
-        assertFalse(dataSource.isFollowing("follower", "following"))
+        assertThat(nowFollowing2).isFalse()
+        assertThat(dataSource.isFollowing("follower", "following")).isFalse()
+    }
+
+    @Test
+    fun testGetAllUsuarios_ReturnsSavedUsers() = runBlocking {
+        // Arrange
+        dataSource.saveUsuario("u1", UsuarioDto(id = "u1", nombre = "Alice"))
+        dataSource.saveUsuario("u2", UsuarioDto(id = "u2", nombre = "Bob"))
+
+        // Act
+        val result = dataSource.getAllUsuarios()
+
+        // Assert
+        assertThat(result).hasSize(2)
+        assertThat(result.map { it.nombre }).containsExactly("Alice", "Bob")
+    }
+
+    @Test
+    fun testGetUsuarioById_ThrowsWhenNotFound() = runBlocking {
+        // Arrange (no users saved)
+        var thrownException: Exception? = null
+
+        // Act
+        try {
+            dataSource.getUsuarioById("no_existe")
+        } catch (e: Exception) {
+            thrownException = e
+        }
+
+        // Assert
+        assertThat(thrownException).isNotNull()
+        assertThat(thrownException?.message).contains("no encontrado")
     }
 }

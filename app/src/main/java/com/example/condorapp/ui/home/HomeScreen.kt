@@ -19,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -327,7 +328,8 @@ fun HomeToggle(
                     )
                     .clip(RoundedCornerShape(30.dp))
                     .clickable { onToggle(isFollowing) }
-                    .padding(vertical = 10.dp),
+                    .padding(vertical = 10.dp)
+                    .testTag(if (isFollowing) "home_tab_siguiendo" else "home_tab_todos"),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

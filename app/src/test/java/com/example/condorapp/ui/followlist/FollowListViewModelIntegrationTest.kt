@@ -6,12 +6,12 @@ import com.example.condorapp.data.datasource.UsuarioDataSource
 import com.example.condorapp.data.dto.UsuarioDto
 import com.example.condorapp.data.repository.AuthRepository
 import com.example.condorapp.data.repository.UsuarioRepository
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseUser
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -51,7 +51,6 @@ class FakeUsuarioDataSource : UsuarioDataSource {
     }
 
     override suspend fun toggleSaveArticle(userId: String, articleId: String): Boolean {
-        // Mock implementation
         val user = users[userId] ?: return false
         val isSaved = user.savedArticles.contains(articleId)
         val updatedList = if (isSaved) {
@@ -101,12 +100,12 @@ class FollowListViewModelIntegrationTest {
 
         // Assert
         // Followers de targetUser deben ser 2 (user1 y user2)
-        assertEquals(2, viewModel.uiState.value.followers.size)
+        assertThat(viewModel.uiState.value.followers).hasSize(2)
         // Following de targetUser debe ser 1 (user1)
-        assertEquals(1, viewModel.uiState.value.following.size)
+        assertThat(viewModel.uiState.value.following).hasSize(1)
         // myFollowingIds (lo que sigue el current user) debe ser 1 (user2)
-        assertEquals(1, viewModel.uiState.value.myFollowingIds.size)
-        assertEquals("user2", viewModel.uiState.value.myFollowingIds.first())
+        assertThat(viewModel.uiState.value.myFollowingIds).hasSize(1)
+        assertThat(viewModel.uiState.value.myFollowingIds).contains("user2")
     }
 
     @Test
@@ -125,20 +124,20 @@ class FollowListViewModelIntegrationTest {
         val viewModel = FollowListViewModel(repository, authRepository, savedStateHandle)
 
         // Inicialmente no sigue
-        assertEquals(false, viewModel.uiState.value.myFollowingIds.contains("targetUser"))
+        assertThat(viewModel.uiState.value.myFollowingIds).doesNotContain("targetUser")
 
         // Act 1: Follow
         viewModel.toggleFollow("targetUser")
         
         // Assert 1
-        assertEquals(true, viewModel.uiState.value.myFollowingIds.contains("targetUser"))
-        assertEquals(true, fakeDataSource.follows.contains(Pair("currentUser", "targetUser")))
+        assertThat(viewModel.uiState.value.myFollowingIds).contains("targetUser")
+        assertThat(fakeDataSource.follows).contains(Pair("currentUser", "targetUser"))
 
         // Act 2: Unfollow
         viewModel.toggleFollow("targetUser")
 
         // Assert 2
-        assertEquals(false, viewModel.uiState.value.myFollowingIds.contains("targetUser"))
-        assertEquals(false, fakeDataSource.follows.contains(Pair("currentUser", "targetUser")))
+        assertThat(viewModel.uiState.value.myFollowingIds).doesNotContain("targetUser")
+        assertThat(fakeDataSource.follows).doesNotContain(Pair("currentUser", "targetUser"))
     }
 }

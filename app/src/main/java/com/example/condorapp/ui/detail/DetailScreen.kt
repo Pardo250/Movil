@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -200,7 +201,8 @@ fun DetailHeader(
                         text = title,
                         color = colorScheme.onSurface,
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.testTag("detail_title")
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -333,7 +335,7 @@ fun ReviewItem(
                         }
                     }
                 }
-                IconButton(onClick = onLike) {
+                IconButton(onClick = onLike, modifier = Modifier.testTag("review_like_${review.id}")) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(review.likes.toString(), color = colorScheme.outline, fontSize = 14.sp)
                         Spacer(Modifier.width(4.dp))

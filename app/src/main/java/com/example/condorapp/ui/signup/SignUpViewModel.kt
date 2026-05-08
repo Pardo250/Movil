@@ -54,7 +54,7 @@ class SignUpViewModel @Inject constructor(
     fun onSignUp() {
         val currentState = _uiState.value
         if (currentState.canSignUp) {
-            if (currentState.password.length <= 7) {
+            if (currentState.password.length < 6) {
                 _uiState.update { it.copy(passwordErrorRes = R.string.error_password_too_short) }
                 return
             }

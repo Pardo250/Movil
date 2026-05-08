@@ -2,12 +2,11 @@ package com.example.condorapp.data.repository
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.condorapp.data.datasource.ReviewFirestoreDataSource
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,14 +44,14 @@ class ReviewRepositoryIntegrationTest {
     fun testCreateAndGetReview_Integration() = runBlocking {
         // Act
         val resultCreate = repository.createReview("Me encantó", 5, "u1", "art1", "Juan")
-        assertTrue(resultCreate.isSuccess)
+        assertThat(resultCreate.isSuccess).isTrue()
 
         // Assert
         val resultGet = repository.getReviewsByArticulo("art1")
         val reviews = resultGet.getOrNull()
-        assertEquals(1, reviews?.size)
-        assertEquals("Me encantó", reviews?.first()?.comment)
-        assertEquals("Juan", reviews?.first()?.name)
+        assertThat(reviews).hasSize(1)
+        assertThat(reviews?.first()?.comment).isEqualTo("Me encantó")
+        assertThat(reviews?.first()?.name).isEqualTo("Juan")
     }
 
     @Test
@@ -62,12 +61,12 @@ class ReviewRepositoryIntegrationTest {
 
         // Act
         val resultUpdate = repository.updateReview(created.id, "Muy bueno", 4)
-        assertTrue(resultUpdate.isSuccess)
+        assertThat(resultUpdate.isSuccess).isTrue()
 
         // Assert
         val review = repository.getReviewsByArticulo("art2").getOrNull()?.first()
-        assertEquals("Muy bueno", review?.comment)
-        assertEquals(4, review?.rating)
+        assertThat(review?.comment).isEqualTo("Muy bueno")
+        assertThat(review?.rating).isEqualTo(4)
     }
 
     @Test
@@ -77,10 +76,29 @@ class ReviewRepositoryIntegrationTest {
 
         // Act
         val resultDelete = repository.deleteReview(created.id)
-        assertTrue(resultDelete.isSuccess)
+        assertThat(resultDelete.isSuccess).isTrue()
 
         // Assert
         val reviews = repository.getReviewsByArticulo("art3").getOrNull()
-        assertTrue(reviews?.isEmpty() == true)
+        assertThat(reviews).isEmpty()
+    }
+
+    @Test
+    fun testToggleLike_Integration() = runBlocking {
+        // Arrange
+        val created = repository.createReview("Para like", 4, "u4", "art4", "Luis").getOrNull()!!
+
+        // Act: Like
+        val likeResult = repository.toggleLike(created.id, "voter1")
+        assertThat(likeResult.isSuccess).isTrue()
+        assertThat(likeResult.getOrNull()).isTrue()
+
+        // Assert: isLiked
+        val isLiked = repository.isLikedByUser(created.id, "voter1")
+        assertThat(isLiked.getOrNull()).isTrue()
+
+        // Act: Unlike
+        val unlikeResult = repository.toggleLike(created.id, "voter1")
+        assertThat(unlikeResult.getOrNull()).isFalse()
     }
 }

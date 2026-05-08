@@ -3,12 +3,11 @@ package com.example.condorapp.data.repository
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.condorapp.data.datasource.ArticuloFirestoreDataSource
 import com.example.condorapp.data.dto.ArticuloDto
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,10 +50,10 @@ class ArticuloRepositoryIntegrationTest {
         val result = repository.getAllArticulos()
 
         // Assert
-        assertTrue(result.isSuccess)
+        assertThat(result.isSuccess).isTrue()
         val list = result.getOrNull()
-        assertEquals(1, list?.size)
-        assertEquals("Art 1", list?.first()?.titulo)
+        assertThat(list).hasSize(1)
+        assertThat(list?.first()?.titulo).isEqualTo("Art 1")
     }
 
     @Test
@@ -66,7 +65,19 @@ class ArticuloRepositoryIntegrationTest {
         val result = repository.getArticuloById(ref.id)
 
         // Assert
-        assertTrue(result.isSuccess)
-        assertEquals("Art 2", result.getOrNull()?.titulo)
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrNull()?.titulo).isEqualTo("Art 2")
+    }
+
+    @Test
+    fun testGetArticuloById_ReturnsFailure_WhenNotFound() = runBlocking {
+        // Arrange (nothing saved)
+
+        // Act
+        val result = repository.getArticuloById("nonexistent_id")
+
+        // Assert
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull()?.message).contains("no encontrado")
     }
 }

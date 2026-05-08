@@ -2,17 +2,18 @@ package com.example.condorapp.ui.userprofile
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.condorapp.MainDispatcherRule
+import com.example.condorapp.data.Review
 import com.example.condorapp.data.UserInfo
 import com.example.condorapp.data.repository.AuthRepository
 import com.example.condorapp.data.repository.ReviewRepository
 import com.example.condorapp.data.repository.UsuarioRepository
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.auth.FirebaseUser
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -42,9 +43,9 @@ class UserProfileViewModelTest {
         val viewModel = UserProfileViewModel(usuarioRepository, reviewRepository, authRepository, savedStateHandle)
 
         // Assert
-        assertEquals("Juan", viewModel.uiState.value.user?.nombre)
-        assertEquals(10, viewModel.uiState.value.followersCount)
-        assertEquals(true, viewModel.uiState.value.isFollowing)
+        assertThat(viewModel.uiState.value.user?.nombre).isEqualTo("Juan")
+        assertThat(viewModel.uiState.value.followersCount).isEqualTo(10)
+        assertThat(viewModel.uiState.value.isFollowing).isTrue()
     }
 
     @Test
@@ -58,7 +59,7 @@ class UserProfileViewModelTest {
         val viewModel = UserProfileViewModel(usuarioRepository, reviewRepository, authRepository, savedStateHandle)
 
         // Assert
-        assertEquals("Not found", viewModel.uiState.value.errorMessage)
+        assertThat(viewModel.uiState.value.errorMessage).isEqualTo("Not found")
     }
 
     @Test
@@ -82,8 +83,8 @@ class UserProfileViewModelTest {
         viewModel.toggleFollow()
 
         // Assert
-        assertEquals(true, viewModel.uiState.value.isFollowing)
-        assertEquals(11, viewModel.uiState.value.followersCount)
+        assertThat(viewModel.uiState.value.isFollowing).isTrue()
+        assertThat(viewModel.uiState.value.followersCount).isEqualTo(11)
     }
 
     @Test
@@ -105,9 +106,29 @@ class UserProfileViewModelTest {
         // Act
         viewModel.toggleFollow()
 
+        // Assert — Rolls back to false and 10
+        assertThat(viewModel.uiState.value.isFollowing).isFalse()
+        assertThat(viewModel.uiState.value.followersCount).isEqualTo(10)
+    }
+
+    @Test
+    fun `loadUserProfile loads reviews successfully`() = runTest {
+        // Arrange
+        val user = UserInfo("targetUser", "Ana", "ana@t.com")
+        val reviews = listOf(
+            Review("r1", "Ana", 5, "Gran lugar", 3, usuarioId = "targetUser"),
+            Review("r2", "Ana", 4, "Bonito", 1, usuarioId = "targetUser")
+        )
+        coEvery { usuarioRepository.getUsuarioById("targetUser") } returns Result.success(user)
+        coEvery { reviewRepository.getReviewsByUsuario("targetUser") } returns Result.success(reviews)
+        every { authRepository.currentUser } returns null
+
+        // Act
+        val viewModel = UserProfileViewModel(usuarioRepository, reviewRepository, authRepository, savedStateHandle)
+
         // Assert
-        // Rolls back to false and 10
-        assertEquals(false, viewModel.uiState.value.isFollowing)
-        assertEquals(10, viewModel.uiState.value.followersCount)
+        assertThat(viewModel.uiState.value.reviews).hasSize(2)
+        assertThat(viewModel.uiState.value.reviews.map { it.comment }).containsExactly("Gran lugar", "Bonito")
+        assertThat(viewModel.uiState.value.isLoading).isFalse()
     }
 }

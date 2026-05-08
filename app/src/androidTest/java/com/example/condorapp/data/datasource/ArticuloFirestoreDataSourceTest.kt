@@ -2,12 +2,11 @@ package com.example.condorapp.data.datasource
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.condorapp.data.dto.ArticuloDto
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,32 +42,46 @@ class ArticuloFirestoreDataSourceTest {
 
     @Test
     fun testGetArticuloById_ThrowsExceptionWhenNotFound() = runBlocking {
-        var didThrow = false
+        // Arrange
+        var thrownException: Exception? = null
+
+        // Act
         try {
             dataSource.getArticuloById("no_existe")
         } catch (e: Exception) {
-            didThrow = true
+            thrownException = e
         }
-        assertTrue("Debería lanzar excepción si no existe", didThrow)
+
+        // Assert
+        assertThat(thrownException).isNotNull()
+        assertThat(thrownException?.message).contains("no encontrado")
     }
 
     @Test
     fun testGetAllArticulos_ReturnsEmptyListInitially() = runBlocking {
+        // Arrange (nothing)
+
+        // Act
         val articulos = dataSource.getAllArticulos()
-        assertTrue(articulos.isEmpty())
+
+        // Assert
+        assertThat(articulos).isEmpty()
     }
 
     @Test
     fun testInsertAndGetArticulo() = runBlocking {
-        // Manual insert for testing
-        val dto = ArticuloDto(titulo = "Test", tipo = "Lugar")
+        // Arrange
+        val dto = ArticuloDto(titulo = "Test", tipo = "Lugar", descripcion = "Desc test")
         val ref = firestore.collection("articulos").add(dto).await()
-        
+
+        // Act
         val articulos = dataSource.getAllArticulos()
-        assertEquals(1, articulos.size)
-        assertEquals("Test", articulos[0].titulo)
-        
         val single = dataSource.getArticuloById(ref.id)
-        assertEquals("Lugar", single.tipo)
+
+        // Assert
+        assertThat(articulos).hasSize(1)
+        assertThat(articulos[0].titulo).isEqualTo("Test")
+        assertThat(single.tipo).isEqualTo("Lugar")
+        assertThat(single.descripcion).isEqualTo("Desc test")
     }
 }

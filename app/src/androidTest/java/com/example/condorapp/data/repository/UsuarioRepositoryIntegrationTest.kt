@@ -3,12 +3,11 @@ package com.example.condorapp.data.repository
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.condorapp.data.datasource.UsuarioFirestoreDataSource
 import com.example.condorapp.data.dto.UsuarioDto
+import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,14 +43,15 @@ class UsuarioRepositoryIntegrationTest {
 
     @Test
     fun testSaveAndGetUsuario_Integration() = runBlocking {
-        // Act 1: Save
+        // Act
         val saveResult = repository.saveUsuario("u100", "Ana", "ana@test.com", "ana123")
-        assertTrue(saveResult.isSuccess)
 
-        // Act 2: Get
+        // Assert
+        assertThat(saveResult.isSuccess).isTrue()
+
         val getResult = repository.getUsuarioById("u100")
-        assertTrue(getResult.isSuccess)
-        assertEquals("Ana", getResult.getOrNull()?.nombre)
+        assertThat(getResult.isSuccess).isTrue()
+        assertThat(getResult.getOrNull()?.nombre).isEqualTo("Ana")
     }
 
     @Test
@@ -61,11 +61,11 @@ class UsuarioRepositoryIntegrationTest {
 
         // Act
         val updateResult = repository.updateUsuario("u200", mapOf("bio" to "Nueva Bio de Beto"))
-        assertTrue(updateResult.isSuccess)
+        assertThat(updateResult.isSuccess).isTrue()
 
         // Assert
         val getResult = repository.getUsuarioById("u200")
-        assertEquals("Nueva Bio de Beto", getResult.getOrNull()?.bio)
+        assertThat(getResult.getOrNull()?.bio).isEqualTo("Nueva Bio de Beto")
     }
 
     @Test
@@ -76,10 +76,25 @@ class UsuarioRepositoryIntegrationTest {
 
         // Act: Follow
         val result1 = repository.toggleFollow("f1", "f2")
-        assertTrue(result1.getOrNull() == true) // Ahora sigue
+        assertThat(result1.getOrNull()).isTrue()
 
         // Assert
         val followingList = repository.getFollowing("f1")
-        assertEquals(1, followingList.getOrNull()?.size)
+        assertThat(followingList.getOrNull()).hasSize(1)
+    }
+
+    @Test
+    fun testGetAllUsuarios_Integration() = runBlocking {
+        // Arrange
+        repository.saveUsuario("u1", "Alice", "a@t.com", "alice")
+        repository.saveUsuario("u2", "Bob", "b@t.com", "bob")
+
+        // Act
+        val result = repository.getAllUsuarios()
+
+        // Assert
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrNull()).hasSize(2)
+        assertThat(result.getOrNull()?.map { it.nombre }).containsExactly("Alice", "Bob")
     }
 }
