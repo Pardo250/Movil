@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
+    implementation("com.google.android.gms:play-services-maps:17.0.0")
+
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.compose.ui)

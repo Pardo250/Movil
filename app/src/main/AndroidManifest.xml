@@ -17,6 +17,12 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Condorapp">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDiJfbx_DJXO1onaSOOIwLCEHHU9AhwJvg" />
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
