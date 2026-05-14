@@ -19,6 +19,7 @@ import com.example.condorapp.ui.signup.SignUpScreenRoute
 import com.example.condorapp.ui.splash.SplashScreenRoute
 import com.example.condorapp.ui.userprofile.UserProfileScreenRoute
 import com.example.condorapp.ui.followlist.FollowListScreenRoute
+import com.example.condorapp.ui.map.MapScreenRoute
 
 /**
  * Navegación centralizada de la aplicación. Define todas las rutas y la lógica de navegación entre
@@ -90,6 +91,9 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             FeedScreenRoute(
                     onPlaceClick = { placeId ->
                         navController.navigate(Screen.Details.createRoute(placeId))
+                    },
+                    onMapClick = {
+                        navController.navigate(Screen.Map.route)
                     }
             )
         }
@@ -178,6 +182,11 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                     navController.navigate(Screen.UserProfile.createRoute(userId))
                 }
             )
+        }
+
+        // 14. MAPA DE REVIEWS
+        composable(Screen.Map.route) {
+            MapScreenRoute(onBackClick = { navController.popBackStack() })
         }
     }
 }

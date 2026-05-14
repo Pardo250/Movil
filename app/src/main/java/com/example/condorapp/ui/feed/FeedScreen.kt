@@ -43,7 +43,8 @@ import com.example.condorapp.ui.theme.CondorappTheme
 fun FeedScreenRoute(
         modifier: Modifier = Modifier,
         viewModel: FeedViewModel = hiltViewModel(),
-        onPlaceClick: (String) -> Unit
+        onPlaceClick: (String) -> Unit,
+        onMapClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -52,7 +53,8 @@ fun FeedScreenRoute(
             modifier = modifier,
             onCategorySelected = viewModel::onCategorySelected,
             onSearchQueryChange = viewModel::onSearchQueryChange,
-            onArticuloClick = { articulo -> onPlaceClick(articulo.id) }
+            onArticuloClick = { articulo -> onPlaceClick(articulo.id) },
+            onMapClick = onMapClick
     )
 }
 
@@ -63,7 +65,8 @@ fun FeedScreenContent(
         modifier: Modifier = Modifier,
         onCategorySelected: (Int) -> Unit,
         onSearchQueryChange: (String) -> Unit,
-        onArticuloClick: (Articulo) -> Unit
+        onArticuloClick: (Articulo) -> Unit,
+        onMapClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -74,7 +77,7 @@ fun FeedScreenContent(
                 onQueryChange = onSearchQueryChange
             )
             Spacer(modifier = Modifier.height(20.dp))
-            MapCard()
+            MapCard(modifier = Modifier.clickable { onMapClick() })
             Spacer(modifier = Modifier.height(20.dp))
             CategoryChips(
                     selectedIndex = state.selectedCategoryIndex,

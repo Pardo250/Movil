@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.firebase.messaging)
     implementation(libs.coil.compose)
+    implementation(libs.maplibre.compose)
 
     // Red / API (Retrofit y OkHttp para conectarnos al backend Express)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
