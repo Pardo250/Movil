@@ -145,3 +145,126 @@ exports.updateUserNameInReviews = onDocumentUpdated("usuarios/{userId}", async (
 
     return null;
 });
+
+/**
+ * Función 3: Notificación Push al recibir un Follow.
+ * Se dispara cuando se crea un documento en la subcolección followers de un usuario.
+ */
+exports.sendFollowNotification = onDocumentCreated("usuarios/{targetUserId}/followers/{followerUserId}", async (event) => {
+    const targetUserId = event.params.targetUserId;
+    const followerUserId = event.params.followerUserId;
+
+    console.log(`Usuario ${followerUserId} empezó a seguir a ${targetUserId}`);
+
+    // Evitar auto-follow (por si acaso)
+    if (targetUserId === followerUserId) return null;
+
+    // 1. Obtener los datos de quien empezó a seguir
+    const followerSnap = await admin.firestore().collection("usuarios").doc(followerUserId).get();
+    const followerName = followerSnap.exists ? followerSnap.data().nombre : "Alguien";
+    const followerAvatar = followerSnap.exists ? (followerSnap.data().avatarUrl || "") : "";
+
+    // 2. Guardar notificación en Firestore (para la pantalla de notificaciones dentro de la app)
+    await admin.firestore()
+        .collection("notifications")
+        .doc(targetUserId)
+        .collection("items")
+        .add({
+            type: "follow",
+            userName: followerName,
+            action: `empezó a seguirte`,
+            time: "Ahora",
+            avatarUrl: followerAvatar,
+            createdAt: Date.now()
+        });
+
+    // 3. Obtener FCM token del targetUser para push notification
+    const targetSnap = await admin.firestore().collection("usuarios").doc(targetUserId).get();
+    if (!targetSnap.exists) {
+        console.log("El usuario target no existe.");
+        return null;
+    }
+
+    const targetData = targetSnap.data();
+    const fcmToken = targetData.fcmToken;
+
+    if (!fcmToken) {
+        console.log("El usuario target no tiene un fcmToken registrado.");
+        return null;
+    }
+
+    // 4. Enviar push notification tipo WhatsApp
+    const message = {
+        notification: {
+            title: "¡Nuevo Seguidor! 👤",
+            body: `${followerName} empezó a seguirte.`
+        },
+        token: fcmToken
+    };
+
+    try {
+        const response = await admin.messaging().send(message);
+        console.log("Notificación de follow enviada exitosamente:", response);
+    } catch (error) {
+        console.error("Error enviando la notificación de follow:", error);
+    }
+
+    return null;
+});
+
+/**
+ * Función 4: Gamificación - Top Reseñador
+ * Se dispara al crear una reseña. Cuenta las reseñas y si >= 10, asigna isTopReviewer = true.
+ */
+exports.checkTopReviewerBadge = onDocumentCreated("reviews/{reviewId}", async (event) => {
+    const reviewData = event.data.data();
+    if (!reviewData || !reviewData.usuarioId) return null;
+
+    const userId = reviewData.usuarioId;
+    const db = admin.firestore();
+
+    try {
+        // Verificar si ya tiene el badge
+        const userRef = db.collection("usuarios").doc(userId);
+        const userSnap = await userRef.get();
+        if (!userSnap.exists) return null;
+        
+        const userData = userSnap.data();
+        if (userData.isTopReviewer) {
+            // Ya es top reviewer, no hacemos nada extra
+            return null;
+        }
+
+        // Contar reseñas
+        const snapshot = await db.collection("reviews").where("usuarioId", "==", userId).get();
+        if (snapshot.size >= 10) {
+            console.log(`Otorgando insignia Top Reseñador a ${userId} (${snapshot.size} reseñas)`);
+            await userRef.update({ isTopReviewer: true });
+        }
+    } catch (error) {
+        console.error("Error comprobando badge de top reviewer:", error);
+    }
+
+    return null;
+});
+
+/**
+ * Función 5: Gamificación - Influencer
+ * Revisa cuando un usuario se actualiza, si followersCount >= 100, asigna isInfluencer = true.
+ */
+exports.checkInfluencerBadge = onDocumentUpdated("usuarios/{userId}", async (event) => {
+    const afterData = event.data.after.data();
+    const userId = event.params.userId;
+
+    if (!afterData) return null;
+
+    // Si ya lo tiene, ignorar
+    if (afterData.isInfluencer) return null;
+
+    if (afterData.followersCount >= 100) {
+        console.log(`Otorgando insignia Influencer a ${userId} (${afterData.followersCount} seguidores)`);
+        await admin.firestore().collection("usuarios").doc(userId).update({ isInfluencer: true });
+    }
+
+    return null;
+});

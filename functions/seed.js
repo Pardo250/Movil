@@ -1,13 +1,37 @@
-require("dotenv").config();
+require("dotenv").config({ path: ".env.seed" });
 const admin = require("firebase-admin");
 const { faker } = require("@faker-js/faker");
+const { Firestore } = require("@google-cloud/firestore");
 
-// Inicializar la app usando credenciales por defecto (ADC o emulador si FIRESTORE_EMULATOR_HOST está configurado)
+const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST || "localhost:8080";
+const modeArg = process.argv.includes("--both") ? "both" : (process.env.FIRESTORE_EMULATOR_HOST ? "emulator" : "real");
+
+// Eliminar la variable global para poder instanciar clientes de producción explícitamente sin que apunten al emulador
+delete process.env.FIRESTORE_EMULATOR_HOST;
+
+// Inicializar la app usando credenciales por defecto
 admin.initializeApp({
   projectId: process.env.GCLOUD_PROJECT || "demo-condorapp",
 });
 
-const db = admin.firestore();
+const databases = [];
+
+if (modeArg === "both") {
+  databases.push({ name: "Producción (Real)", db: admin.firestore() });
+  databases.push({ name: "Emulador Local", db: new Firestore({
+    projectId: process.env.GCLOUD_PROJECT || "demo-condorapp",
+    host: emulatorHost,
+    ssl: false
+  }) });
+} else if (modeArg === "emulator") {
+  databases.push({ name: "Emulador Local", db: new Firestore({
+    projectId: process.env.GCLOUD_PROJECT || "demo-condorapp",
+    host: emulatorHost,
+    ssl: false
+  }) });
+} else {
+  databases.push({ name: "Producción (Real)", db: admin.firestore() });
+}
 
 /**
  * Genera datos falsos para las 3 entidades principales de CondorApp:
@@ -20,28 +44,36 @@ const db = admin.firestore();
  *
  * O contra Firebase real (producción):
  *   GCLOUD_PROJECT=tu-project-id node seed.js
+ *
+ * O contra ambos simultáneamente:
+ *   node seed.js --both
  */
 async function seedDatabase() {
   console.log("Iniciando la generación de datos falsos...");
   console.log(
     "Modo:",
-    process.env.FIRESTORE_EMULATOR_HOST ? "Emulador Local" : "Producción (Real)"
+    modeArg === "both" ? "Ambos (Emulador Local y Producción Real)" : (modeArg === "emulator" ? "Emulador Local" : "Producción (Real)")
   );
 
   try {
-    const usuariosRef = db.collection("usuarios");
-    const articulosRef = db.collection("articulos");
-    const reviewsRef = db.collection("reviews");
-
-    let batch = db.batch();
-    let batchCount = 0;
+    const dbs = databases.map(d => ({
+        db: d.db,
+        name: d.name,
+        usuariosRef: d.db.collection("usuarios"),
+        articulosRef: d.db.collection("articulos"),
+        reviewsRef: d.db.collection("reviews"),
+        batch: d.db.batch(),
+        batchCount: 0
+    }));
 
     const commitIfNeeded = async () => {
-      batchCount++;
-      if (batchCount >= 490) {
-        await batch.commit();
-        batch = db.batch();
-        batchCount = 0;
+      for (const d of dbs) {
+        d.batchCount++;
+        if (d.batchCount >= 490) {
+          await d.batch.commit();
+          d.batch = d.db.batch();
+          d.batchCount = 0;
+        }
       }
     };
 
@@ -58,7 +90,6 @@ async function seedDatabase() {
       const nombre = faker.person.fullName();
       userIds.push(userId);
       userNames.push(nombre);
-      const userDoc = usuariosRef.doc(userId);
 
       const userData = {
         id: userId,
@@ -75,7 +106,10 @@ async function seedDatabase() {
         updatedAt: new Date().toISOString(),
       };
 
-      batch.set(userDoc, userData);
+      for (const d of dbs) {
+        const userDoc = d.usuariosRef.doc(userId);
+        d.batch.set(userDoc, userData);
+      }
       await commitIfNeeded();
     }
 
@@ -87,7 +121,6 @@ async function seedDatabase() {
     for (let i = 0; i < numArticulos; i++) {
       const articuloId = faker.string.uuid();
       articuloIds.push(articuloId);
-      const articuloDoc = articulosRef.doc(articuloId);
 
       const articuloData = {
         id: articuloId,
@@ -97,7 +130,10 @@ async function seedDatabase() {
         imagenUrl: faker.image.urlLoremFlickr({ category: "nature" }),
       };
 
-      batch.set(articuloDoc, articuloData);
+      for (const d of dbs) {
+        const articuloDoc = d.articulosRef.doc(articuloId);
+        d.batch.set(articuloDoc, articuloData);
+      }
       await commitIfNeeded();
     }
 
@@ -106,7 +142,7 @@ async function seedDatabase() {
     console.log(`Generando ${numReviews} reviews...`);
 
     for (let i = 0; i < numReviews; i++) {
-      const reviewDoc = reviewsRef.doc();
+      const reviewId = faker.string.uuid();
       const userIndex = faker.number.int({ min: 0, max: userIds.length - 1 });
       const articuloIndex = faker.number.int({ min: 0, max: articuloIds.length - 1 });
 
@@ -122,7 +158,10 @@ async function seedDatabase() {
         updatedAt: new Date().toISOString(),
       };
 
-      batch.set(reviewDoc, reviewData);
+      for (const d of dbs) {
+        const reviewDoc = d.reviewsRef.doc(reviewId);
+        d.batch.set(reviewDoc, reviewData);
+      }
       await commitIfNeeded();
     }
 
@@ -135,26 +174,32 @@ async function seedDatabase() {
         .slice(0, numFollows);
 
       for (const targetId of targets) {
-        const followingRef = usuariosRef.doc(userIds[i]).collection("following").doc(targetId);
-        const followerRef = usuariosRef.doc(targetId).collection("followers").doc(userIds[i]);
-        batch.set(followingRef, { timestamp: admin.firestore.FieldValue.serverTimestamp() });
-        batch.set(followerRef, { timestamp: admin.firestore.FieldValue.serverTimestamp() });
+        for (const d of dbs) {
+          const followingRef = d.usuariosRef.doc(userIds[i]).collection("following").doc(targetId);
+          const followerRef = d.usuariosRef.doc(targetId).collection("followers").doc(userIds[i]);
+          d.batch.set(followingRef, { timestamp: admin.firestore.FieldValue.serverTimestamp() });
+          d.batch.set(followerRef, { timestamp: admin.firestore.FieldValue.serverTimestamp() });
+        }
         await commitIfNeeded();
 
         // Actualizar contadores
-        batch.update(usuariosRef.doc(userIds[i]), {
-          followingCount: admin.firestore.FieldValue.increment(1),
-        });
-        batch.update(usuariosRef.doc(targetId), {
-          followersCount: admin.firestore.FieldValue.increment(1),
-        });
+        for (const d of dbs) {
+          d.batch.update(d.usuariosRef.doc(userIds[i]), {
+            followingCount: admin.firestore.FieldValue.increment(1),
+          });
+          d.batch.update(d.usuariosRef.doc(targetId), {
+            followersCount: admin.firestore.FieldValue.increment(1),
+          });
+        }
         await commitIfNeeded();
       }
     }
 
     // Comitear las operaciones restantes
-    if (batchCount > 0) {
-      await batch.commit();
+    for (const d of dbs) {
+      if (d.batchCount > 0) {
+        await d.batch.commit();
+      }
     }
 
     console.log("¡Carga de datos falsos completada exitosamente!");
