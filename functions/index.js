@@ -237,7 +237,7 @@ exports.checkTopReviewerBadge = onDocumentCreated("reviews/{reviewId}", async (e
 
         // Contar reseñas
         const snapshot = await db.collection("reviews").where("usuarioId", "==", userId).get();
-        if (snapshot.size >= 10) {
+        if (snapshot.size >= 5) {
             console.log(`Otorgando insignia Top Reseñador a ${userId} (${snapshot.size} reseñas)`);
             await userRef.update({ isTopReviewer: true });
         }
@@ -261,7 +261,7 @@ exports.checkInfluencerBadge = onDocumentUpdated("usuarios/{userId}", async (eve
     // Si ya lo tiene, ignorar
     if (afterData.isInfluencer) return null;
 
-    if (afterData.followersCount >= 100) {
+    if (afterData.followersCount >= 1) {
         console.log(`Otorgando insignia Influencer a ${userId} (${afterData.followersCount} seguidores)`);
         await admin.firestore().collection("usuarios").doc(userId).update({ isInfluencer: true });
     }

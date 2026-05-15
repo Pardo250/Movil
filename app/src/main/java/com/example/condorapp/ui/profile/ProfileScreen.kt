@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -237,22 +238,36 @@ fun ProfileHeader(
             )
             
             if (isTopReviewer) {
-                Spacer(modifier = Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "Top Reseñador",
-                    tint = com.example.condorapp.ui.theme.CondorStarActive,
-                    modifier = Modifier.size(24.dp)
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color = androidx.compose.ui.graphics.Color(0xFFFFD700).copy(alpha = 0.2f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(32.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFFFD700))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Top Reseñador",
+                        tint = androidx.compose.ui.graphics.Color(0xFFFFD700),
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
             }
             if (isInfluencer) {
-                Spacer(modifier = Modifier.width(6.dp))
-                Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Star, // Usar un icono de CheckCircle en un proyecto real, pero Star sirve
-                    contentDescription = "Influencer",
-                    tint = androidx.compose.ui.graphics.Color(0xFF00C853), // Color verde
-                    modifier = Modifier.size(24.dp)
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color = androidx.compose.ui.graphics.Color(0xFF2196F3).copy(alpha = 0.2f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(32.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFF2196F3))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Verified,
+                        contentDescription = "Influencer",
+                        tint = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
             }
         }
         
