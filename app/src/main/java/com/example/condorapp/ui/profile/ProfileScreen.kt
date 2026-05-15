@@ -46,6 +46,10 @@ fun ProfileScreenRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
+
     ProfileScreenContent(
         state = uiState,
         modifier = modifier,
@@ -100,6 +104,8 @@ fun ProfileScreenContent(
                     imageUrl = state.imageUrl,
                     followersCount = state.followersCount,
                     followingCount = state.followingCount,
+                    isTopReviewer = state.isTopReviewer,
+                    isInfluencer = state.isInfluencer,
                     onFollowListClick = onFollowListClick
                 ) 
             }
@@ -210,6 +216,8 @@ fun ProfileHeader(
     imageUrl: String?,
     followersCount: Int,
     followingCount: Int,
+    isTopReviewer: Boolean = false,
+    isInfluencer: Boolean = false,
     onFollowListClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -219,12 +227,35 @@ fun ProfileHeader(
             modifier = Modifier.size(120.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = name,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            color = colorScheme.primary
-        )
+        
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = name,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorScheme.primary
+            )
+            
+            if (isTopReviewer) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Top Reseñador",
+                    tint = com.example.condorapp.ui.theme.CondorStarActive,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            if (isInfluencer) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Star, // Usar un icono de CheckCircle en un proyecto real, pero Star sirve
+                    contentDescription = "Influencer",
+                    tint = androidx.compose.ui.graphics.Color(0xFF00C853), // Color verde
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+        
         Text(text = username, fontSize = 16.sp, color = colorScheme.outline)
         
         Spacer(Modifier.height(16.dp))

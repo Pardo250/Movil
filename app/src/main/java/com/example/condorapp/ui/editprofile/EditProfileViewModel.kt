@@ -85,11 +85,12 @@ class EditProfileViewModel @Inject constructor(
 
     fun uploadImageToFirebase(uri: Uri) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isUploadingImage = true, imageUploadError = null) }
+            // Mostrar la imagen local de INMEDIATO (antes de subir al servidor)
+            _uiState.update { it.copy(isUploadingImage = true, imageUploadError = null, localImageUri = uri) }
             val result = storageRepository.uploadProfileImage(uri)
 
             result.onSuccess { url ->
-                _uiState.update { it.copy(isUploadingImage = false, imageUrl = url) }
+                _uiState.update { it.copy(isUploadingImage = false, imageUrl = url, localImageUri = null) }
 
                 // También guardar la URL en Firestore
                 val uid = currentUserId

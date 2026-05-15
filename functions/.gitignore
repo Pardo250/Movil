@@ -1,4 +1,6 @@
 node_modules/
 .env
+.env.seed
 service-account*.json
+*-adminsdk-*.json
 *-key.json

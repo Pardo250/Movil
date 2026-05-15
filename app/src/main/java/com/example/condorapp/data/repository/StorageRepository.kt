@@ -19,7 +19,14 @@ class StorageRepository @Inject constructor(
             val userId = user.uid
             val path = "profile_images/$userId.jpg"
             
-            val downloadUrl = storageRemoteDataSource.uploadImage(path, uri)
+            val rawUrl = storageRemoteDataSource.uploadImage(path, uri)
+            
+            // Bypass image caching by appending a unique timestamp
+            val downloadUrl = if (rawUrl.contains("?")) {
+                "$rawUrl&v=${System.currentTimeMillis()}"
+            } else {
+                "$rawUrl?v=${System.currentTimeMillis()}"
+            }
             
             // Optimización: Actualizamos el UserProfile con la nueva photoUrl
             val profileUpdates = UserProfileChangeRequest.Builder()

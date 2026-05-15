@@ -9,6 +9,8 @@ data class EditProfileUiState(
         val fullName: String = "",
         val bio: String = "",
         val imageUrl: String? = null,
+        /** URI local de la imagen seleccionada para preview inmediato antes de subir. */
+        val localImageUri: android.net.Uri? = null,
         val isUploadingImage: Boolean = false,
         val imageUploadError: String? = null,
         val messageRes: Int? = null,

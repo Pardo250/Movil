@@ -100,13 +100,33 @@ fun UserProfileScreenContent(
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = user.nombre,
-                            fontSize = 26.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = colorScheme.primary,
-                            modifier = Modifier.testTag("userprofile_name")
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = user.nombre,
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = colorScheme.primary,
+                                modifier = Modifier.testTag("userprofile_name")
+                            )
+                            if (user.isTopReviewer) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Top Reseñador",
+                                    tint = com.example.condorapp.ui.theme.CondorStarActive,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            if (user.isInfluencer) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.Star,
+                                    contentDescription = "Influencer",
+                                    tint = androidx.compose.ui.graphics.Color(0xFF00C853),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
