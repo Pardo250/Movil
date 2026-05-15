@@ -51,4 +51,8 @@ class ReviewRemoteDataSource @Inject constructor(
     override suspend fun getAllReviews(): List<ReviewDto> {
         throw UnsupportedOperationException("Not implemented in REST backend")
     }
+
+    override suspend fun getReviewsLast24Hours(): List<ReviewDto> {
+        throw UnsupportedOperationException("Map features not implemented in REST backend")
+    }
 }

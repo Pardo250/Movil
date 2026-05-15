@@ -13,5 +13,8 @@ data class Review(
     val usuarioId: String = "",
     val articuloId: String = "",
     val articuloNombre: String = "",
-    val likedByMe: Boolean = false
+    val likedByMe: Boolean = false,
+    val lat: Double? = null,
+    val lng: Double? = null,
+    val createdAt: String = ""
 )

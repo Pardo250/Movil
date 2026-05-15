@@ -43,7 +43,8 @@ import com.example.condorapp.ui.theme.CondorappTheme
 fun FeedScreenRoute(
         modifier: Modifier = Modifier,
         viewModel: FeedViewModel = hiltViewModel(),
-        onPlaceClick: (String) -> Unit
+        onPlaceClick: (String) -> Unit,
+        onMapClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -52,7 +53,8 @@ fun FeedScreenRoute(
             modifier = modifier,
             onCategorySelected = viewModel::onCategorySelected,
             onSearchQueryChange = viewModel::onSearchQueryChange,
-            onArticuloClick = { articulo -> onPlaceClick(articulo.id) }
+            onArticuloClick = { articulo -> onPlaceClick(articulo.id) },
+            onMapClick = onMapClick
     )
 }
 
@@ -63,7 +65,8 @@ fun FeedScreenContent(
         modifier: Modifier = Modifier,
         onCategorySelected: (Int) -> Unit,
         onSearchQueryChange: (String) -> Unit,
-        onArticuloClick: (Articulo) -> Unit
+        onArticuloClick: (Articulo) -> Unit,
+        onMapClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -74,7 +77,7 @@ fun FeedScreenContent(
                 onQueryChange = onSearchQueryChange
             )
             Spacer(modifier = Modifier.height(20.dp))
-            MapCard()
+            MapCard(onClick = onMapClick)
             Spacer(modifier = Modifier.height(20.dp))
             CategoryChips(
                     selectedIndex = state.selectedCategoryIndex,
@@ -156,20 +159,38 @@ fun FeedSearchBar(
     )
 }
 
-/** Tarjeta con imagen del mapa. */
+/** Tarjeta con imagen del mapa. Al hacer click navega a la pantalla del mapa. */
 @Composable
-fun MapCard(modifier: Modifier = Modifier) {
+fun MapCard(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Card(
             shape = RoundedCornerShape(24.dp),
-            modifier = modifier.fillMaxWidth().height(180.dp),
+            modifier = modifier.fillMaxWidth().height(180.dp).clickable { onClick() },
             elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        androidx.compose.foundation.Image(
-                painter = painterResource(id = R.drawable.mapa),
-                contentDescription = stringResource(R.string.cd_map_image),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            androidx.compose.foundation.Image(
+                    painter = painterResource(id = R.drawable.mapa),
+                    contentDescription = stringResource(R.string.cd_map_image),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+            )
+            // Overlay con texto indicativo
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(12.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+            ) {
+                Text(
+                    text = "\uD83D\uDCCD Ver reviews en el mapa",
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
     }
 }
 

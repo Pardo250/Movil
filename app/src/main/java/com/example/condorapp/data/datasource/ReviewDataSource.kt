@@ -20,4 +20,5 @@ interface ReviewDataSource {
     suspend fun isLikedByUser(reviewId: String, userId: String): Boolean
     fun listenReviewsByArticulo(articuloId: String): Flow<List<ReviewDto>>
     suspend fun getAllReviews(): List<ReviewDto>
+    suspend fun getReviewsLast24Hours(): List<ReviewDto>
 }

@@ -1,16 +1,20 @@
 package com.example.condorapp.ui.createreview
 
+import android.annotation.SuppressLint
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.condorapp.data.repository.AuthRepository
 import com.example.condorapp.data.repository.ReviewRepository
 import com.example.condorapp.data.repository.UsuarioRepository
+import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 /**
@@ -18,12 +22,16 @@ import javax.inject.Inject
  * Publica la reseña en Firestore via ReviewRepository.
  * Usa FirebaseAuth para obtener el UID y UsuarioRepository para el nombre
  * del usuario (desnormalización NoSQL).
+ * 
+ * Sprint 13.5: Captura automáticamente la ubicación GPS del dispositivo
+ * al publicar, para que los reviews aparezcan como marcadores en el mapa.
  */
 @HiltViewModel
 class CreateReviewViewModel @Inject constructor(
     private val reviewRepository: ReviewRepository,
     private val authRepository: AuthRepository,
-    private val usuarioRepository: UsuarioRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreateReviewUiState())
@@ -44,7 +52,7 @@ class CreateReviewViewModel @Inject constructor(
     }
 
     /**
-     * Publica la reseña en Firestore.
+     * Publica la reseña en Firestore con ubicación GPS automática.
      * @param articuloId ID del artículo que se está reseñando (pasado desde la navegación)
      */
     fun onPublish(articuloId: String = "") {
@@ -64,12 +72,31 @@ class CreateReviewViewModel @Inject constructor(
                 usuarioNombre = user.nombre
             }
 
+            // Intentar obtener la ubicación GPS actual (falla silenciosa si no hay permisos)
+            var lat: Double? = null
+            var lng: Double? = null
+            try {
+                @SuppressLint("MissingPermission")
+                val location = LocationServices
+                    .getFusedLocationProviderClient(application)
+                    .lastLocation
+                    .await()
+                location?.let {
+                    lat = it.latitude
+                    lng = it.longitude
+                }
+            } catch (_: Exception) {
+                // Si no hay permisos o no hay ubicación, se crea sin coordenadas
+            }
+
             val result = reviewRepository.createReview(
                 contenido      = state.comment,
                 calificacion   = state.rating,
                 usuarioId      = uid,
                 articuloId     = articuloId,
-                usuarioNombre  = usuarioNombre
+                usuarioNombre  = usuarioNombre,
+                lat            = lat,
+                lng            = lng
             )
 
             result.onSuccess {
@@ -89,3 +116,4 @@ class CreateReviewViewModel @Inject constructor(
         _uiState.update { it.copy(isSuccess = false) }
     }
 }
+
