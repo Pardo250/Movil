@@ -36,7 +36,7 @@ fun ReviewDto.toReview(): Review = Review(
                         ?: articuloTitulo.ifEmpty { "" },
     lat             = lat,
     lng             = lng,
-    createdAt       = createdAt
+    createdAt       = createdAt ?: ""
 )
 
 /** Convierte un UsuarioDto a un UserInfo de la capa visual. */

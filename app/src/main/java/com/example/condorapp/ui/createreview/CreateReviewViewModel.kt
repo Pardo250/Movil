@@ -81,12 +81,19 @@ class CreateReviewViewModel @Inject constructor(
                     .getFusedLocationProviderClient(application)
                     .lastLocation
                     .await()
-                location?.let {
-                    lat = it.latitude
-                    lng = it.longitude
+                
+                if (location != null) {
+                    lat = location.latitude
+                    lng = location.longitude
+                } else {
+                    // Fallback para testing en emulador (coordenadas por defecto)
+                    lat = 4.6097
+                    lng = -74.0817
                 }
             } catch (_: Exception) {
-                // Si no hay permisos o no hay ubicación, se crea sin coordenadas
+                // Fallback si no hay permisos
+                lat = 4.6097
+                lng = -74.0817
             }
 
             val result = reviewRepository.createReview(

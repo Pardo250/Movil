@@ -21,8 +21,8 @@ data class ReviewDto(
     @SerializedName("usuarioId")      val usuarioId: String = "",
     @SerializedName("articuloId")     val articuloId: String = "",
     @SerializedName("likesCount")     val likesCount: Int = 0,
-    @SerializedName("createdAt")      val createdAt: String = "",
-    @SerializedName("updatedAt")      val updatedAt: String = "",
+    @SerializedName("createdAt")      val createdAt: String? = null,
+    @SerializedName("updatedAt")      val updatedAt: String? = null,
     // Coordenadas geográficas para el mapa (Sprint 13.5)
     @SerializedName("lat")            val lat: Double? = null,
     @SerializedName("lng")            val lng: Double? = null,
