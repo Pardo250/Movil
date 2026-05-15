@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dagger)
-    kotlin("kapt")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.google.services)
@@ -77,7 +76,7 @@ dependencies {
 
     implementation(libs.dagger.hilt)
     implementation(libs.hilt.compose.navigation)
-    kapt(libs.dagger.kapt)
+    ksp(libs.dagger.kapt)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
@@ -109,7 +108,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.coroutines.test)
     androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.dagger.kapt)
+    kspAndroidTest(libs.dagger.kapt)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

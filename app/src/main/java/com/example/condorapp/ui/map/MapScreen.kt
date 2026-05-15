@@ -22,9 +22,19 @@ import com.example.condorapp.ui.detail.ReviewItem
 import kotlinx.coroutines.launch
 
 // Import MapLibre Compose components
-import org.maplibre.compose.MapLibreMap
-import org.maplibre.compose.camera.rememberCameraPositionState
-import org.maplibre.compose.symbols.Symbol
+import org.maplibre.compose.map.MaplibreMap
+import org.maplibre.compose.layers.SymbolLayer
+import org.maplibre.compose.sources.rememberGeoJsonSource
+import org.maplibre.compose.sources.GeoJsonData
+import org.maplibre.spatialk.geojson.FeatureCollection
+import org.maplibre.spatialk.geojson.Feature
+import org.maplibre.spatialk.geojson.Point
+import org.maplibre.spatialk.geojson.Position
+import org.maplibre.compose.expressions.dsl.image
+import org.maplibre.compose.util.ClickResult
+import org.maplibre.compose.style.BaseStyle
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,9 +92,6 @@ fun MapScreenContent(
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
-    // Central camera state. MapLibre will attempt to use default or last known position.
-    val cameraPositionState = rememberCameraPositionState()
-
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
@@ -98,26 +105,40 @@ fun MapScreenContent(
         }
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            // MapLibre Map
-            MapLibreMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-                // Si la librería soporta habilitar el layer de ubicación actual, se puede configurar en mapProperties
-                // properties = MapProperties(isMyLocationEnabled = hasLocationPermission)
-            ) {
-                uiState.filteredReviews.forEach { review ->
+            val features = remember(uiState.filteredReviews) {
+                uiState.filteredReviews.mapNotNull { review ->
                     if (review.lat != null && review.lng != null) {
-                        Symbol(
-                            center = org.maplibre.android.geometry.LatLng(review.lat, review.lng),
-                            // El icono por defecto
-                            iconImage = "marker-15",
-                            onClick = {
-                                selectedReview = review
-                                showBottomSheet = true
-                                true
-                            }
+                        Feature(
+                            geometry = Point(Position(review.lng, review.lat)),
+                            properties = JsonObject(mapOf("id" to JsonPrimitive(review.id)))
                         )
-                    }
+                    } else null
+                }
+            }
+
+            // MapLibre Map
+            MaplibreMap(
+                modifier = Modifier.fillMaxSize(),
+                baseStyle = BaseStyle.Uri("https://demotiles.maplibre.org/style.json")
+            ) {
+                // GeoJsonSource must be inside the MaplibreMap block
+                val source = rememberGeoJsonSource(
+                    data = remember(features) { GeoJsonData.Features(FeatureCollection(features)) }
+                )
+
+                if (features.isNotEmpty()) {
+                    SymbolLayer(
+                        id = "reviews-markers",
+                        source = source,
+                        iconImage = image("marker-15"),
+                        onClick = { clickedFeatures ->
+                            val id = clickedFeatures.firstOrNull()?.properties?.get("id")?.toString()
+                                ?.replace("\"", "")
+                            selectedReview = uiState.filteredReviews.find { it.id == id }
+                            showBottomSheet = true
+                            ClickResult.Consume
+                        }
+                    )
                 }
             }
 
@@ -174,13 +195,11 @@ fun MapScreenContent(
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     
-                    // Reutilizamos ReviewItem (que probablemente necesita callbacks)
                     ReviewItem(
                         review = selectedReview!!,
-                        currentUserId = "", // No necesitamos permisos de edición aquí
-                        onDeleteClick = {},
-                        onEditClick = {},
-                        onLikeClick = {}
+                        onLike = {},
+                        onClick = {},
+                        onUserClick = {}
                     )
                 }
             }
