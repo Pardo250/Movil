@@ -17,5 +17,5 @@ object EmulatorConfig {
      * - Para pruebas en el emulador de Android (AVD) de forma local: usa "10.0.2.2"
      * - Para pruebas en un dispositivo físico conectado a la misma red Wi-Fi: usa la IP de tu PC, ej: "10.195.42.20"
      */
-    const val HOST_IP = "10.195.42.20"
+    const val HOST_IP = "192.168.1.20"
 }
