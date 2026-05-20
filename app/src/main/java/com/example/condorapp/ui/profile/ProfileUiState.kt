@@ -14,6 +14,8 @@ data class ProfileUiState(
     val reviews: List<Review> = emptyList(),
     val followersCount: Int = 0,
     val followingCount: Int = 0,
+    val isTopReviewer: Boolean = false,
+    val isInfluencer: Boolean = false,
     val savedArticles: List<com.example.condorapp.data.Articulo> = emptyList(),
     val isShowingSaved: Boolean = false,
     val isLoading: Boolean = false,

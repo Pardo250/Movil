@@ -45,6 +45,8 @@ fun ProfileImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageUrl)
                     .crossfade(true)
+                    .diskCacheKey(imageUrl)
+                    .memoryCacheKey(imageUrl)
                     .build(),
                 contentDescription = "Imagen de perfil del usuario",
                 contentScale = ContentScale.Crop,

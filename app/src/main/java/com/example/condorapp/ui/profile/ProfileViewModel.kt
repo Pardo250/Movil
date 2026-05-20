@@ -42,7 +42,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     /** Carga los datos del perfil del usuario desde Firestore. */
-    private fun loadProfile() {
+    fun loadProfile() {
         val uid = currentUserId
         if (uid.isEmpty()) return
 
@@ -56,7 +56,9 @@ class ProfileViewModel @Inject constructor(
                         username = user.username,
                         imageUrl = user.avatarUrl.ifEmpty { photoUrl },
                         followersCount = user.followersCount,
-                        followingCount = user.followingCount
+                        followingCount = user.followingCount,
+                        isTopReviewer = user.isTopReviewer,
+                        isInfluencer = user.isInfluencer
                     )
                 }
             }.onFailure { error ->

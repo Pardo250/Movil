@@ -49,5 +49,7 @@ fun UsuarioDto.toUserInfo(): UserInfo = UserInfo(
     avatarUrl = avatarUrl,
     followersCount = followersCount,
     followingCount = followingCount,
-    savedArticles = savedArticles
+    savedArticles = savedArticles,
+    isTopReviewer = isTopReviewer,
+    isInfluencer = isInfluencer
 )

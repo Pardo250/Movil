@@ -19,9 +19,9 @@ object FirestoreModule {
     @Singleton
     fun provideFirestore(): FirebaseFirestore {
         val firestore = FirebaseFirestore.getInstance()
-        if (com.example.condorapp.BuildConfig.DEBUG) {
+        if (com.example.condorapp.BuildConfig.DEBUG && EmulatorConfig.USE_EMULATOR) {
             try {
-                firestore.useEmulator("10.0.2.2", 8080)
+                firestore.useEmulator(EmulatorConfig.HOST_IP, 8080)
             } catch (e: Exception) {
                 // Ignorar si ya fue configurado
             }

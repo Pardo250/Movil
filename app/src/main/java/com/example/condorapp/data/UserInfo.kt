@@ -14,5 +14,7 @@ data class UserInfo(
     val avatarUrl: String = "",
     val followersCount: Int = 0,
     val followingCount: Int = 0,
-    val savedArticles: List<String> = emptyList()
+    val savedArticles: List<String> = emptyList(),
+    val isTopReviewer: Boolean = false,
+    val isInfluencer: Boolean = false
 )

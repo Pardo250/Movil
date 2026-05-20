@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,6 +46,10 @@ fun ProfileScreenRoute(
     onFollowListClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
 
     ProfileScreenContent(
         state = uiState,
@@ -100,6 +105,8 @@ fun ProfileScreenContent(
                     imageUrl = state.imageUrl,
                     followersCount = state.followersCount,
                     followingCount = state.followingCount,
+                    isTopReviewer = state.isTopReviewer,
+                    isInfluencer = state.isInfluencer,
                     onFollowListClick = onFollowListClick
                 ) 
             }
@@ -210,6 +217,8 @@ fun ProfileHeader(
     imageUrl: String?,
     followersCount: Int,
     followingCount: Int,
+    isTopReviewer: Boolean = false,
+    isInfluencer: Boolean = false,
     onFollowListClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -219,12 +228,49 @@ fun ProfileHeader(
             modifier = Modifier.size(120.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = name,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            color = colorScheme.primary
-        )
+        
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = name,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorScheme.primary
+            )
+            
+            if (isTopReviewer) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color = androidx.compose.ui.graphics.Color(0xFFFFD700).copy(alpha = 0.2f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(32.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFFFFD700))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Top Reseñador",
+                        tint = androidx.compose.ui.graphics.Color(0xFFFFD700),
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
+            }
+            if (isInfluencer) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color = androidx.compose.ui.graphics.Color(0xFF2196F3).copy(alpha = 0.2f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(32.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFF2196F3))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Verified,
+                        contentDescription = "Influencer",
+                        tint = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
+            }
+        }
+        
         Text(text = username, fontSize = 16.sp, color = colorScheme.outline)
         
         Spacer(Modifier.height(16.dp))

@@ -135,6 +135,7 @@ fun EditProfileScreenContent(
         
         EditProfileHeader(
             imageUrl = state.imageUrl,
+            localImageUri = state.localImageUri,
             isUploading = state.isUploadingImage,
             onChangePhotoClick = { galleryLauncher.launch("image/*") }
         )
@@ -238,15 +239,18 @@ fun EditField(
 @Composable
 fun EditProfileHeader(
     imageUrl: String?,
+    localImageUri: android.net.Uri? = null,
     isUploading: Boolean = false,
     onChangePhotoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    // La URI local tiene prioridad: se muestra de inmediato sin esperar la subida al servidor.
+    val displayImage: Any? = localImageUri ?: imageUrl
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
         Box(contentAlignment = Alignment.Center) {
             ProfileImage(
-                imageUrl = imageUrl,
+                imageUrl = displayImage?.toString(),
                 modifier = Modifier.size(100.dp)
             )
             if (isUploading) {
