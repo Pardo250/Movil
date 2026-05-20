@@ -1,5 +1,6 @@
 package com.example.condorapp.data.dto
 
+import com.google.firebase.firestore.Exclude
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -11,7 +12,7 @@ import com.google.gson.annotations.SerializedName
  *
  * Cuando se usa Retrofit, los campos desnormalizados quedan vacíos y se usan
  * los objetos anidados (usuario, articulo).
- * Cuando se usa Firestore, los objetos anidados quedan nulos y se usan los
+ * Cuando se usa Firestore, los objetos anidados quedan nulo y se usan los
  * campos desnormalizados.
  */
 data class ReviewDto(
@@ -21,8 +22,8 @@ data class ReviewDto(
     @SerializedName("usuarioId")      val usuarioId: String = "",
     @SerializedName("articuloId")     val articuloId: String = "",
     @SerializedName("likesCount")     val likesCount: Int = 0,
-    @SerializedName("createdAt")      val createdAt: String = "",
-    @SerializedName("updatedAt")      val updatedAt: String = "",
+    @get:Exclude @SerializedName("createdAt")      val createdAt: String = "",
+    @get:Exclude @SerializedName("updatedAt")      val updatedAt: String = "",
     // Objetos anidados (Retrofit — viene del backend con JOINs)
     @SerializedName("Usuario")        val usuario: UsuarioDto? = null,
     @SerializedName("Articulo")       val articulo: ArticuloDto? = null,

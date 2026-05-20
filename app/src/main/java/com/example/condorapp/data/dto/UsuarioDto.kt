@@ -1,5 +1,6 @@
 package com.example.condorapp.data.dto
 
+import com.google.firebase.firestore.Exclude
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -20,6 +21,6 @@ data class UsuarioDto(
     @SerializedName("savedArticles") val savedArticles: List<String> = emptyList(),
     @SerializedName("isTopReviewer") val isTopReviewer: Boolean = false,
     @SerializedName("isInfluencer") val isInfluencer: Boolean = false,
-    @SerializedName("createdAt") val createdAt: String = "",
-    @SerializedName("updatedAt") val updatedAt: String = ""
+    @get:Exclude @SerializedName("createdAt") val createdAt: String = "",
+    @get:Exclude @SerializedName("updatedAt") val updatedAt: String = ""
 )
