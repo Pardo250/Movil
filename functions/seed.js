@@ -1,4 +1,5 @@
-require("dotenv").config({ path: ".env.seed" });
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env.seed") });
 const admin = require("firebase-admin");
 const { faker } = require("@faker-js/faker");
 const { Firestore } = require("@google-cloud/firestore");
