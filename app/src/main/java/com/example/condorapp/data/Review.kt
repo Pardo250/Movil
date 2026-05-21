@@ -16,5 +16,6 @@ data class Review(
     val likedByMe: Boolean = false,
     val lat: Double? = null,
     val lng: Double? = null,
-    val createdAt: String = ""
+    val createdAt: String = "",
+    val imageUrl: String = ""
 )

@@ -104,11 +104,10 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                     onBack = { navController.popBackStack() },
                     onEditProfile = { navController.navigate(Screen.EditProfile.route) },
                     onFollowListClick = { 
-                        // El viewModel del Profile no tiene expuesto el currentUser, 
-                        // pero sabemos que FollowListViewModel lee el id de Firebase si está vacío,
-                        // o podemos pasar el UID. Por ahora pasamos un string reservado o vacío
-                        // si queremos que el ViewModel resuelva el current user.
                         navController.navigate(Screen.FollowList.createRoute("me")) 
+                    },
+                    onArticleClick = { articleId ->
+                        navController.navigate(Screen.Details.createRoute(articleId))
                     }
             )
         }

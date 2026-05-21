@@ -59,6 +59,8 @@ class ProfileViewModel @Inject constructor(
                         followingCount = user.followingCount
                     )
                 }
+                // Cargar artículos guardados del usuario
+                loadSavedArticles(user.savedArticles)
             }.onFailure { error ->
                 // Fallback: usar datos de FirebaseAuth
                 val firebaseUser = authRepository.currentUser
@@ -109,6 +111,18 @@ class ProfileViewModel @Inject constructor(
 
     fun onTabSelected(index: Int) {
         _uiState.update { it.copy(isShowingSaved = index == 1) }
+        // Al cambiar a la pestaña de guardados, recargar la lista
+        if (index == 1) {
+            val uid = currentUserId
+            if (uid.isNotEmpty()) {
+                viewModelScope.launch {
+                    val result = usuarioRepository.getUsuarioById(uid)
+                    result.onSuccess { user ->
+                        loadSavedArticles(user.savedArticles)
+                    }
+                }
+            }
+        }
     }
 
     // ─── Edición de reviews propias ─────────────────────────────────────────

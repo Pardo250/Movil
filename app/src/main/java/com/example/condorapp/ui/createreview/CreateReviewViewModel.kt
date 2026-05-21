@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.condorapp.data.repository.AuthRepository
 import com.example.condorapp.data.repository.ReviewRepository
 import com.example.condorapp.data.repository.UsuarioRepository
+import android.net.Uri
+import com.google.firebase.storage.FirebaseStorage
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +33,8 @@ class CreateReviewViewModel @Inject constructor(
     private val reviewRepository: ReviewRepository,
     private val authRepository: AuthRepository,
     private val usuarioRepository: UsuarioRepository,
-    private val application: Application
+    private val application: Application,
+    private val storage: FirebaseStorage
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreateReviewUiState())
@@ -49,6 +52,11 @@ class CreateReviewViewModel @Inject constructor(
     /** Actualiza el comentario del usuario. */
     fun onCommentChange(comment: String) {
         _uiState.update { it.copy(comment = comment) }
+    }
+
+    /** Actualiza la imagen seleccionada por el usuario. */
+    fun onImageSelected(uri: Uri?) {
+        _uiState.update { it.copy(selectedImageUri = uri) }
     }
 
     /**
@@ -96,6 +104,22 @@ class CreateReviewViewModel @Inject constructor(
                 lng = -74.0817
             }
 
+            // Subir imagen a Firebase Storage si el usuario seleccionó una
+            var imageUrl: String? = null
+            val imageUri = _uiState.value.selectedImageUri
+            if (imageUri != null) {
+                try {
+                    // Usar la ruta 'users/uid/...' que cumple con las reglas estándar de seguridad
+                    val fileName = "users/$uid/reviews/${System.currentTimeMillis()}.jpg"
+                    val ref = storage.reference.child(fileName)
+                    ref.putFile(imageUri).await()
+                    imageUrl = ref.downloadUrl.await().toString()
+                } catch (e: Exception) {
+                    android.util.Log.e("CreateReviewVM", "Error al subir imagen a Storage", e)
+                    // Si falla la subida de imagen, se publica sin imagen
+                }
+            }
+
             val result = reviewRepository.createReview(
                 contenido      = state.comment,
                 calificacion   = state.rating,
@@ -103,12 +127,13 @@ class CreateReviewViewModel @Inject constructor(
                 articuloId     = articuloId,
                 usuarioNombre  = usuarioNombre,
                 lat            = lat,
-                lng            = lng
+                lng            = lng,
+                imageUrl       = imageUrl
             )
 
             result.onSuccess {
                 _uiState.update {
-                    it.copy(isLoading = false, isSuccess = true, comment = "", rating = 4)
+                    it.copy(isLoading = false, isSuccess = true, comment = "", rating = 4, selectedImageUri = null)
                 }
             }.onFailure { error ->
                 _uiState.update {

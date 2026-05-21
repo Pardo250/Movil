@@ -42,7 +42,8 @@ fun ProfileScreenRoute(
     viewModel: ProfileViewModel = hiltViewModel(),
     onBack: () -> Unit = {},
     onEditProfile: () -> Unit = {},
-    onFollowListClick: () -> Unit = {}
+    onFollowListClick: () -> Unit = {},
+    onArticleClick: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -55,7 +56,8 @@ fun ProfileScreenRoute(
         onEditReview = viewModel::startEditReview,
         onDeleteReview = viewModel::deleteReview,
         onFollowListClick = onFollowListClick,
-        onTabSelected = viewModel::onTabSelected
+        onTabSelected = viewModel::onTabSelected,
+        onArticleClick = onArticleClick
     )
 
     // Diálogo de edición de review propia
@@ -82,7 +84,8 @@ fun ProfileScreenContent(
     onEditReview: (Review) -> Unit,
     onDeleteReview: (String) -> Unit,
     onFollowListClick: () -> Unit,
-    onTabSelected: (Int) -> Unit
+    onTabSelected: (Int) -> Unit,
+    onArticleClick: (String) -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
@@ -173,7 +176,10 @@ fun ProfileScreenContent(
 
                 items(state.savedArticles) { articulo ->
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                            .clickable { onArticleClick(articulo.id) },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
                         elevation = CardDefaults.cardElevation(2.dp)
