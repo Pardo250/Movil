@@ -17,7 +17,9 @@ object AuthModule {
         val auth = FirebaseAuth.getInstance()
         if (com.example.condorapp.BuildConfig.DEBUG) {
             try {
-                auth.useEmulator("10.0.2.2", 9099)
+                // Descomentar para usar el emulador. Nota: En un dispositivo físico, 
+                // "10.0.2.2" NO funcionará, debes poner la IP WiFi de tu PC.
+                // auth.useEmulator("10.0.2.2", 9099)
             } catch (e: Exception) {
                 // Ignorar si ya fue configurado
             }

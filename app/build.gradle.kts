@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
+    implementation("com.google.android.gms:play-services-maps:17.0.0")
+
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.compose.ui)
@@ -87,6 +89,10 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.firebase.messaging)
     implementation(libs.coil.compose)
+
+    // Google Maps Compose + Location Services
+    implementation(libs.maps.compose)
+    implementation("com.google.android.gms:play-services-location:21.1.0")
 
     // Red / API (Retrofit y OkHttp para conectarnos al backend Express)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")

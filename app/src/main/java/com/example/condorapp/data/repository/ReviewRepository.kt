@@ -52,11 +52,14 @@ class ReviewRepository @Inject constructor(
         calificacion: Int,
         usuarioId: String,
         articuloId: String,
-        usuarioNombre: String = ""
+        usuarioNombre: String = "",
+        lat: Double? = null,
+        lng: Double? = null,
+        imageUrl: String? = null
     ): Result<Review> {
         return try {
             val dto = dataSource.createReview(
-                CreateReviewDto(contenido, calificacion, usuarioId, articuloId, usuarioNombre)
+                CreateReviewDto(contenido, calificacion, usuarioId, articuloId, usuarioNombre, lat, lng, imageUrl)
             )
             val review = Review(
                 id        = dto.id,
@@ -64,7 +67,10 @@ class ReviewRepository @Inject constructor(
                 rating    = dto.calificacion,
                 comment   = dto.contenido,
                 likes     = 0,
-                usuarioId = usuarioId
+                usuarioId = usuarioId,
+                lat       = lat,
+                lng       = lng,
+                imageUrl  = dto.imageUrl
             )
             Result.success(review)
         } catch (e: HttpException) {
@@ -130,4 +136,24 @@ class ReviewRepository @Inject constructor(
             Result.success(list.map { it.toReview() })
         }
     }
+
+    /**
+     * Obtiene reviews de las últimas 24 horas que tengan coordenadas válidas.
+     * El filtrado temporal se hace en Firestore (server-side) y el filtrado
+     * de coordenadas se hace aquí para asegurar que todos los marcadores
+     * tengan ubicación.
+     */
+    suspend fun getReviewsForMap(): Result<List<Review>> {
+        return try {
+            val reviews = dataSource.getReviewsLast24Hours()
+                .map { it.toReview() }
+                .filter { it.lat != null && it.lng != null }
+            Result.success(reviews)
+        } catch (e: HttpException) {
+            Result.failure(Exception("Error ${e.code()}: ${e.message()}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
+

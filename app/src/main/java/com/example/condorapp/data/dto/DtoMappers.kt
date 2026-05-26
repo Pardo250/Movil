@@ -33,7 +33,11 @@ fun ReviewDto.toReview(): Review = Review(
     likes           = likesCount,
     usuarioId       = usuarioId,
     articuloNombre  = articulo?.titulo
-                        ?: articuloTitulo.ifEmpty { "" }
+                        ?: articuloTitulo.ifEmpty { "" },
+    lat             = lat,
+    lng             = lng,
+    createdAt       = createdAt?.toDate()?.toInstant()?.toString() ?: "",
+    imageUrl        = imageUrl
 )
 
 /** Convierte un UsuarioDto a un UserInfo de la capa visual. */

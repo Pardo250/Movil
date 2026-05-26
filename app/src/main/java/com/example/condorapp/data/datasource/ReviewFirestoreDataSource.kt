@@ -3,6 +3,7 @@ package com.example.condorapp.data.datasource
 import com.example.condorapp.data.dto.CreateReviewDto
 import com.example.condorapp.data.dto.ReviewDto
 import com.example.condorapp.data.dto.UpdateReviewDto
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
@@ -10,6 +11,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import javax.inject.Inject
 
 /**
@@ -50,7 +52,22 @@ class ReviewFirestoreDataSource @Inject constructor(
     }
 
     override suspend fun createReview(dto: CreateReviewDto): ReviewDto {
-        val docRef = collection.add(dto).await()
+        // Incluimos createdAt como Timestamp de Firestore para poder filtrar por fecha
+        val data = hashMapOf(
+            "contenido" to dto.contenido,
+            "calificacion" to dto.calificacion,
+            "usuarioId" to dto.usuarioId,
+            "articuloId" to dto.articuloId,
+            "usuarioNombre" to dto.usuarioNombre,
+            "likesCount" to 0,
+            "createdAt" to FieldValue.serverTimestamp()
+        )
+        // Agregar coordenadas solo si están disponibles
+        dto.lat?.let { data["lat"] = it }
+        dto.lng?.let { data["lng"] = it }
+        dto.imageUrl?.let { if (it.isNotEmpty()) data["imageUrl"] = it }
+
+        val docRef = collection.add(data).await()
         // Leemos el documento recién creado para retornar el ReviewDto completo
         val doc = docRef.get().await()
         return doc.toObject(ReviewDto::class.java)?.copy(id = doc.id)
@@ -129,6 +146,23 @@ class ReviewFirestoreDataSource @Inject constructor(
 
     override suspend fun getAllReviews(): List<ReviewDto> {
         val snapshot = collection.get().await()
+        return snapshot.documents.map { doc ->
+            doc.toObject(ReviewDto::class.java)?.copy(id = doc.id)
+                ?: ReviewDto(id = doc.id)
+        }
+    }
+
+    /**
+     * Obtiene reviews creados en las últimas 24 horas.
+     * Usa Firestore Timestamp para filtrado eficiente del lado del servidor.
+     * Reviews sin campo createdAt son excluidos automáticamente por la query.
+     */
+    override suspend fun getReviewsLast24Hours(): List<ReviewDto> {
+        val twentyFourHoursAgo = Timestamp(Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000))
+        val snapshot = collection
+            .whereGreaterThanOrEqualTo("createdAt", twentyFourHoursAgo)
+            .get()
+            .await()
         return snapshot.documents.map { doc ->
             doc.toObject(ReviewDto::class.java)?.copy(id = doc.id)
                 ?: ReviewDto(id = doc.id)

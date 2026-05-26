@@ -19,7 +19,9 @@ object StorageModule {
         val storage = Firebase.storage
         if (com.example.condorapp.BuildConfig.DEBUG) {
             try {
-                storage.useEmulator("10.0.2.2", 9199)
+                // Descomentar para usar el emulador. Nota: En un dispositivo físico, 
+                // "10.0.2.2" NO funcionará, debes poner la IP WiFi de tu PC.
+                // storage.useEmulator("10.0.2.2", 9199)
             } catch (e: Exception) {
                 // Ignorar si ya fue configurado
             }

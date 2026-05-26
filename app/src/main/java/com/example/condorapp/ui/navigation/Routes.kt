@@ -31,4 +31,5 @@ sealed class Screen(val route: String) {
     object FollowList : Screen("follow_list/{userId}") {
         fun createRoute(userId: String) = "follow_list/$userId"
     }
+    object Map : Screen("map")
 }

@@ -12,7 +12,10 @@ data class CreateReviewDto(
     @SerializedName("calificacion")   val calificacion: Int = 0,
     @SerializedName("usuarioId")      val usuarioId: String = "",
     @SerializedName("articuloId")     val articuloId: String = "",
-    @SerializedName("usuarioNombre")  val usuarioNombre: String = ""
+    @SerializedName("usuarioNombre")  val usuarioNombre: String = "",
+    @SerializedName("lat")            val lat: Double? = null,
+    @SerializedName("lng")            val lng: Double? = null,
+    @SerializedName("imageUrl")       val imageUrl: String? = null
 )
 
 /** Body para PUT /reviews/:id (Retrofit) o .set() merge (Firestore). */

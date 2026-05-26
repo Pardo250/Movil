@@ -19,6 +19,7 @@ import com.example.condorapp.ui.signup.SignUpScreenRoute
 import com.example.condorapp.ui.splash.SplashScreenRoute
 import com.example.condorapp.ui.userprofile.UserProfileScreenRoute
 import com.example.condorapp.ui.followlist.FollowListScreenRoute
+import com.example.condorapp.ui.map.MapScreenRoute
 
 /**
  * Navegación centralizada de la aplicación. Define todas las rutas y la lógica de navegación entre
@@ -90,6 +91,9 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             FeedScreenRoute(
                     onPlaceClick = { placeId ->
                         navController.navigate(Screen.Details.createRoute(placeId))
+                    },
+                    onMapClick = {
+                        navController.navigate(Screen.Map.route)
                     }
             )
         }
@@ -100,11 +104,10 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                     onBack = { navController.popBackStack() },
                     onEditProfile = { navController.navigate(Screen.EditProfile.route) },
                     onFollowListClick = { 
-                        // El viewModel del Profile no tiene expuesto el currentUser, 
-                        // pero sabemos que FollowListViewModel lee el id de Firebase si está vacío,
-                        // o podemos pasar el UID. Por ahora pasamos un string reservado o vacío
-                        // si queremos que el ViewModel resuelva el current user.
                         navController.navigate(Screen.FollowList.createRoute("me")) 
+                    },
+                    onArticleClick = { articleId ->
+                        navController.navigate(Screen.Details.createRoute(articleId))
                     }
             )
         }
@@ -177,6 +180,13 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 onUserClick = { userId ->
                     navController.navigate(Screen.UserProfile.createRoute(userId))
                 }
+            )
+        }
+
+        // 14. MAPA DE REVIEWS (Sprint 13.5)
+        composable(Screen.Map.route) {
+            MapScreenRoute(
+                onBack = { navController.popBackStack() }
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.example.condorapp.data.dto
 
+import com.google.firebase.Timestamp
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -21,8 +22,12 @@ data class ReviewDto(
     @SerializedName("usuarioId")      val usuarioId: String = "",
     @SerializedName("articuloId")     val articuloId: String = "",
     @SerializedName("likesCount")     val likesCount: Int = 0,
-    @SerializedName("createdAt")      val createdAt: String = "",
-    @SerializedName("updatedAt")      val updatedAt: String = "",
+    @SerializedName("createdAt")      val createdAt: Timestamp? = null,
+    @SerializedName("updatedAt")      val updatedAt: Timestamp? = null,
+    // Coordenadas geográficas para el mapa (Sprint 13.5)
+    @SerializedName("lat")            val lat: Double? = null,
+    @SerializedName("lng")            val lng: Double? = null,
+    @SerializedName("imageUrl")       val imageUrl: String = "",
     // Objetos anidados (Retrofit — viene del backend con JOINs)
     @SerializedName("Usuario")        val usuario: UsuarioDto? = null,
     @SerializedName("Articulo")       val articulo: ArticuloDto? = null,
