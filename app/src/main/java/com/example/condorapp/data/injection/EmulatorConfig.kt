@@ -9,7 +9,7 @@ object EmulatorConfig {
      * Determina si se deben usar los emuladores locales de Firebase en compilaciones debug.
      * Si es false, se conectará a los servicios reales de producción de Firebase.
      */
-    const val USE_EMULATOR = true
+    const val USE_EMULATOR = false
 
     /**
      * IP del host donde corren los emuladores de Firebase y el backend local en tu máquina de desarrollo.
