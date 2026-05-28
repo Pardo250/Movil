@@ -61,6 +61,15 @@ class ProfileViewModel @Inject constructor(
                         isInfluencer = user.isInfluencer
                     )
                 }
+                
+                // Auto-sanación de insignia Influencer en Firestore si tiene >= 1 seguidor
+                if (user.followersCount >= 1 && !user.isInfluencer) {
+                    viewModelScope.launch {
+                        usuarioRepository.updateUsuario(uid, mapOf("isInfluencer" to true))
+                        _uiState.update { it.copy(isInfluencer = true) }
+                    }
+                }
+                
                 // Cargar artículos guardados del usuario
                 loadSavedArticles(user.savedArticles)
             }.onFailure { error ->
@@ -89,6 +98,28 @@ class ProfileViewModel @Inject constructor(
 
             result.onSuccess { reviews ->
                 _uiState.update { it.copy(reviews = reviews, isLoading = false) }
+                
+                // Auto-sanación de insignia Top Reseñador en Firestore si tiene >= 5 reviews
+                if (reviews.size >= 5 && !_uiState.value.isTopReviewer) {
+                    viewModelScope.launch {
+                        usuarioRepository.updateUsuario(uid, mapOf("isTopReviewer" to true))
+                        _uiState.update { it.copy(isTopReviewer = true) }
+                    }
+                }
+
+                // Cargar nombres de artículos asíncronamente si vienen vacíos de la DB
+                viewModelScope.launch {
+                    val updatedReviews = reviews.map { review ->
+                        if (review.articuloNombre.isBlank()) {
+                            val artResult = articuloRepository.getArticuloById(review.articuloId)
+                            val title = artResult.getOrNull()?.titulo ?: ""
+                            review.copy(articuloNombre = title)
+                        } else {
+                            review
+                        }
+                    }
+                    _uiState.update { it.copy(reviews = updatedReviews) }
+                }
             }.onFailure { error ->
                 _uiState.update {
                     it.copy(isLoading = false, errorMessage = error.message ?: "Error al cargar reviews")

@@ -29,6 +29,15 @@ class ReviewFirestoreDataSource @Inject constructor(
 
     private val collection = db.collection("reviews")
 
+    override suspend fun getReviewById(id: String): ReviewDto? {
+        val doc = collection.document(id).get().await()
+        return if (doc.exists()) {
+            doc.toObject(ReviewDto::class.java)?.copy(id = doc.id)
+        } else {
+            null
+        }
+    }
+
     override suspend fun getReviewsByArticulo(articuloId: String): List<ReviewDto> {
         val snapshot = collection
             .whereEqualTo("articuloId", articuloId)

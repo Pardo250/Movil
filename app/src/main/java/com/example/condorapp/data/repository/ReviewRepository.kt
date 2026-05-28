@@ -25,6 +25,18 @@ import javax.inject.Inject
 class ReviewRepository @Inject constructor(
     private val dataSource: ReviewDataSource
 ) {
+    suspend fun getReviewById(id: String): Result<Review?> {
+        return try {
+            val dto = dataSource.getReviewById(id)
+            val review = dto?.toReview()
+            Result.success(review)
+        } catch (e: HttpException) {
+            Result.failure(Exception("Error ${e.code()}: ${e.message()}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getReviewsByArticulo(articuloId: String): Result<List<Review>> {
         return try {
             val reviews = dataSource.getReviewsByArticulo(articuloId).map { it.toReview() }

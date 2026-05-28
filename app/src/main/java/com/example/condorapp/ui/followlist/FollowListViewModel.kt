@@ -34,18 +34,27 @@ class FollowListViewModel @Inject constructor(
         }
     }
 
-    /** Carga seguidores, seguidos y los IDs que sigue el usuario actual (para botones). */
     fun loadLists(userId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
+                val targetId = if (userId == "me") {
+                    authRepository.currentUser?.uid ?: ""
+                } else {
+                    userId
+                }
+
+                if (targetId.isEmpty()) {
+                    throw Exception("Usuario no autenticado o no disponible")
+                }
+
                 // Cargar followers
-                val followersResult = usuarioRepository.getFollowers(userId)
+                val followersResult = usuarioRepository.getFollowers(targetId)
                 val followers = followersResult.getOrNull() ?: emptyList()
 
                 // Cargar following
-                val followingResult = usuarioRepository.getFollowing(userId)
+                val followingResult = usuarioRepository.getFollowing(targetId)
                 val following = followingResult.getOrNull() ?: emptyList()
 
                 // Obtener los IDs que el usuario actual sigue (para pintar el botón "Siguiendo" o "Seguir")

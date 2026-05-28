@@ -30,17 +30,17 @@ class ReviewViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            // Intentar buscar la review en las reviews del primer artículo
-            // En Firestore no hay un query por review ID directo,
-            // así que buscamos en una colección general
-            val result = reviewRepository.getReviewsByArticulo("1")
+            val result = reviewRepository.getReviewById(reviewId)
 
-            result.onSuccess { reviews ->
-                val mainReview = reviews.find { it.id == reviewId } ?: reviews.firstOrNull()
-                val comments = emptyList<com.example.condorapp.data.Review>()
-
-                _uiState.update {
-                    it.copy(review = mainReview, comments = comments, isLoading = false)
+            result.onSuccess { review ->
+                if (review != null) {
+                    _uiState.update {
+                        it.copy(review = review, comments = emptyList(), isLoading = false)
+                    }
+                } else {
+                    _uiState.update {
+                        it.copy(isLoading = false, errorMessage = "Reseña no encontrada")
+                    }
                 }
             }.onFailure { error ->
                 _uiState.update {
