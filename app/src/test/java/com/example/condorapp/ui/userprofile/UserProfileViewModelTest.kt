@@ -34,6 +34,7 @@ class UserProfileViewModelTest {
         val user = UserInfo("targetUser", "Juan", "j@j.com", followersCount = 10)
         coEvery { usuarioRepository.getUsuarioById("targetUser") } returns Result.success(user)
         coEvery { reviewRepository.getReviewsByUsuario("targetUser") } returns Result.success(emptyList())
+        coEvery { usuarioRepository.updateUsuario(any(), any()) } returns Result.success(Unit)
         
         val mockUser: FirebaseUser = mockk { every { uid } returns "currentUser" }
         every { authRepository.currentUser } returns mockUser
@@ -68,6 +69,7 @@ class UserProfileViewModelTest {
         val user = UserInfo("targetUser", "Juan", "j@j.com", followersCount = 10)
         coEvery { usuarioRepository.getUsuarioById("targetUser") } returns Result.success(user)
         coEvery { reviewRepository.getReviewsByUsuario("targetUser") } returns Result.success(emptyList())
+        coEvery { usuarioRepository.updateUsuario(any(), any()) } returns Result.success(Unit)
         
         val mockUser: FirebaseUser = mockk { every { uid } returns "currentUser" }
         every { authRepository.currentUser } returns mockUser
@@ -93,6 +95,7 @@ class UserProfileViewModelTest {
         val user = UserInfo("targetUser", "Juan", "j@j.com", followersCount = 10)
         coEvery { usuarioRepository.getUsuarioById("targetUser") } returns Result.success(user)
         coEvery { reviewRepository.getReviewsByUsuario("targetUser") } returns Result.success(emptyList())
+        coEvery { usuarioRepository.updateUsuario(any(), any()) } returns Result.success(Unit)
         
         val mockUser: FirebaseUser = mockk { every { uid } returns "currentUser" }
         every { authRepository.currentUser } returns mockUser
