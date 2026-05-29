@@ -1,6 +1,6 @@
 package com.example.condorapp.data.dto
 
-import com.google.firebase.firestore.Exclude
+import com.google.firebase.Timestamp
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -12,7 +12,7 @@ import com.google.gson.annotations.SerializedName
  *
  * Cuando se usa Retrofit, los campos desnormalizados quedan vacíos y se usan
  * los objetos anidados (usuario, articulo).
- * Cuando se usa Firestore, los objetos anidados quedan nulo y se usan los
+ * Cuando se usa Firestore, los objetos anidados quedan nulos y se usan los
  * campos desnormalizados.
  */
 data class ReviewDto(
@@ -22,11 +22,12 @@ data class ReviewDto(
     @SerializedName("usuarioId")      val usuarioId: String = "",
     @SerializedName("articuloId")     val articuloId: String = "",
     @SerializedName("likesCount")     val likesCount: Int = 0,
-    @get:Exclude @SerializedName("createdAt")      val createdAt: String? = null,
-    @get:Exclude @SerializedName("updatedAt")      val updatedAt: String? = null,
+    @SerializedName("createdAt")      val createdAt: Timestamp? = null,
+    @SerializedName("updatedAt")      val updatedAt: Timestamp? = null,
     // Coordenadas geográficas para el mapa (Sprint 13.5)
     @SerializedName("lat")            val lat: Double? = null,
     @SerializedName("lng")            val lng: Double? = null,
+    @SerializedName("imageUrl")       val imageUrl: String = "",
     // Objetos anidados (Retrofit — viene del backend con JOINs)
     @SerializedName("Usuario")        val usuario: UsuarioDto? = null,
     @SerializedName("Articulo")       val articulo: ArticuloDto? = null,

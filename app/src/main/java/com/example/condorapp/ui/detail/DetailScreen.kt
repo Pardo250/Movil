@@ -356,6 +356,18 @@ fun ReviewItem(
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurface.copy(alpha = 0.7f)
             )
+            if (review.imageUrl.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                AsyncImage(
+                    model = review.imageUrl,
+                    contentDescription = "Imagen de la reseña",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            }
         }
     }
 }

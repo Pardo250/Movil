@@ -19,6 +19,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.condorapp.ui.theme.CondorappTheme
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 /**
  * Composable Route para la pantalla de creación de reseñas. Conecta el CreateReviewViewModel con el
@@ -47,7 +52,8 @@ fun CreateReviewScreenRoute(
             onBackClick = onBackClick,
             onRatingChange = viewModel::onRatingChange,
             onCommentChange = viewModel::onCommentChange,
-            onPublish = { viewModel.onPublish(articuloId) }
+            onPublish = { viewModel.onPublish(articuloId) },
+            onImageSelected = viewModel::onImageSelected
     )
 }
 
@@ -59,7 +65,8 @@ fun CreateReviewScreenContent(
         onBackClick: () -> Unit,
         onRatingChange: (Int) -> Unit,
         onCommentChange: (String) -> Unit,
-        onPublish: () -> Unit
+        onPublish: () -> Unit,
+        onImageSelected: (Uri?) -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
@@ -77,7 +84,10 @@ fun CreateReviewScreenContent(
             Spacer(modifier = Modifier.height(32.dp))
             CreateReviewRatingSection(rating = state.rating, onRatingChange = onRatingChange)
             Spacer(modifier = Modifier.height(32.dp))
-            CreateReviewImageUploadSection()
+            CreateReviewImageUploadSection(
+                selectedImageUri = state.selectedImageUri,
+                onImageSelected = onImageSelected
+            )
             Spacer(modifier = Modifier.height(24.dp))
             CreateReviewCommentField(comment = state.comment, onCommentChange = onCommentChange)
             Spacer(modifier = Modifier.height(100.dp))
@@ -163,9 +173,19 @@ fun CreateReviewRatingSection(
     }
 }
 
-/** Sección de subida de imagen. */
+/** Sección de subida de imagen funcional con selector de galería y visualización. */
 @Composable
-fun CreateReviewImageUploadSection(modifier: Modifier = Modifier) {
+fun CreateReviewImageUploadSection(
+    modifier: Modifier = Modifier,
+    selectedImageUri: Uri? = null,
+    onImageSelected: (Uri?) -> Unit = {}
+) {
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        onImageSelected(uri)
+    }
+
     Column(modifier = modifier) {
         Text(
                 "Añadir imagen",
@@ -174,23 +194,60 @@ fun CreateReviewImageUploadSection(modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Box(
-                modifier =
-                        Modifier.size(100.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .border(
-                                        1.dp,
-                                        MaterialTheme.colorScheme.outline,
-                                        RoundedCornerShape(16.dp)
-                                ),
-                contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                    Icons.Default.AddAPhoto,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-            )
+
+        if (selectedImageUri != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { launcher.launch("image/*") }
+            ) {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Imagen seleccionada",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                IconButton(
+                    onClick = { onImageSelected(null) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(32.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Eliminar imagen",
+                        tint = MaterialTheme.colorScheme.onError,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+        } else {
+            Box(
+                    modifier = Modifier
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    RoundedCornerShape(16.dp)
+                            )
+                            .clickable { launcher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                        Icons.Default.AddAPhoto,
+                        contentDescription = "Seleccionar foto",
+                        tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }

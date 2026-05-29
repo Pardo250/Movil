@@ -54,11 +54,12 @@ class ReviewRepository @Inject constructor(
         articuloId: String,
         usuarioNombre: String = "",
         lat: Double? = null,
-        lng: Double? = null
+        lng: Double? = null,
+        imageUrl: String? = null
     ): Result<Review> {
         return try {
             val dto = dataSource.createReview(
-                CreateReviewDto(contenido, calificacion, usuarioId, articuloId, usuarioNombre, lat, lng)
+                CreateReviewDto(contenido, calificacion, usuarioId, articuloId, usuarioNombre, lat, lng, imageUrl)
             )
             val review = Review(
                 id        = dto.id,
@@ -68,7 +69,8 @@ class ReviewRepository @Inject constructor(
                 likes     = 0,
                 usuarioId = usuarioId,
                 lat       = lat,
-                lng       = lng
+                lng       = lng,
+                imageUrl  = dto.imageUrl
             )
             Result.success(review)
         } catch (e: HttpException) {

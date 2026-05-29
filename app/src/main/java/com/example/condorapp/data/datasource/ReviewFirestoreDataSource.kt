@@ -65,6 +65,7 @@ class ReviewFirestoreDataSource @Inject constructor(
         // Agregar coordenadas solo si están disponibles
         dto.lat?.let { data["lat"] = it }
         dto.lng?.let { data["lng"] = it }
+        dto.imageUrl?.let { if (it.isNotEmpty()) data["imageUrl"] = it }
 
         val docRef = collection.add(data).await()
         // Leemos el documento recién creado para retornar el ReviewDto completo

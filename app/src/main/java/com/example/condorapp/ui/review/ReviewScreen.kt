@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.example.condorapp.R
 import com.example.condorapp.data.Review
 import com.example.condorapp.ui.theme.CondorStarActive
@@ -184,12 +185,21 @@ fun MainReviewCard(review: Review, modifier: Modifier = Modifier) {
                 color = colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(16.dp))
-        Image(
-                painter = painterResource(id = R.drawable.valle_del_cocora),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(16.dp))
-        )
+        if (review.imageUrl.isNotEmpty()) {
+            AsyncImage(
+                    model = review.imageUrl,
+                    contentDescription = "Imagen de reseña",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(16.dp))
+            )
+        } else {
+            Image(
+                    painter = painterResource(id = R.drawable.valle_del_cocora),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(16.dp))
+            )
+        }
         Spacer(Modifier.height(16.dp))
         Row(
                 verticalAlignment = Alignment.CenterVertically,
