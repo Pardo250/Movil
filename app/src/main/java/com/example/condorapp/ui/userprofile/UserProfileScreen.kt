@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.condorapp.data.Review
 import com.example.condorapp.data.UserInfo
+import com.example.condorapp.ui.components.ProfileImage
 import com.example.condorapp.ui.theme.CondorStarActive
 import com.example.condorapp.ui.theme.CondorappTheme
 
@@ -84,20 +85,27 @@ fun UserProfileScreenContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        // Avatar con la primera letra del nombre
-                        Box(
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clip(CircleShape)
-                                .background(colorScheme.primary.copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                user.nombre.first().uppercase(),
-                                fontSize = 40.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.primary
+                        if (user.avatarUrl.isNotBlank()) {
+                            ProfileImage(
+                                imageUrl = user.avatarUrl,
+                                modifier = Modifier.size(100.dp)
                             )
+                        } else {
+                            // Avatar con la primera letra del nombre
+                            Box(
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(CircleShape)
+                                    .background(colorScheme.primary.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    user.nombre.firstOrNull()?.uppercase() ?: "?",
+                                    fontSize = 40.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorScheme.primary
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {

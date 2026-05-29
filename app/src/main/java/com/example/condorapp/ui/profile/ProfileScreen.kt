@@ -20,6 +20,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -187,13 +189,40 @@ fun ProfileScreenContent(
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
                             .clickable { onArticleClick(articulo.id) },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
                         elevation = CardDefaults.cardElevation(2.dp)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(articulo.titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = colorScheme.onSurface)
-                            Text(articulo.tipo, color = colorScheme.primary, fontSize = 12.sp)
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (articulo.imagenUrl.isNotBlank()) {
+                                AsyncImage(
+                                    model = articulo.imagenUrl,
+                                    contentDescription = "Imagen de ${articulo.titulo}",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = articulo.titulo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = articulo.tipo,
+                                    color = colorScheme.primary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
                 }
@@ -387,7 +416,7 @@ fun MyReviewItem(
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Reseña #${review.id}", fontWeight = FontWeight.Bold, color = colorScheme.onSurface)
+                    Text("Reseña - ${review.articuloNombre.ifBlank { "Lugar" }}", fontWeight = FontWeight.Bold, color = colorScheme.onSurface)
                     Row {
                         repeat(5) { index ->
                             Icon(

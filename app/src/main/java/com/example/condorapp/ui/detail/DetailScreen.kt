@@ -260,13 +260,6 @@ fun DetailInfoSection(
                     },
                     colors = AssistChipDefaults.assistChipColors(labelColor = colorScheme.primary)
             )
-            AssistChip(
-                    onClick = {},
-                    label = { Text("Precios") },
-                    leadingIcon = {
-                        Icon(Icons.Default.AttachMoney, null, modifier = Modifier.size(18.dp))
-                    }
-            )
         }
     }
 }

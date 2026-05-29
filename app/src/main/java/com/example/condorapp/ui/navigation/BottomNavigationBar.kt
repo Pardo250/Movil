@@ -31,7 +31,7 @@ fun BottomFloatingBar(
             contentAlignment = Alignment.BottomCenter
     ) {
         Card(
-                modifier = Modifier.padding(horizontal = 20.dp).height(80.dp),
+                modifier = Modifier.padding(horizontal = 20.dp).height(88.dp),
                 shape = RoundedCornerShape(40.dp),
                 colors =
                         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -89,11 +89,11 @@ fun NavigationItem(
     ) {
         Box(
                 modifier =
-                        Modifier.size(48.dp)
+                        Modifier.size(44.dp)
                                 .background(
                                         if (isSelected) MaterialTheme.colorScheme.primaryContainer
                                         else Color.Transparent,
-                                        RoundedCornerShape(24.dp)
+                                        RoundedCornerShape(22.dp)
                                 ),
                 contentAlignment = Alignment.Center
         ) {
@@ -103,7 +103,7 @@ fun NavigationItem(
                     tint =
                             if (isSelected) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(26.dp)
             )
         }
         Text(

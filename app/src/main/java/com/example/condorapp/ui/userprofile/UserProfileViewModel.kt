@@ -51,6 +51,16 @@ class UserProfileViewModel @Inject constructor(
                         followingCount = user.followingCount
                     ) 
                 }
+
+                // Auto-sanación de insignia Influencer: si tiene >= 1 seguidor pero no tiene el badge
+                if (user.followersCount >= 1 && !user.isInfluencer) {
+                    viewModelScope.launch {
+                        usuarioRepository.updateUsuario(userId, mapOf("isInfluencer" to true))
+                        _uiState.update { state ->
+                            state.copy(user = state.user?.copy(isInfluencer = true))
+                        }
+                    }
+                }
             }.onFailure { error ->
                 _uiState.update {
                     it.copy(errorMessage = error.message ?: "Error al cargar usuario")
@@ -69,6 +79,17 @@ class UserProfileViewModel @Inject constructor(
             val reviewsResult = reviewRepository.getReviewsByUsuario(userId)
             reviewsResult.onSuccess { reviews ->
                 _uiState.update { it.copy(reviews = reviews, isLoading = false) }
+
+                // Auto-sanación de insignia Top Reseñador: si tiene >= 5 reviews pero no tiene el badge
+                val currentUser = _uiState.value.user
+                if (reviews.size >= 5 && currentUser != null && !currentUser.isTopReviewer) {
+                    viewModelScope.launch {
+                        usuarioRepository.updateUsuario(userId, mapOf("isTopReviewer" to true))
+                        _uiState.update { state ->
+                            state.copy(user = state.user?.copy(isTopReviewer = true))
+                        }
+                    }
+                }
             }.onFailure { error ->
                 _uiState.update {
                     it.copy(isLoading = false, errorMessage = error.message ?: "Error al cargar reviews")

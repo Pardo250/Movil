@@ -32,6 +32,7 @@ fun ReviewDto.toReview(): Review = Review(
     comment         = contenido,
     likes           = likesCount,
     usuarioId       = usuarioId,
+    articuloId      = articuloId,
     articuloNombre  = articulo?.titulo
                         ?: articuloTitulo.ifEmpty { "" },
     lat             = lat,

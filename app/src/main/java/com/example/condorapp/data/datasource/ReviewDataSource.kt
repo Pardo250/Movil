@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
  * sin modificar repositorios ni capas superiores.
  */
 interface ReviewDataSource {
+    suspend fun getReviewById(id: String): ReviewDto?
     suspend fun getReviewsByArticulo(articuloId: String): List<ReviewDto>
     suspend fun getReviewsByUsuario(usuarioId: String): List<ReviewDto>
     suspend fun createReview(dto: CreateReviewDto): ReviewDto

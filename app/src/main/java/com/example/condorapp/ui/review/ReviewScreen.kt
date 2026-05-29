@@ -2,6 +2,7 @@ package com.example.condorapp.ui.review
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
@@ -82,6 +84,8 @@ fun ReviewScreenContent(
         return
     }
 
+    var isFullScreenImageOpen by remember { mutableStateOf(false) }
+
     Box(modifier = modifier.fillMaxSize().background(colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
             ReviewTopBar(onBack = onBack)
@@ -90,7 +94,12 @@ fun ReviewScreenContent(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     contentPadding = PaddingValues(16.dp)
             ) {
-                item { MainReviewCard(review = state.review) }
+                item {
+                    MainReviewCard(
+                        review = state.review,
+                        onImageClick = { isFullScreenImageOpen = true }
+                    )
+                }
                 item {
                     Text(
                             text = "Comentarios (${state.comments.size})",
@@ -108,6 +117,59 @@ fun ReviewScreenContent(
                     onCommentChange = onUserCommentChange,
                     onPostComment = onPostComment
             )
+        }
+
+        // Visor interactivo a pantalla completa para la imagen
+        if (isFullScreenImageOpen) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { isFullScreenImageOpen = false },
+                properties = androidx.compose.ui.window.DialogProperties(
+                    usePlatformDefaultWidth = false
+                )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black)
+                        .clickable { isFullScreenImageOpen = false },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.review.imageUrl.isNotEmpty()) {
+                        AsyncImage(
+                            model = state.review.imageUrl,
+                            contentDescription = "Imagen en tamaño completo",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.valle_del_cocora),
+                            contentDescription = "Imagen en tamaño completo",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    
+                    IconButton(
+                        onClick = { isFullScreenImageOpen = false },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(24.dp)
+                            .size(48.dp)
+                            .background(
+                                color = Color.Black.copy(alpha = 0.6f),
+                                shape = CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cerrar visor",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -139,7 +201,7 @@ fun ReviewTopBar(modifier: Modifier = Modifier, onBack: () -> Unit) {
 
 /** Tarjeta principal de la reseña con toda la información. */
 @Composable
-fun MainReviewCard(review: Review, modifier: Modifier = Modifier) {
+fun MainReviewCard(review: Review, onImageClick: () -> Unit, modifier: Modifier = Modifier) {
     val colorScheme = MaterialTheme.colorScheme
     Column(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -152,7 +214,7 @@ fun MainReviewCard(review: Review, modifier: Modifier = Modifier) {
             Column {
                 Text(review.name, fontWeight = FontWeight.Bold, color = colorScheme.onSurface)
                 Text(
-                        "Valle del Cocora, Quindío • hace 2 días",
+                        review.articuloNombre.ifBlank { "Destino de viaje" } + " • hace 2 días",
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.outline
                 )
@@ -173,7 +235,7 @@ fun MainReviewCard(review: Review, modifier: Modifier = Modifier) {
         }
         Spacer(Modifier.height(12.dp))
         Text(
-                text = "¡Una experiencia mágica entre las palmas!",
+                text = "¡Una experiencia mágica!",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = colorScheme.onBackground
@@ -190,14 +252,22 @@ fun MainReviewCard(review: Review, modifier: Modifier = Modifier) {
                     model = review.imageUrl,
                     contentDescription = "Imagen de reseña",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(16.dp))
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { onImageClick() }
             )
         } else {
             Image(
                     painter = painterResource(id = R.drawable.valle_del_cocora),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(16.dp))
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { onImageClick() }
             )
         }
         Spacer(Modifier.height(16.dp))

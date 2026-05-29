@@ -16,6 +16,10 @@ class ReviewRemoteDataSource @Inject constructor(
     private val apiService: ApiService
 ) : ReviewDataSource {
 
+    override suspend fun getReviewById(id: String): ReviewDto? {
+        throw UnsupportedOperationException("Not implemented in REST backend")
+    }
+
     override suspend fun getReviewsByArticulo(articuloId: String): List<ReviewDto> {
         return apiService.getReviewsByArticulo(articuloId.toInt())
     }
